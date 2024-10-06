@@ -8,4 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class Theater extends Model
 {
     use HasFactory;
+
+    protected $table = 'theaters';
+
+    protected $fillable = [
+        'ten_rap',
+        'dia_diem',
+        'tong_ghe',
+    ];
 }

@@ -5,17 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Showtime extends Model
+class History_rotations extends Model
 {
     use HasFactory;
 
-    protected $table = 'seats';
+    protected $table = 'history_rotations';
 
     protected $fillable = [
-        'ngay_chieu',
-        'thoi_luong_chieu',
-        'phim_id',
-        'rapphim_id',
-        'room_id',
+        'vongquay_id',
+        'user_id',
+        'ngay_quay',
+        'ket_qua',
+        'trang_thai',
     ];
 }
