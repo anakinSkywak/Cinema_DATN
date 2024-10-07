@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// call api movie_genres 
 Route::get('movie-genres', [Movie_genreController::class, 'index']);
 Route::post('movie-genres', [Movie_genreController::class, 'store']);
 Route::get('movie-genres/{id}', [Movie_genreController::class, 'show']);
