@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface ModalSignUpProps {
   onClose: () => void;
@@ -6,9 +6,25 @@ interface ModalSignUpProps {
 }
 
 const ModalSignUp: React.FC<ModalSignUpProps> = ({ onClose, switchToLogin }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Close modal if clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-gray-900 p-10 rounded-xl max-w-lg mx-auto text-white w-full">
+      <div ref={modalRef} className="bg-gray-900 p-10 rounded-xl max-w-lg w-full mx-auto text-white">
         <div className="text-left">
           <button onClick={onClose} className="text-white text-2xl font-bold float-right text-red-500">
             &times;

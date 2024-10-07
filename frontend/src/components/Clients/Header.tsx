@@ -26,7 +26,6 @@ const Header: React.FC = () => {
   return (
     <>
       <NavBar onOpenSignUp={openSignUpModal} onOpenLogin={openLoginModal} />
-
       {showSignUp && <ModalSignUp onClose={closeSignUpModal} switchToLogin={switchToLogin} />}
       {showLogin && <ModalLogin onClose={closeLoginModal} switchToSignUp={switchToSignUp} />}
     </>

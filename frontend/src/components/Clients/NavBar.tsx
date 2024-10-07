@@ -11,7 +11,7 @@ const NavBar: React.FC<NavBarProps> = ({ onOpenSignUp, onOpenLogin }) => {
     <nav className="bg-gray-800 p-4 px-10 fixed top-0 w-full z-50">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <img src="/path-to-your-logo/logo.png" alt="Logo" className="h-8 mr-6" />
+          <img src="../../../public/images/logo.png" alt="Logo" className="h-8 mr-6" />
 
           {/* Navigation links */}
           <Link to="/" className="text-red-600 hover:text-white px-5 py-2 rounded-md text-sm font-medium">
