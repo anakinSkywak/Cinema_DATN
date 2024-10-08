@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Movie_genreRequest;
-use App\Models\Movie_genre;
+use App\Models\MovieGenre;
 use Illuminate\Http\Request;
 
 class Movie_genreController extends Controller
@@ -15,7 +15,7 @@ class Movie_genreController extends Controller
     public function index()
     {
         //
-        $data = Movie_genre::query()->orderBy('id', 'DESC')->paginate(10);
+        $data = MovieGenre::query()->orderBy('id', 'DESC')->paginate(10);
 
         if($data->isEmpty()){
             return response()->json([
@@ -42,7 +42,7 @@ class Movie_genreController extends Controller
     public function store(Movie_genreRequest $request)
     {
         // Tạo mới Movie_genre với dữ liệu đã được xác thực
-        $data = Movie_genre::create($request->validated());
+        $data = MovieGenre::create($request->validated());
 
         // Trả về phản hồi với dữ liệu đã tạo và thông báo thành công
         return response()->json([
@@ -58,7 +58,7 @@ class Movie_genreController extends Controller
     public function show(string $id)
     {
         //
-        $data = Movie_genre::query()->findOrFail($id);
+        $data = MovieGenre::query()->findOrFail($id);
         return response()->json([
             'data' => $data
         ], 200);
@@ -70,7 +70,7 @@ class Movie_genreController extends Controller
     public function update(Movie_genreRequest $request, string $id)
     {
         // Tìm movie genre theo id, nếu không có thì trả về lỗi 404
-        $data = Movie_genre::query()->findOrFail($id);
+        $data = MovieGenre::query()->findOrFail($id);
 
         // Cập nhật dữ liệu đã được xác thực
         $data->update($request->validated());
@@ -90,7 +90,7 @@ class Movie_genreController extends Controller
     public function destroy(string $id)
     {
         // Tìm movie genre theo id, nếu không có thì trả về lỗi 404
-        $data = Movie_genre::query()->findOrFail($id);
+        $data = MovieGenre::query()->findOrFail($id);
         
         // Xóa bản ghi
         $data->delete();

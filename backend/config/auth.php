@@ -36,11 +36,19 @@ return [
     */
 
     'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
     ],
+
+    'api' => [
+        'driver' => 'jwt', // Hoặc 'token' nếu bạn sử dụng Laravel Passport hoặc Token
+        'provider' => 'users',
+        'hash' => false,
+    ],
+],
+
+    
 
     /*
     |--------------------------------------------------------------------------
