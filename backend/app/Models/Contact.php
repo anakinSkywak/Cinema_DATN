@@ -9,11 +9,21 @@ class Contact extends Model
 {
     use HasFactory;
 
-    protected $table = 'contacts';
-
+    /**
+     * Các thuộc tính có thể điền vào (mass assignable).
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-
-        
+        'noidung', // Nội dung liên hệ
+        'user_id', // Khóa ngoại liên kết với user
     ];
 
+    /**
+     * Liên kết với model User (One-to-Many - Mỗi liên hệ thuộc về một user).
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

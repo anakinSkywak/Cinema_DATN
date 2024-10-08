@@ -9,8 +9,6 @@ class Movie extends Model
 {
     use HasFactory;
 
-    protected $table = 'movies';
-
     protected $fillable = [
         'ten_phim',
         'anh_phim',
@@ -22,4 +20,16 @@ class Movie extends Model
         'danh_gia',
         'loaiphim_id',
     ];
+
+    // Quan hệ với comments
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    // Quan hệ với moments
+    public function moments()
+    {
+        return $this->hasMany(Moment::class);
+    }
 }

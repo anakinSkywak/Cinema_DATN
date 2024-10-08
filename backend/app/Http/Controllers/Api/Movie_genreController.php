@@ -17,9 +17,9 @@ class Movie_genreController extends Controller
         //
         $data = Movie_genre::query()->orderBy('id', 'DESC')->paginate(10);
 
-        if($data->isEmpty()){
+        if ($data->isEmpty()) {
             return response()->json([
-                'message'=> 'Không có phim',
+                'message' => 'Không có phim',
             ], 204);
         }
 
@@ -33,7 +33,7 @@ class Movie_genreController extends Controller
                 'next_page_url' => $data->nextPageUrl(),
                 'prev_page_url' => $data->previousPageUrl(),
             ]
-        ], 200); 
+        ], 200);
     }
 
     /**
@@ -75,7 +75,6 @@ class Movie_genreController extends Controller
         // Cập nhật dữ liệu đã được xác thực
         $data->update($request->validated());
 
-        dd($data);
         // Trả về phản hồi với dữ liệu đã cập nhật và thông báo thành công
         return response()->json([
             'data' => $data,
@@ -91,7 +90,7 @@ class Movie_genreController extends Controller
     {
         // Tìm movie genre theo id, nếu không có thì trả về lỗi 404
         $data = Movie_genre::query()->findOrFail($id);
-        
+
         // Xóa bản ghi
         $data->delete();
 
@@ -100,5 +99,4 @@ class Movie_genreController extends Controller
             'message' => 'Bạn đã xóa thành công!'
         ], 200);
     }
-
 }
