@@ -75,13 +75,13 @@ class Movie_genreController extends Controller
         // Cập nhật dữ liệu đã được xác thực
         $data->update($request->validated());
 
-        dd($data);
+        // dd($data);
         // Trả về phản hồi với dữ liệu đã cập nhật và thông báo thành công
         return response()->json([
             'data' => $data,
             'message' => 'Bạn đã cập nhật thành công!'
         ], 200); // Sử dụng mã 200 OK khi cập nhật thành công
-    }
+    }  
 
 
     /**
