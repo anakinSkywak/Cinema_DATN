@@ -2,20 +2,22 @@
 
 // use App\Http\Controllers\Api\Movie_genreController;
 
-use App\Http\Controllers\Api\FoodController;
-use App\Http\Controllers\Api\MovieController;
-use App\Http\Controllers\Api\MoviegenreController;
-use App\Http\Controllers\Api\RoomController;
-use App\Http\Controllers\Api\SeatController;
-use App\Http\Controllers\Api\ShowtimeController;
-use App\Http\Controllers\Api\TheaterController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\VoucherController;
-use App\Http\Controllers\AuthController;
 use App\Models\Movie;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\FoodController;
+use App\Http\Controllers\Api\RoomController;
+use App\Http\Controllers\Api\SeatController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\MovieController;
+use App\Http\Controllers\Api\TheaterController;
+use App\Http\Controllers\Api\VoucherController;
+use App\Http\Controllers\Api\ShowtimeController;
+use App\Http\Controllers\Api\TypeBlogController;
+use App\Http\Controllers\Api\MoviegenreController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -126,3 +128,18 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa th
 
 
 // Ánh : call api Booking_details
+
+// call api type_blogs
+// Route::apiResource('type_blogs', TypeBlogController::class);
+Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
+Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
+Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
+Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
+// call api BlogController
+Route::apiResource('blogs', BlogController::class);
+Route::get('blogs', [BlogController::class, 'index']); // xuat all
+Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
+Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
+Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
+Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
