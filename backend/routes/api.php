@@ -2,6 +2,7 @@
 
 // use App\Http\Controllers\Api\Movie_genreController;
 
+use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\MoviegenreController;
@@ -11,8 +12,6 @@ use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TheaterController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VoucherController;
-use App\Http\Controllers\AuthController;
-use App\Models\Movie;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
