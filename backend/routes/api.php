@@ -3,21 +3,21 @@
 // use App\Http\Controllers\Api\Movie_genreController;
 
 use App\Models\Movie;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\FoodController;
+use App\Http\Controllers\Api\MovieController;
+use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\MovieController;
-use App\Http\Controllers\Api\TheaterController;
-use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
-use App\Http\Controllers\Api\TypeBlogController;
-use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\TheaterController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\VoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\TypeBlogController;
+use App\Http\Controllers\Api\BlogController;
 
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
