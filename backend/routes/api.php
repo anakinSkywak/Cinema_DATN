@@ -121,6 +121,8 @@ Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa th
 
 // Ánh : call api Booking_details
 
+
+
 // call api type_blogs
 // Route::apiResource('type_blogs', TypeBlogController::class);
 Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
