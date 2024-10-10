@@ -20,7 +20,7 @@ class BookingController extends Controller
      */
     public function bookingMovies(Request $request)
     {
-        // user booking movie
+        // user booking movie 
         
     }
 
