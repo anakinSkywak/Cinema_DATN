@@ -40,6 +40,7 @@ const SeatGrid: React.FC<SeatGridProps> = ({ onSeatSelect }) => {
     onSeatSelect(selectedSeats.map(seat => ({ seat: seat.seat, type: seat.type })), totalPrice);
   }, [selectedSeats, totalPrice, onSeatSelect]);
 
+  // Automatically dismiss the notification after 1 second
   useEffect(() => {
     if (notification) {
       const timer = setTimeout(() => setNotification(null), 1000); 
@@ -49,6 +50,7 @@ const SeatGrid: React.FC<SeatGridProps> = ({ onSeatSelect }) => {
 
   return (
     <>
+      {/* Notification bar that appears at the top */}
       {notification && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white py-2 px-4 rounded-lg z-50">
           {notification}
@@ -69,22 +71,23 @@ const SeatGrid: React.FC<SeatGridProps> = ({ onSeatSelect }) => {
 
               return (
                 <div
-                  key={index}
-                  className={`w-10 h-10 m-1 rounded-lg text-white flex items-center justify-center cursor-pointer ${
-                    isBooked
-                      ? 'bg-gray-500 text-red-500 line-through' 
-                      : isSelected(seatNumber)
-                      ? 'bg-blue-500' 
-                      : isVip
-                      ? 'bg-yellow-500' 
-                      : isDouble
-                      ? 'bg-red-500' 
-                      : 'bg-gray-700'
-                  }`}
-                  onClick={() => handleSeatClick(seatNumber, seatPrice, seatType)}
-                >
-                  {isBooked ? '✖' : seatNumber}
-                </div>
+  key={index}
+  className={`w-10 h-10 m-1 rounded-lg text-white flex items-center justify-center cursor-pointer ${
+    isBooked
+      ? 'bg-gray-500 text-red-500' 
+      : isSelected(seatNumber)
+      ? 'bg-blue-500'
+      : isVip
+      ? 'bg-yellow-500'
+      : isDouble
+      ? 'bg-red-500'
+      : 'bg-gray-700'
+  }`}
+  onClick={() => handleSeatClick(seatNumber, seatPrice, seatType)}
+>
+  {isBooked ? '✖' : seatNumber}
+</div>
+
               );
             })}
           </div>

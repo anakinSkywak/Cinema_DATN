@@ -6,6 +6,16 @@ body {
     box-sizing: border-box;
 }
 
+.navbar-background {
+    transition: background-color 0.3s ease;
+    background-color: rgba(0, 0, 0, 2.9); /* Regular dark background */
+  }
+  
+  /* Blurred background when scrolling */
+  .navbar-blurred {
+    background-color: rgba(0, 0, 0, 0.6); /* Lighter background when scrolling */
+  }
+
 .movie-card img:hover {
     transform: scale(1.05);
     transition: transform 0.3s ease-in-out;

@@ -2,15 +2,19 @@ import React from 'react';
 import { useRoutes } from 'react-router-dom';
 import routes from './src/routes';
 import './index.css'; 
-import './App.css'
+import './App.css';
+import ScrollToTop from './src/components/ScrollToTop';
 
 const App: React.FC = () => {
   const routing = useRoutes(routes);
 
   return (
-    <div>
-      {routing}
-    </div>
+    <>
+      <ScrollToTop />
+      <div>
+        {routing}
+      </div>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface SeatSummaryProps {
@@ -8,29 +8,45 @@ interface SeatSummaryProps {
 
 const SeatSummary: React.FC<SeatSummaryProps> = ({ selectedSeats, totalPrice }) => {
   const navigate = useNavigate();
+  const [notification, setNotification] = useState<string | null>(null);
 
-  // Ensure seat type is properly defined and avoid implicit any error
-  const groupedSeats = selectedSeats.reduce((acc: Record<string, string[]>, seat: { seat: string, type: string }) => {
-    if (!acc[seat.type]) {
-      acc[seat.type] = [];
-    }
-    acc[seat.type].push(seat.seat);
-    return acc;
-  }, {} as Record<string, string[]>);
+  const groupedSeats = selectedSeats.reduce(
+    (acc: Record<string, string[]>, seat: { seat: string; type: string }) => {
+      if (!acc[seat.type]) {
+        acc[seat.type] = [];
+      }
+      acc[seat.type].push(seat.seat);
+      return acc;
+    },
+    {} as Record<string, string[]>
+  );
 
   const handleCheckout = () => {
-    // Navigate to the checkout page
-    navigate('/check-out', {
-      state: {
-        selectedSeats,
-        totalPrice,
-      },
-    });
+    if (selectedSeats.length === 0) {
+      setNotification('Bạn chưa chọn ghế nào. Vui lòng chọn ghế trước khi thanh toán.');
+    } else {
+      navigate('/check-out', {
+        state: { selectedSeats, totalPrice },
+      });
+    }
   };
+
+  // Automatically hide the notification after 1 second
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => setNotification(null), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
 
   return (
     <div className="flex justify-between items-center p-4 max-w-screen-lg mx-auto">
       <div>
+        {notification && (
+          <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white py-2 px-4 rounded-lg z-50">
+            {notification}
+          </div>
+        )}
         <p className="text-lg">
           Ghế đã chọn:{' '}
           {Object.entries(groupedSeats).length > 0
