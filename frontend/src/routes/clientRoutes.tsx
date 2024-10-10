@@ -4,6 +4,7 @@ import LayoutClient from '../layout/LayoutClient';
 import HomePage from '../pages/clients/Home';
 import LichChieu from '../pages/clients/LichChieu';
 import ChiTiet from '../pages/clients/ChiTiet';
+import CheckOut from '../pages/clients/CheckOut';
 
 const clientRoutes: RouteObject[] = [
   {
@@ -15,8 +16,8 @@ const clientRoutes: RouteObject[] = [
         element: <HomePage />, // Hiển thị trang Home
       },
       {
-        path: '/lich-chieu',
-        element: <LichChieu />, // Hiển thị trang LichChieu
+        path: '/check-out',
+        element: <CheckOut />, // Hiển thị trang Thanh Toán
          
       },
       {

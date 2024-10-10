@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import NavBar from './NavBar';
-import ModalSignUp from './ModalSignUp';
-import ModalLogin from './ModalLogin';
+import ModalSignUp from './Modal/ModalSignUp';
+import ModalLogin from './Modal/ModalLogin';
 
 const Header: React.FC = () => {
   const [showSignUp, setShowSignUp] = useState(false);
