@@ -110,7 +110,7 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa th
 
 // Ánh : call api Bookings // call sau call showtimes trước
 Route::get('bookings', [BookingController::class, 'index']); // xuat all
-Route::post('bookings', [BookingController::class, 'store']); // them ban ghi moi
+Route::post('bookings', [BookingController::class, 'bookingMovies']); // them ban ghi moi
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
 Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
 Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
