@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\BookingDetailController;
+use App\Http\Controllers\Api\PaymentController;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -109,17 +111,29 @@ Route::put('vouchers/{id}', [VoucherController::class, 'update']);  // cap nhat 
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
 
 // Ánh : call api Bookings // call sau call showtimes trước
-Route::get('bookings', [BookingController::class, 'index']); // xuat all
-Route::post('bookings', [BookingController::class, 'bookingMovies']); // them ban ghi moi
+//Route::get('bookings', [BookingController::class, 'index']); // xuat all
+Route::post('bookings', [BookingController::class, 'store']); // them ban ghi moi
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
 Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
 Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
 
 
+// // Ánh : call api Booking_details
+Route::get('bookingdetails', [BookingDetailController::class, 'index']); // xuat all
+Route::post('bookingdetails', [BookingDetailController::class, 'store']); // them ban ghi moi
+Route::get('bookingdetails/{id}', [BookingDetailController::class, 'show']);  // show theo id
+Route::put('bookingdetails/{id}', [BookingDetailController::class, 'update']);  // cap nhat theo id
+Route::delete('bookingdetails/{id}', [BookingDetailController::class, 'delete']);  // xoa theo id
+
+
 // Ánh : call api Payments
+Route::get('payments', [PaymentController::class, 'index']); // xuat all
+Route::post('payments', [PaymentController::class, 'store']); // them ban ghi moi
+Route::get('payments/{id}', [PaymentController::class, 'show']);  // show theo id
+Route::put('payments/{id}', [PaymentController::class, 'update']);  // cap nhat theo id
+Route::delete('payments/{id}', [PaymentController::class, 'delete']);  // xoa theo id
 
 
-// Ánh : call api Booking_details
 
 
 

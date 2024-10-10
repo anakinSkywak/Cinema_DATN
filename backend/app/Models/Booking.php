@@ -27,4 +27,24 @@ class Booking extends Model
     ];
 
     protected $dates = ['deleted_at'];
+
+    // mối quan hệ 
+
+    // 1-  nhiều booking có nhieu chi tiet booking /
+    public function bookingDetails()
+    {
+        return $this->hasMany(BookingDetail::class, 'booking_id'); 
+    }
+
+    // Mối quan hệ với bảng payments 1 booking có 1 thanh toán 
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id');  // Khóa ngoại là booking_id
+    }
+
+    // 1-n 1 booking có nhiều food đồ ăn
+    public function food()
+    {
+        return $this->belongsTo(Food::class, 'doan_id');
+    }
 }
