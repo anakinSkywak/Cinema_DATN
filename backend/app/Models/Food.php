@@ -6,16 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Theater extends Model
+class Food extends Model
 {
     use HasFactory;
-    use SoftDeletes; // xoa api  soft delete
-    protected $table = 'theaters';
-    
+    use SoftDeletes;
+    protected $table = 'foods';
+
     protected $fillable = [
-        'ten_rap',
-        'dia_diem',
-        'tong_ghe',
+        'ten_do_an',
+        'gia',
+        'ghi_chu',
+        'trang_thai'
     ];
+
     protected $dates = ['deleted_at'];
 }
