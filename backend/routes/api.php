@@ -45,11 +45,6 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 Route::post('login',[AuthController::class , 'login']);
 // api khac cua user viet sau 
 
-//token check tra ve khi login : jwt token
-// {
-//     "message": "Đăng nhập thành công !",
-//     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzI4MzUyMzY2LCJleHAiOjE3MjgzNTU5NjYsIm5iZiI6MTcyODM1MjM2NiwianRpIjoiVjVRdHhteWtTSENMM2lJQSIsInN1YiI6IjYiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6InVzZXIifQ.iG5P6XdnFB451f6l_wtvsFyLXwDul7usor-MepFJ7w4"
-// }
 
 // call user : sửa , xóa , phân quyền , check quyền login : làm sau khi có admin 
 
@@ -116,6 +111,8 @@ Route::post('bookings', [BookingController::class, 'store']); // them ban ghi mo
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
 Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
 Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
+// show chi tiết booking theo id
+Route::get('bookings/{booking}/details', [BookingController::class, 'showBookingDetails']);
 
 
 // // Ánh : call api Booking_details
@@ -124,10 +121,10 @@ Route::post('bookings/{booking}/select-seat', [BookingDetailController::class, '
 
 
 // Ánh : call api Payments
-Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']);
+Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
 
 
-
+// Ánh : call countdownVoucher :
 
 
 

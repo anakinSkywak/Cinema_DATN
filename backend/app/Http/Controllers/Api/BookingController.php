@@ -83,12 +83,31 @@ class BookingController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function showBookingDetails($bookingId)
     {
-        // show theo id
-        // lay các thông tin về phim rap phim phong
 
+        $booking = Booking::with([
+            'user',
+            'bookingDetails.seat',
+            'food',
+            'showtime.movie',
+            'showtime.theater',
+            'showtime.room',
+            'payment'
+        ])->find($bookingId);
+
+        if (!$booking) {
+            return response()->json([
+                'message' => 'Không tìm thấy booking theo ID này'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Hiển thị chi tiết booking thành công',
+            'data' => $booking
+        ], 200);
     }
+
 
     /**
      * Update the specified resource in storage.

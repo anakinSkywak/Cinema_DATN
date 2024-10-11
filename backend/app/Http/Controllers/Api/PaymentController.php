@@ -12,13 +12,8 @@ use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
+   
+
     public function processPayment(Request $request, $bookingId)
     {
         // validate check thanh toan
