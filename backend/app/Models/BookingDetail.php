@@ -32,4 +32,6 @@ class BookingDetail extends Model
     {
         return $this->belongsTo(Seat::class, 'ghengoi_id');
     }
+
+    
 }

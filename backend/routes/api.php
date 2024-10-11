@@ -120,18 +120,12 @@ Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa th
 
 // // Ánh : call api Booking_details
 Route::get('bookingdetails', [BookingDetailController::class, 'index']); // xuat all
-Route::post('bookingdetails', [BookingDetailController::class, 'store']); // them ban ghi moi
-Route::get('bookingdetails/{id}', [BookingDetailController::class, 'show']);  // show theo id
-Route::put('bookingdetails/{id}', [BookingDetailController::class, 'update']);  // cap nhat theo id
-Route::delete('bookingdetails/{id}', [BookingDetailController::class, 'delete']);  // xoa theo id
+Route::post('bookings/{booking}/select-seat', [BookingDetailController::class, 'selectSeat']); //http://127.0.0.1:8000/api/bookings/9/select-seat
 
 
 // Ánh : call api Payments
-Route::get('payments', [PaymentController::class, 'index']); // xuat all
-Route::post('payments', [PaymentController::class, 'store']); // them ban ghi moi
-Route::get('payments/{id}', [PaymentController::class, 'show']);  // show theo id
-Route::put('payments/{id}', [PaymentController::class, 'update']);  // cap nhat theo id
-Route::delete('payments/{id}', [PaymentController::class, 'delete']);  // xoa theo id
+Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']);
+
 
 
 
