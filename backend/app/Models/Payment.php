@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payment extends Model
 {
-    use HasFactory , SoftDeletes;
+    use HasFactory, SoftDeletes;
     protected $fillable = [
         'booking_id',
         'tong_tien',
@@ -23,5 +23,10 @@ class Payment extends Model
     public function booking()
     {
         return $this->belongsTo(Booking::class); // tao moi quan he voi booking 
+    }
+
+    public function registerMember()
+    {
+        return $this->belongsTo(RegisterMember::class, 'register_member_id');
     }
 }
