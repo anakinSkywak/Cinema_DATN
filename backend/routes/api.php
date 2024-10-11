@@ -1,7 +1,7 @@
 <?php
 
-// use App\Http\Controllers\Api\Movie_genreController;
 
+// để yên
 use App\Models\Movie;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\FoodController;
@@ -21,6 +21,8 @@ use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\PaymentController;
+// để yên
+
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -124,7 +126,7 @@ Route::post('bookings/{booking}/select-seat', [BookingDetailController::class, '
 Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
 
 
-// Ánh : call countdownVoucher :
+// Ánh : call countdownVoucher : 
 
 
 
@@ -142,3 +144,7 @@ Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
 Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
 Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
 Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
+
+
+
+
