@@ -34,7 +34,7 @@ class Showtime extends Model
 
     public function theater(){
 
-        return $this->belongsTo(Theater::class , 'rapphim_id ');
+        return $this->belongsTo(Theater::class , 'rapphim_id');
 
     }
 
