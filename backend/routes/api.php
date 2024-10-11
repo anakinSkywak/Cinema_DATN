@@ -49,6 +49,10 @@ Route::post('login',[AuthController::class , 'login']);
 
 
 // call user : sửa , xóa , phân quyền , check quyền login : làm sau khi có admin 
+// Ánh call user : sửa theo id , xóa theo id , show user theo id phía người dùng
+
+// Ánh code user bên admin
+
 
 
 // Ánh : call api moviegenres
@@ -126,7 +130,7 @@ Route::post('bookings/{booking}/select-seat', [BookingDetailController::class, '
 Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
 
 
-// Ánh : call countdownVoucher : 
+// Ánh : call countdownVoucher : săn mã voucher
 
 
 

@@ -38,16 +38,24 @@ class MovieController extends Controller
         //dd($request->all());
         $validated = $request->validate([
             'ten_phim' => 'required|string|max:255',
-            'anh_phim' => 'required|string|max:255',
+            'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048', // xác thực file hình ảnh
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string',
-            'trailer' => 'required|string|max:255',
+            'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
             // 'danh_gia' => 'required|numeric|min:0|max:10',
             'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
         ]);
+
+        // xu ly upload ảnh 
+        if ($request->hasFile('anh_phim')) {
+            $file = $request->file('anh_phim');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
+            $validated['anh_phim'] = '/storage/' . $filePath;
+        }
 
         // tạo mới phim 
         $movie = Movie::create($validated);
@@ -58,8 +66,22 @@ class MovieController extends Controller
         // Trả về kết quả thành công
         return response()->json([
             'message' => 'Thêm mới phim và các thể loại thành công',
-            'data' => $movie->load(relations: 'movie_genres')  // Trả về cả thông tin thể loại phim đã lưu
+            'data' => $movie->load(relations: 'movie_genres'),  // trả về cả thông tin thể loại phim đã lưu
+            'image_url' => asset($validated['anh_phim']), // trả về đường dẫn ảnh phim
         ], 201);
+
+        // {
+        //     "ten_phim": "Phim Ahffgggggg",
+        //     "anh_phim": "movie-image.jpg",
+        //     "dao_dien": "Đạo diễn X",
+        //     "dien_vien": "anh , anh , yeu",
+        //     "noi_dung": "Nội dung phim ABC",
+        //     "trailer": "https://example.com/trailer.mp4",
+        //     "gia_ve": 120000,
+        //     "loaiphim_ids": [11 , 9 , 10]
+        // }
+
+
     }
 
     /**
@@ -114,10 +136,9 @@ class MovieController extends Controller
 
         // tra ve neu cap nhat thanh cong
         return response()->json([
-            'message'=>'Cập nhật dữ liệu mới cho Movie thành công ',
-            'data'=>$dataID->load('movie_genres'),
+            'message' => 'Cập nhật dữ liệu mới cho Movie thành công ',
+            'data' => $dataID->load('movie_genres'),
         ], 200);
-
     }
 
     /**

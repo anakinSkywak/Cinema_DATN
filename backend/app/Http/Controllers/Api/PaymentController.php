@@ -60,9 +60,7 @@ class PaymentController extends Controller
         $booking->update(['trang_thai' => 1]); // thanh toán ok
         $bookingDetail->update(['trang_thai' => 1]); // ghế ngồi bị chặn k thể đặt
 
-        //
-        // xu li chan ghe sau 
-        //
+        
 
         return response()->json([
             'message' => 'Thanh toán thành công !',
