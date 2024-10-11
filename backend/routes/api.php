@@ -18,7 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\BlogController;
-
+use App\Http\Controllers\Api\BookingController;
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -50,14 +50,6 @@ Route::post('login',[AuthController::class , 'login']);
 // }
 
 // call user : sửa , xóa , phân quyền , check quyền login : làm sau khi có admin 
-
-
-// call api movie_genres // xóa của việt Ánh call lại
-// Route::get('movie-genres', [Movie_genreController::class, 'index']);
-// Route::post('movie-genres', [Movie_genreController::class, 'store']);
-// Route::get('movie-genres/{id}', [Movie_genreController::class, 'show']);
-// Route::put('movie-genres/{id}', [Movie_genreController::class, 'update']);
-// Route::delete('movie-genres/{id}', [Movie_genreController::class, 'destroy']);
 
 
 // Ánh : call api moviegenres
@@ -117,11 +109,11 @@ Route::put('vouchers/{id}', [VoucherController::class, 'update']);  // cap nhat 
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
 
 // Ánh : call api Bookings // call sau call showtimes trước
-// Route::get('bookings', [ ::class, 'index']); // xuat all
-// Route::post('bookings', [ ::class, 'store']); // them ban ghi moi
-// Route::get('bookings/{id}', [ ::class, 'show']);  // show theo id
-// Route::put('bookings/{id}', [ ::class, 'update']);  // cap nhat theo id
-// Route::delete('bookings/{id}', [ ::class, 'delete']);  // xoa theo id
+Route::get('bookings', [BookingController::class, 'index']); // xuat all
+Route::post('bookings', [BookingController::class, 'store']); // them ban ghi moi
+Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
+Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
+Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
 
 
 // Ánh : call api Payments
