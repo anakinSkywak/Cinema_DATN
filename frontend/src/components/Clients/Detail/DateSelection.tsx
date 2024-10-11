@@ -32,7 +32,7 @@ const DateSelection: React.FC<DateSelectionProps> = ({ setSelectedTime, isTimeSe
           className={`text-center px-4 py-2 rounded mr-2 cursor-pointer ${
             selectedDate === 'current' ? 'bg-red-600' : ''
           }`}
-          onClick={() => !isTimeSelected && setSelectedDate('current')} // Only allow selecting if time is not chosen
+          onClick={() => !isTimeSelected && setSelectedDate('current')}
         >
           <div className="text-sm">{current.month}</div>
           <div className="text-4xl font-bold">{current.day}</div>
@@ -42,7 +42,7 @@ const DateSelection: React.FC<DateSelectionProps> = ({ setSelectedTime, isTimeSe
           className={`text-center px-4 py-2 rounded mr-2 cursor-pointer ${
             selectedDate === 'next' ? 'bg-red-600' : ''
           }`}
-          onClick={() => !isTimeSelected && setSelectedDate('next')} // Only allow selecting if time is not chosen
+          onClick={() => !isTimeSelected && setSelectedDate('next')}
         >
           <div className="text-sm">{next.month}</div>
           <div className="text-4xl font-bold">{next.day}</div>
@@ -50,14 +50,12 @@ const DateSelection: React.FC<DateSelectionProps> = ({ setSelectedTime, isTimeSe
         </div>
       </div>
 
-      {/* Warning Message */}
       <div className="text-center mt-4">
         <p className="text-orange-500 font-semibold">
           Lưu ý: Khán giả dưới 13 tuổi chỉ chọn suất chiếu kết thúc trước 22h và khán giả dưới 16 tuổi chỉ chọn suất chiếu kết thúc trước 23h.
         </p>
       </div>
 
-      {/* Time options */}
       {!isTimeSelected && (
         <div className="flex justify-center space-x-4 mt-4">
           {['10:00', '12:00', '14:00', '16:00'].map((time) => (

@@ -67,7 +67,7 @@ const SeatGrid: React.FC<SeatGridProps> = ({ onSeatSelect }) => {
               const isVip = row === 'D' && [16, 15, 12, 11, 9, 8, 5, 4].includes(index);
               const isDouble = row === 'L';
               const seatPrice = isVip ? seatPrices.vip : isDouble ? seatPrices.double : seatPrices.regular;
-              const seatType = isVip ? 'Ghế VIP' : isDouble ? 'Ghế đôi' : 'Ghế thường';
+              const seatType = isVip ? 'Ghế VIP' : isDouble ? 'Ghế Đôi' : 'Ghế Thường';
 
               return (
                 <div

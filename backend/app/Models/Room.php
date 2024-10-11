@@ -33,7 +33,7 @@ class Room extends Model
     }
 
     // phương thức tạo ghế ngồi tự động 
-    public function addCreate($so_luong_ghe = 150){  // mac dinh moi phong deu co 150 ghe tieu chuan
+    public function addCreate($so_luong_ghe = 10){  // mac dinh moi phong deu co 150 ghe tieu chuan
         $seats = []; // mảng rỗng chứa ghế ngồi
 
         // tạo ghế ngồi tự động với for lặp tạo all 
@@ -42,6 +42,7 @@ class Room extends Model
                 'so_ghe_ngoi' => 'A' . $i, // A1 -> 150
                 'loai_ghe_ngoi' => 'Thường',
                 'room_id' => $this->id,
+                'gia_ghe' => 10, // 10 đ 10 nghìn
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

@@ -15,7 +15,7 @@ const SeatLegend: React.FC = () => {
       </div>
       <div className="flex items-center mr-4">
         <div className="w-6 h-6 bg-gray-700 rounded mr-2"></div>
-        <span>Ghế thường</span>
+        <span>Ghế Thường</span>
       </div>
       <div className="flex items-center mr-4">
         <div className="w-6 h-6 bg-yellow-500 rounded mr-2"></div>
@@ -23,7 +23,7 @@ const SeatLegend: React.FC = () => {
       </div>
       <div className="flex items-center">
         <div className="w-6 h-6 bg-red-500 rounded mr-2"></div>
-        <span>Ghế đôi</span>
+        <span>Ghế Đôi</span>
       </div>
     </div>
   );

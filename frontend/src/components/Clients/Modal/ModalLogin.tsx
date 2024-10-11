@@ -33,7 +33,7 @@ const ModalLogin: React.FC<ModalLoginProps> = ({ onClose, switchToSignUp }) => {
           <h3 className="text-xl font-bold mb-6">ĐĂNG NHẬP</h3>
         </div>
         <form>
-          <label className="block mb-2 font-bold">Tên đăng nhập hoặc Email</label>
+          <label className="block mb-2 font-bold">Tên đăng nhập</label>
           <input
             type="text"
             placeholder="Tên đăng nhập hoặc Email"
