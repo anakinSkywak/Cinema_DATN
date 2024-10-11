@@ -113,19 +113,19 @@ class FoodController extends Controller
      */
     public function delete(string $id)
     {
-         // xoa theo id
-         $dataID = Food::find($id);
-         
-         if (!$dataID) {
-             return response()->json([
-                 'message' => 'Không có dữ liệu Food theo id này',
-             ], 404);
-         }
- 
-         $dataID->delete();
- 
-         return response()->json([
-             'message' => 'Xóa Food theo id thành công'
-         ], 200);
+        // xoa theo id
+        $dataID = Food::find($id);
+
+        if (!$dataID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Food theo id này !',
+            ], 404);
+        }
+
+        $dataID->delete();
+
+        return response()->json([
+            'message' => 'Xóa Booking theo id thành công'
+        ], 200);
     }
 }

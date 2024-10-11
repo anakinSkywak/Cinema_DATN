@@ -47,7 +47,8 @@ class RoomController extends Controller
         $room = Room::create($validated);
 
         // goi phuong thuc tao ghe ngoi o model Seat
-        $room->addCreate(150);  
+        
+        $room->addCreate(10);   // tạm test là 10
 
         // Lấy thông tin phòng chiếu cùng với rạp phim và ghế ngồi
         $roomWithDetails  = Room::with(['theater', 'seats'])->find($room->id);

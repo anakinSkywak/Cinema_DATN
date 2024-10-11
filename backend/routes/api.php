@@ -2,21 +2,33 @@
 
 // use App\Http\Controllers\Api\Movie_genreController;
 
-use App\Http\Controllers\Api\FoodController;
-use App\Http\Controllers\Api\MovieController;
-use App\Http\Controllers\Api\MoviegenreController;
-use App\Http\Controllers\Api\RoomController;
-use App\Http\Controllers\Api\SeatController;
-use App\Http\Controllers\Api\ShowtimeController;
-use App\Http\Controllers\Api\TheaterController;
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\VoucherController;
-use App\Http\Controllers\AuthController;
 use App\Models\Movie;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\FoodController;
+use App\Http\Controllers\Api\RoomController;
+use App\Http\Controllers\Api\SeatController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\MovieController;
+use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\TheaterController;
+use App\Http\Controllers\Api\VoucherController;
+use App\Http\Controllers\Api\ShowtimeController;
+use App\Http\Controllers\Api\TypeBlogController;
+PH41498
+// Giải quyết xung đột bằng cách kết hợp cả hai nhánh
+use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\MemberShipsController;
+use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\Api\BookingDetailController;
+use App\Http\Controllers\Api\PaymentController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\Api\AuthController; // auth api 
 
+
+ main
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -41,21 +53,8 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 Route::post('login',[AuthController::class , 'login']);
 // api khac cua user viet sau 
 
-//token check tra ve khi login : jwt token
-// {
-//     "message": "Đăng nhập thành công !",
-//     "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzI4MzUyMzY2LCJleHAiOjE3MjgzNTU5NjYsIm5iZiI6MTcyODM1MjM2NiwianRpIjoiVjVRdHhteWtTSENMM2lJQSIsInN1YiI6IjYiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3Iiwicm9sZSI6InVzZXIifQ.iG5P6XdnFB451f6l_wtvsFyLXwDul7usor-MepFJ7w4"
-// }
 
 // call user : sửa , xóa , phân quyền , check quyền login : làm sau khi có admin 
-
-
-// call api movie_genres // xóa của việt Ánh call lại
-// Route::get('movie-genres', [Movie_genreController::class, 'index']);
-// Route::post('movie-genres', [Movie_genreController::class, 'store']);
-// Route::get('movie-genres/{id}', [Movie_genreController::class, 'show']);
-// Route::put('movie-genres/{id}', [Movie_genreController::class, 'update']);
-// Route::delete('movie-genres/{id}', [Movie_genreController::class, 'destroy']);
 
 
 // Ánh : call api moviegenres
@@ -115,14 +114,45 @@ Route::put('vouchers/{id}', [VoucherController::class, 'update']);  // cap nhat 
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
 
 // Ánh : call api Bookings // call sau call showtimes trước
-// Route::get('bookings', [ ::class, 'index']); // xuat all
-// Route::post('bookings', [ ::class, 'store']); // them ban ghi moi
-// Route::get('bookings/{id}', [ ::class, 'show']);  // show theo id
-// Route::put('bookings/{id}', [ ::class, 'update']);  // cap nhat theo id
-// Route::delete('bookings/{id}', [ ::class, 'delete']);  // xoa theo id
+//Route::get('bookings', [BookingController::class, 'index']); // xuat all
+Route::post('bookings', [BookingController::class, 'store']); // them ban ghi moi
+Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
+Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
+Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
+// show chi tiết booking theo id
+Route::get('bookings/{booking}/details', [BookingController::class, 'showBookingDetails']);
+
+
+// // Ánh : call api Booking_details
+Route::get('bookingdetails', [BookingDetailController::class, 'index']); // xuat all
+Route::post('bookings/{booking}/select-seat', [BookingDetailController::class, 'selectSeat']); //http://127.0.0.1:8000/api/bookings/9/select-seat
 
 
 // Ánh : call api Payments
+Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
 
 
-// Ánh : call api Booking_details
+// Ánh : call countdownVoucher :
+
+
+
+// call api type_blogs
+// Route::apiResource('type_blogs', TypeBlogController::class);
+Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
+Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
+Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
+Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
+// call api BlogController
+Route::apiResource('blogs', BlogController::class);
+Route::get('blogs', [BlogController::class, 'index']); // xuat all
+Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
+Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
+Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
+Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
+
+
+
+Route::apiResource('members', MemberController::class);
+Route::apiResource('registermembers', RegisterMemberController::class);
+Route::apiResource('memberships', MemberShipsController::class);
