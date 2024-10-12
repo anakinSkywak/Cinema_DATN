@@ -5,26 +5,29 @@
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\MovieController;
-use App\Http\Controllers\Api\MembershipController;
+use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TheaterController;
 use App\Http\Controllers\Api\VoucherController;
+use App\Http\Controllers\Api\RotationController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
+use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
-use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\Api\BookingDetailController;
+use App\Http\Controllers\Api\RegisterMemberController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 // để yên
+
 
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -179,8 +182,20 @@ Route::put('memberships/{id}', [MembershipController::class, 'update']); // cậ
 Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
 
 
+//vòng quoay
+Route::get('rotations', [RotationController::class, 'index']);
+Route::post('rotations', [RotationController::class, 'store']);
+Route::get('rotations/{id}', [RotationController::class, 'show']);
+Route::put('rotations/{id}', [RotationController::class, 'update']);
+Route::delete('rotations/{id}', [RotationController::class, 'destroy']);
 
 
+//lien he
+Route::get('contacts', [ContactController::class, 'index']);
+Route::post('contacts', [ContactController::class, 'store']);
+Route::get('contacts/{id}', [ContactController::class, 'show']);
+Route::put('contacts/{id}', [ContactController::class, 'update']);
+Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
 
 
 
