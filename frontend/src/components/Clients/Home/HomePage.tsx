@@ -16,8 +16,12 @@ const HomePage: React.FC = () => {
         </div>
 
         <div className="w-1/5 ml-12">
-          <Promotions />
-          <Events />
+          <div className="mb-8">
+            <Promotions />
+          </div>
+          <div className="mb-8">
+            <Events />
+          </div>
         </div>
       </div>
     </main>

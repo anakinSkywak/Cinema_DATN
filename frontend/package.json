@@ -29,7 +29,8 @@
     "react-router-dom": "^6.24.0",
     "react-slick": "^0.30.2",
     "react-toastify": "^10.0.5",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "swiper": "^11.1.14"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
