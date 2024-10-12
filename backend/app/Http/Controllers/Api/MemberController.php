@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers\Api;
 
 use App\Models\Member;
@@ -42,14 +43,14 @@ class MemberController extends Controller
             'gia' => 'required|numeric',
             'trang_thai' => 'required|integer',
         ]);
-
+    
         // Tạo mới Member
         $member = Member::create($validated);
-
+    
         return response()->json([
             'message' => 'Thêm mới Member thành công',
             'data' => $member
-        ], 201);
+        ], 200); // Chỉnh sửa từ 201 thành 200
     }
 
     /**
@@ -88,13 +89,16 @@ class MemberController extends Controller
 
         // Validate dữ liệu khi cập nhật Member
         $validated = $request->validate([
-            'loai_hoi_vien' => 'required|string|max:255',
+            'loai_hoi_vien' => 'required|string|in:thường,vip',
             'uu_dai' => 'required|numeric',
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric',
             'trang_thai' => 'required|integer',
         ]);
+
+        // Xác định giá cho từng loại hội viên
+        $gia = $this->getPriceByType($request->loai_hoi_vien);
+        $validated['gia'] = $gia;
 
         // Cập nhật Member
         $dataID->update($validated);
@@ -124,5 +128,20 @@ class MemberController extends Controller
         return response()->json([
             'message' => 'Xóa Member thành công'
         ], 200);
+    }
+
+    /**
+     * Lấy giá theo loại hội viên
+     */
+    private function getPriceByType($type)
+    {
+        switch ($type) {
+            case 'thường':
+                return 100; // Giá cho hội viên thường
+            case 'vip':
+                return 200; // Giá cho hội viên VIP
+            default:
+                return 0; // Giá mặc định nếu không khớp loại
+        }
     }
 }
