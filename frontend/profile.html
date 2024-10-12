@@ -1,0 +1,201 @@
+<html lang="en">
+
+</html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>
+        Thông tin cá nhân
+    </title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-900 text-white">
+    <header class="header bg-primary/30 flex justify-between items-center p-4 transition duration-500">
+        <div class="flex items-center" style="margin-left: 100px;">
+            <img alt="NCC logo" class="mr-2" height="50" src="/assets/image/logo.webp" width="50" />
+            <nav class="flex space-x-4">
+                <a class="text-red-500 pr-5" href="index.html">
+                    Trang chủ
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Lịch Chiếu
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Tin Tức
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Khuyến Mãi
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Giá Vé
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Liên Hoan Phim
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Giới Thiệu
+                </a>
+            </nav>
+        </div>
+        <div class="relative flex items-center space-x-2" style="margin-right: 100px;">
+            <i class="fas fa-user-circle text-white">
+            </i>
+            <span id="user-name" class="user-name cursor-pointer">
+                <a href="profile.html">Dương Văn Hòa ▼</a>
+            </span>
+            <div id="user-modal" class="modal">
+                <a class="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                    Thông tin cá nhân
+                </a>
+                <a class="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="flex flex-col items-center py-8">
+        <h1 class="text-2xl mb-6">
+            Thông tin cá nhân
+        </h1>
+        <div class="flex space-x-4 mb-6">
+            <button class="bg-red-600 text-white py-2 px-4 rounded-full">
+                <a href="profile.html">Tài khoản của tôi</a>
+            </button>
+            <button class="bg-gray-800 text-white py-2 px-4 rounded-full">
+                <a href="history-ticket.html">Lịch sử mua vé</a>
+            </button>
+            <button class="bg-gray-800 text-white py-2 px-4 rounded-full">
+                <a href="history-point.html">Lịch sử điểm thưởng</a>
+            </button>
+        </div>
+        <form class="grid grid-cols-2 gap-4 w-1/2">
+            <div>
+                <label class="block mb-2" for="lastName">
+                    Họ
+                    <span class="text-red-500">
+                        *
+                    </span>
+                </label>
+                <input class="w-full p-2 bg-black text-white rounded-full" id="lastName" type="text" value="Dương" />
+            </div>
+            <div>
+                <label class="block mb-2" for="firstName">
+                    Tên
+                    <span class="text-red-500">
+                        *
+                    </span>
+                </label>
+                <input class="w-full p-2 bg-black text-white rounded-full" id="firstName" type="text" value="Văn Hòa" />
+            </div>
+            <div>
+                <label class="block mb-2" for="phone">
+                    Số điện thoại
+                    <span class="text-red-500">
+                        *
+                    </span>
+                </label>
+                <input class="w-full p-2 bg-black text-white rounded-full" id="phone" type="text" value="0123456789" />
+            </div>
+            <div>
+                <label class="block mb-2" for="address">
+                    Địa chỉ
+                </label>
+                <input class="w-full p-2 bg-black text-white rounded-full" id="address" type="text" value="Dương" />
+            </div>
+            <div>
+                <label class="block mb-2" for="username">
+                    Tên đăng nhập
+                </label>
+                <input class="w-full p-2 bg-black text-white rounded-full" id="username" type="text" disabled
+                    value="abcdef@gmail.com" />
+            </div>
+            <div>
+                <label class="block mb-2" for="email">
+                    Email
+                </label>
+                <input class="w-full p-2 bg-black text-white rounded-full" id="email" type="email" disabled
+                    value="abcdef@gmail.com" />
+            </div>
+        </form>
+        <div class="flex justify-end space-x-4 mt-6 w-1/2">
+            <button class="bg-gray-800 text-white py-2 px-4 rounded">
+                Đổi mật khẩu
+            </button>
+            <button class="bg-red-600 text-white py-2 px-4 rounded">
+                Lưu thông tin
+            </button>
+        </div>
+    </main>
+    <footer class="bg-black text-center py-8">
+        <div class="flex justify-center space-x-4 mb-4">
+            <a class="text-white" href="#">
+                Chính Sách
+            </a>
+            <a class="text-white" href="#">
+                Lịch Chiếu
+            </a>
+            <a class="text-white" href="#">
+                Tin Tức
+            </a>
+            <a class="text-white" href="#">
+                Giá Vé
+            </a>
+            <a class="text-white" href="#">
+                Hỏi Đáp
+            </a>
+            <a class="text-white" href="#">
+                Liên Hệ
+            </a>
+        </div>
+        <div class="flex justify-center space-x-4 mb-4">
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Ffacebook.png&w=32&q=75" alt="">
+            </a>
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fzalo.webp&w=32&q=75" alt="">
+
+            </a>
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fyoutube2.png&w=32&q=75" alt="">
+
+            </a>
+            <a href="#">
+                <img alt="Google Play" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fgoogleplay.png&w=256&q=75"
+                    width="150" />
+            </a>
+            <a href="#">
+                <img alt="App Store" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fappstore.png&w=256&q=75"
+                    width="150" />
+            </a>
+            <a href="#">
+                <img alt="Certification" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fcertification.png&w=256&q=75"
+                    width="150" />
+            </a>
+        </div>
+        <p class="text-white mb-2">
+            Cơ quan chủ quản: BỘ VĂN HÓA, THỂ THAO VÀ DU LỊCH
+        </p>
+        <p class="text-white mb-2">
+            Bản quyền thuộc Trung tâm Chiếu phim Quốc gia.
+        </p>
+        <p class="text-white mb-2">
+            Giấy phép số: 224/GP- TTĐT ngày 31/8/2010 - Chịu trách nhiệm: Vũ Đức Tùng - Giám đốc.
+        </p>
+        <p class="text-white mb-2">
+            Địa chỉ: 87 Láng Hạ, Quận Ba Đình, Tp. Hà Nội - Điện thoại: 024.35141791
+        </p>
+        <p class="text-white">
+            Copyright 2023. NCC All Rights Reserved. Dev by Anvui.vn
+        </p>
+    </footer>
+</body>
+
+</html>
