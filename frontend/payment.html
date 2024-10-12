@@ -1,0 +1,261 @@
+<html lang="en">
+
+</html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>
+        Thanh toán
+    </title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-900 text-white">
+    <header class="header bg-primary/30 flex justify-between items-center p-4 transition duration-500">
+        <div class="flex items-center" style="margin-left: 100px;">
+            <img alt="NCC logo" class="mr-2" height="50" src="/assets/image/logo.webp" width="50" />
+            <nav class="flex space-x-4">
+                <a class="text-red-500 pr-5" href="index.html">
+                    Trang chủ
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Lịch Chiếu
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Tin Tức
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Khuyến Mãi
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Giá Vé
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Liên Hoan Phim
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Giới Thiệu
+                </a>
+            </nav>
+        </div>
+        <div class="relative flex items-center space-x-2" style="margin-right: 100px;">
+            <i class="fas fa-user-circle text-white">
+            </i>
+            <span id="user-name" class="user-name cursor-pointer">
+                <a href="profile.html">Dương Văn Hòa ▼</a>
+            </span>
+            <div id="user-modal" class="modal">
+                <a class="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                    Thông tin cá nhân
+                </a>
+                <a class="block px-4 py-2 text-white hover:bg-gray-700" href="#">
+                    Đăng xuất
+                </a>
+            </div>
+        </div>
+    </header>
+    <main class="flex flex-col items-center py-8">
+        <div class="max-w-full mx-auto p-4 flex">
+            <div class="w-2/3">
+                <div class="bg-black p-4 rounded-lg mb-4">
+                    <h2 class="text-lg font-bold mb-2">
+                        Thông tin phim
+                    </h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p>
+                                Phim
+                            </p>
+                            <p class="font-bold">
+                                TRANSFORMERS MỘT-T13 ( Phụ đề )
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                Ghế
+                            </p>
+                            <p class="font-bold">
+                                I7
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                Ngày giờ chiếu
+                            </p>
+                            <p class="text-red-600 font-bold">
+                                10:20 - 28/09/2024
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                Phòng chiếu
+                            </p>
+                            <p class="font-bold">
+                                12
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                Định dạng
+                            </p>
+                            <p class="font-bold">
+                                2D
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-black p-4 rounded-lg mb-4">
+                    <h2 class="text-lg font-bold mb-2">
+                        Thông tin thanh toán
+                    </h2>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr>
+                                <th class="border-b border-gray-700 p-2">
+                                    Danh mục
+                                </th>
+                                <th class="border-b border-gray-700 p-2">
+                                    Số lượng
+                                </th>
+                                <th class="border-b border-gray-700 p-2">
+                                    Tổng tiền
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border-b border-gray-700 p-2">
+                                    Ghế (I7)
+                                </td>
+                                <td class="border-b border-gray-700 p-2">
+                                    1
+                                </td>
+                                <td class="border-b border-gray-700 p-2">
+                                    80.000đ
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="w-1/3 ml-4">
+                <div class="bg-black p-4 rounded-lg text-center">
+                    <h2 class="text-lg font-semibold mb-2">
+                        Quét mã thanh toán VietQR
+                    </h2>
+                    <img alt="QR code for payment" class="mx-auto mb-4" src="https://placehold.co/150x150" />
+                    <div class="flex justify-center items-center mb-4">
+                        <img alt="napas 247 logo" class="mr-2" src="https://placehold.co/50x20" />
+                        <img alt="MB logo" src="https://placehold.co/50x20" />
+                    </div>
+                    <p class="text-sm">
+                        Thời gian thanh toán 6:27
+                    </p>
+                    <p class="text-red-500 text-sm mt-2">
+                        Lưu ý: Không sử dụng các ứng dụng không phải Ngân hàng, Ví điện tử để quét mã QR thanh toán như
+                        Zalo chat.
+                    </p>
+
+                    <h3 class="text-lg font-semibold mb-2">
+                        Thông tin đơn hàng
+                       </h3>
+                       <p>
+                        Mã đơn hàng:
+                        <span class="font-bold">
+                         8803104
+                        </span>
+                       </p>
+                       <p>
+                        Số tiền thanh toán:
+                        <span class="font-bold">
+                         80.000đ
+                        </span>
+                       </p>
+                       <p>
+                        Tên tài khoản:
+                        <span class="font-bold">
+                         TRUNG TÂM CHIẾU PHIM QUỐC GIA
+                        </span>
+                       </p>
+                       <p>
+                        Tên ngân hàng:
+                        <span class="font-bold">
+                         Ngân hàng TMCP Quân Đội
+                        </span>
+                       </p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-black text-center py-8">
+        <div class="flex justify-center space-x-4 mb-4">
+            <a class="text-white" href="#">
+                Chính Sách
+            </a>
+            <a class="text-white" href="#">
+                Lịch Chiếu
+            </a>
+            <a class="text-white" href="#">
+                Tin Tức
+            </a>
+            <a class="text-white" href="#">
+                Giá Vé
+            </a>
+            <a class="text-white" href="#">
+                Hỏi Đáp
+            </a>
+            <a class="text-white" href="#">
+                Liên Hệ
+            </a>
+        </div>
+        <div class="flex justify-center space-x-4 mb-4">
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Ffacebook.png&w=32&q=75" alt="">
+            </a>
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fzalo.webp&w=32&q=75" alt="">
+
+            </a>
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fyoutube2.png&w=32&q=75" alt="">
+
+            </a>
+            <a href="#">
+                <img alt="Google Play" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fgoogleplay.png&w=256&q=75"
+                    width="150" />
+            </a>
+            <a href="#">
+                <img alt="App Store" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fappstore.png&w=256&q=75"
+                    width="150" />
+            </a>
+            <a href="#">
+                <img alt="Certification" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fcertification.png&w=256&q=75"
+                    width="150" />
+            </a>
+        </div>
+        <p class="text-white mb-2">
+            Cơ quan chủ quản: BỘ VĂN HÓA, THỂ THAO VÀ DU LỊCH
+        </p>
+        <p class="text-white mb-2">
+            Bản quyền thuộc Trung tâm Chiếu phim Quốc gia.
+        </p>
+        <p class="text-white mb-2">
+            Giấy phép số: 224/GP- TTĐT ngày 31/8/2010 - Chịu trách nhiệm: Vũ Đức Tùng - Giám đốc.
+        </p>
+        <p class="text-white mb-2">
+            Địa chỉ: 87 Láng Hạ, Quận Ba Đình, Tp. Hà Nội - Điện thoại: 024.35141791
+        </p>
+        <p class="text-white">
+            Copyright 2023. NCC All Rights Reserved. Dev by Anvui.vn
+        </p>
+    </footer>
+</body>
+
+</html>
