@@ -1,0 +1,454 @@
+<html lang="en">
+
+</html>
+
+</html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>
+        Trang chủ
+    </title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <script src="https://cdn.tailwindcss.com">
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body class="bg-[#0D111AFF] text-white">
+    <header class="header bg-primary/30 flex justify-between items-center p-4 transition duration-500">
+        <div class="flex items-center" style="margin-left: 100px;">
+            <img alt="NCC logo" class="mr-2" height="50" src="/assets/image/logo.webp" width="50" />
+            <nav class="flex space-x-4">
+                <a class="text-red-500 pr-5" href="index.html">
+                    Trang chủ
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Lịch Chiếu
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Tin Tức
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Khuyến Mãi
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Giá Vé
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Liên Hoan Phim
+                </a>
+                <a class="text-white pr-5 hover-text" href="#">
+                    Giới Thiệu
+                </a>
+            </nav>
+        </div>
+        <div class="flex items-center " style="margin-right: 100px;">
+            <button class="border border-white text-white py-2 px-4 pr-6 pl-6 rounded-full mr-6 hover-zoom">
+                Đăng Kí
+            </button>
+            <button class="bg-red-500 text-white py-2 px-4 rounded-full hover-zoom">
+                <a href="index.html">Đăng nhập</a>
+            </button>
+        </div>
+    </header>
+    <main class="main-content py-16 px-8">
+        <div class="flex px-64">
+            <img alt="Movie Poster" class="mr-8" height="450" src="/assets/image/joker.webp" width="300" />
+            <div>
+                <h1 class="text-4xl font-bold mb-4">
+                    JOKER: FOLIE À DEUX ĐIÊN CÓ ĐÔI-TIẾP
+                </h1>
+                <p class="mb-2">
+                    Kinh dị, Tâm lý, tình cảm, Nhạc kịch | MY | 138 phút | Đạo diễn: Todd Phillips
+                </p>
+                <p class="mb-2">
+                    Diễn viên: Sequel to the film "JOKER" from 2019
+                </p>
+                <p class="mb-2">
+                    Khởi chiếu: 04/10/2024
+                </p>
+                <p class="mb-4">
+                    Phần tiếp theo của bộ phim "JOKER" năm 2019
+                </p>
+                <p class="mb-4 text-red-500">
+                    Kiểm duyệt: T18: Phim được phổ biến đến khán giả từ đủ 18 tuổi trở lên.
+                </p>
+                <div class="flex space-x-4">
+                    <button class="bg-gray-800 text-white py-2 px-4 rounded-full hover-zoom">
+                        Chi tiết nội dung
+                    </button>
+                    <button class="btn-primary text-white py-2 px-4 rounded-full hover-zoom" id="trailerBtn">
+                        Xem trailer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div>
+        <div class="w-full mx-auto">
+            <div class="w-full flex justify-center items-center bg-[#1A1D23] ">
+                <div class="text-center bg-red-600 px-4 py-2 rounded mr-2">
+                    <div class="text-sm">Th. 10</div>
+                    <div class="text-4xl font-bold">04</div>
+                    <div class="text-sm">Thứ sáu</div>
+                </div>
+                <div class="text-center  px-4 py-2 rounded mr-2">
+                    <div class="text-sm">Th. 11</div>
+                    <div class="text-4xl font-bold">05</div>
+                    <div class="text-sm">Thứ bẩy</div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-orange-500 font-semibold">Lưu ý: Khán giả dưới 13 tuổi chỉ chọn suất chiếu kết thúc trước
+                    22h và Khán giả dưới 16 tuổi chỉ chọn suất chiếu kết thúc trước 23h.</p>
+            </div>
+            <div class="flex justify-between items-center p-4 px-64">
+                <div class="flex justify-center items-center">
+                    <p class="mr-4">Giờ chiếu: <span class="font-bold">10:20</span></p>
+
+                </div>
+                <div class="flex space-x-4">
+                    <button id="timer" class="bg-red-600 text-white px-4 py-2 rounded-full">Thời gian chọn ghế:
+                        08:21</button>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap justify-center max-w-2xl" style="margin-left: 420px;">
+                <img src="assets/image/screen.webp" alt="">
+                <!-- Row A -->
+                <div class="seat available">A15</div>
+                <div class="seat available">A14</div>
+                <div class="seat available">A13</div>
+                <div class="seat available">A12</div>
+                <div class="seat available">A11</div>
+                <div class="seat available">A10</div>
+                <div class="seat available">A9</div>
+                <div class="seat available">A8</div>
+                <div class="seat available">A7</div>
+                <div class="seat available">A6</div>
+                <div class="seat available">A5</div>
+                <div class="seat available">A4</div>
+                <div class="seat available">A3</div>
+                <div class="seat available">A2</div>
+                <div class="seat available">A1</div>
+                <div class="seat available">A0</div>
+                <!-- Row B -->
+                <div class="seat available">B15</div>
+                <div class="seat available">B14</div>
+                <div class="seat available">B13</div>
+                <div class="seat available">B12</div>
+                <div class="seat available">B11</div>
+                <div class="seat available">B10</div>
+                <div class="seat available">B9</div>
+                <div class="seat available">B8</div>
+                <div class="seat available">B7</div>
+                <div class="seat available">B6</div>
+                <div class="seat available">B5</div>
+                <div class="seat available">B4</div>
+                <div class="seat available">B3</div>
+                <div class="seat available">B2</div>
+                <div class="seat available">B1</div>
+                <div class="seat available">B0</div>
+                <!-- Row C -->
+                <div class="seat available">C15</div>
+                <div class="seat available">C14</div>
+                <div class="seat available">C13</div>
+                <div class="seat available">C12</div>
+                <div class="seat available">C11</div>
+                <div class="seat available">C10</div>
+                <div class="seat available">C9</div>
+                <div class="seat available">C8</div>
+                <div class="seat available">C7</div>
+                <div class="seat available">C6</div>
+                <div class="seat available">C5</div>
+                <div class="seat available">C4</div>
+                <div class="seat available">C3</div>
+                <div class="seat available">C2</div>
+                <div class="seat available">C1</div>
+                <div class="seat available">C0</div>
+                <!-- Row D -->
+                <div class="seat available">D15</div>
+                <div class="seat available">D14</div>
+                <div class="seat available">D13</div>
+                <div class="seat vip">D12</div>
+                <div class="seat vip">D11</div>
+                <div class="seat available">D10</div>
+                <div class="seat available">D9</div>
+                <div class="seat vip">D8</div>
+                <div class="seat vip">D7</div>
+                <div class="seat available">D6</div>
+                <div class="seat vip">D5</div>
+                <div class="seat vip">D4</div>
+                <div class="seat vip">D3</div>
+                <div class="seat available">D2</div>
+                <div class="seat available">D1</div>
+                <div class="seat available">D0</div>
+                <!-- Row E -->
+                <div class="seat available">E15</div>
+                <div class="seat available">E14</div>
+                <div class="seat available">E13</div>
+                <div class="seat available">E12</div>
+                <div class="seat available">E11</div>
+                <div class="seat available">E10</div>
+                <div class="seat available">E9</div>
+                <div class="seat available">E8</div>
+                <div class="seat available">E7</div>
+                <div class="seat available">E6</div>
+                <div class="seat available">E5</div>
+                <div class="seat available">E4</div>
+                <div class="seat available">E3</div>
+                <div class="seat available">E2</div>
+                <div class="seat available">E1</div>
+                <div class="seat available">E0</div>
+                <!-- Row F -->
+                <div class="seat available">F15</div>
+                <div class="seat available">F14</div>
+                <div class="seat available">F13</div>
+                <div class="seat available">F12</div>
+                <div class="seat available">F11</div>
+                <div class="seat available">F10</div>
+                <div class="seat available">F9</div>
+                <div class="seat available">F8</div>
+                <div class="seat available">F7</div>
+                <div class="seat available">F6</div>
+                <div class="seat available">F5</div>
+                <div class="seat available">F4</div>
+                <div class="seat available">F3</div>
+                <div class="seat available">F2</div>
+                <div class="seat available">F1</div>
+                <div class="seat available">F0</div>
+                <!-- Row G -->
+                <div class="seat available">G15</div>
+                <div class="seat available">G14</div>
+                <div class="seat available">G13</div>
+                <div class="seat available">G12</div>
+                <div class="seat available">G11</div>
+                <div class="seat available">G10</div>
+                <div class="seat available">G9</div>
+                <div class="seat selected">G8</div>
+                <div class="seat available">G7</div>
+                <div class="seat available">G6</div>
+                <div class="seat available">G5</div>
+                <div class="seat available">G4</div>
+                <div class="seat available">G3</div>
+                <div class="seat available">G2</div>
+                <div class="seat available">G1</div>
+                <div class="seat available">G0</div>
+                <!-- Row H -->
+                <div class="seat available">H15</div>
+                <div class="seat available">H14</div>
+                <div class="seat available">H13</div>
+                <div class="seat available">H12</div>
+                <div class="seat available">H11</div>
+                <div class="seat available">H10</div>
+                <div class="seat available">H9</div>
+                <div class="seat available">H8</div>
+                <div class="seat available">H7</div>
+                <div class="seat available">H6</div>
+                <div class="seat available">H5</div>
+                <div class="seat available">H4</div>
+                <div class="seat available">H3</div>
+                <div class="seat available">H2</div>
+                <div class="seat available">H1</div>
+                <div class="seat available">H0</div>
+                <!-- Row I -->
+                <div class="seat available">I15</div>
+                <div class="seat available">I14</div>
+                <div class="seat available">I13</div>
+                <div class="seat available">I12</div>
+                <div class="seat available">I11</div>
+                <div class="seat available">I10</div>
+                <div class="seat available">I9</div>
+                <div class="seat available">I8</div>
+                <div class="seat available">I7</div>
+                <div class="seat available">I6</div>
+                <div class="seat available">I5</div>
+                <div class="seat available">I4</div>
+                <div class="seat available">I3</div>
+                <div class="seat available">I2</div>
+                <div class="seat available">I1</div>
+                <div class="seat available">I0</div>
+                <!-- Row J -->
+                <div class="seat available">J15</div>
+                <div class="seat available">J14</div>
+                <div class="seat available">J13</div>
+                <div class="seat available">J12</div>
+                <div class="seat available">J11</div>
+                <div class="seat available">J10</div>
+                <div class="seat available">J9</div>
+                <div class="seat available">J8</div>
+                <div class="seat available">J7</div>
+                <div class="seat available">J6</div>
+                <div class="seat available">J5</div>
+                <div class="seat available">J4</div>
+                <div class="seat available">J3</div>
+                <div class="seat available">J2</div>
+                <div class="seat available">J1</div>
+                <div class="seat available">J0</div>
+                <!-- Row K -->
+                <div class="seat double">K13</div>
+                <div class="seat double">K12</div>
+                <div class="seat double">K11</div>
+                <div class="seat double">K10</div>
+                <div class="seat double">K9</div>
+                <div class="seat double">K8</div>
+                <div class="seat double">K7</div>
+                <div class="seat double">K6</div>
+                <div class="seat double">K5</div>
+                <div class="seat double">K4</div>
+                <div class="seat double">K3</div>
+                <div class="seat double">K2</div>
+                <div class="seat double">K1</div>
+                <div class="seat double">K0</div>
+            </div>
+            <div class="flex justify-center mt-4">
+                <div class="flex items-center mr-4">
+                    <div class="seat taken mr-2"></div>
+                    <span>Đã đặt</span>
+                </div>
+                <div class="flex items-center mr-4">
+                    <div class="seat selected mr-2"></div>
+                    <span>Ghế bạn chọn</span>
+                </div>
+                <div class="flex items-center mr-4">
+                    <div class="seat available mr-2"></div>
+                    <span>Ghế thường</span>
+                </div>
+                <div class="flex items-center mr-4">
+                    <div class="seat vip mr-2"></div>
+                    <span>Ghế VIP</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="seat double mr-2"></div>
+                    <span>Ghế đôi</span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center p-4 px-64">
+                <div>
+                    <p class="text-lg">Ghế đã chọn:</p>
+                    <p class="text-lg">Tổng tiền: <span class="font-bold">0đ</span></p>
+                </div>
+                <div class="flex space-x-4">
+                    <button class="px-4 py-2 border border-gray-500 rounded-full text-white hover-background">Quay lại</button>
+                    <button class="px-4 py-2 bg-red-600 rounded-full text-gray-300 hover-zoom"> <a href="checkout.html">Thanh toán</a></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <footer class="bg-black text-center py-8">
+        <div class="flex justify-center space-x-4 mb-4">
+            <a class="text-white" href="#">
+                Chính Sách
+            </a>
+            <a class="text-white" href="#">
+                Lịch Chiếu
+            </a>
+            <a class="text-white" href="#">
+                Tin Tức
+            </a>
+            <a class="text-white" href="#">
+                Giá Vé
+            </a>
+            <a class="text-white" href="#">
+                Hỏi Đáp
+            </a>
+            <a class="text-white" href="#">
+                Liên Hệ
+            </a>
+        </div>
+        <div class="flex justify-center space-x-4 mb-4">
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Ffacebook.png&w=32&q=75" alt="">
+            </a>
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fzalo.webp&w=32&q=75" alt="">
+
+            </a>
+            <a href="#">
+                <img src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fyoutube2.png&w=32&q=75" alt="">
+
+            </a>
+            <a href="#">
+                <img alt="Google Play" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fgoogleplay.png&w=256&q=75"
+                    width="150" />
+            </a>
+            <a href="#">
+                <img alt="App Store" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fappstore.png&w=256&q=75"
+                    width="150" />
+            </a>
+            <a href="#">
+                <img alt="Certification" class="inline" height="100"
+                    src="https://chieuphimquocgia.com.vn/_next/image?url=%2Fimages%2Fcertification.png&w=256&q=75"
+                    width="150" />
+            </a>
+        </div>
+        <p class="text-white mb-2">
+            Cơ quan chủ quản: BỘ VĂN HÓA, THỂ THAO VÀ DU LỊCH
+        </p>
+        <p class="text-white mb-2">
+            Bản quyền thuộc Trung tâm Chiếu phim Quốc gia.
+        </p>
+        <p class="text-white mb-2">
+            Giấy phép số: 224/GP- TTĐT ngày 31/8/2010 - Chịu trách nhiệm: Vũ Đức Tùng - Giám đốc.
+        </p>
+        <p class="text-white mb-2">
+            Địa chỉ: 87 Láng Hạ, Quận Ba Đình, Tp. Hà Nội - Điện thoại: 024.35141791
+        </p>
+        <p class="text-white">
+            Copyright 2023. NCC All Rights Reserved. Dev by Anvui.vn
+        </p>
+    </footer>
+    <div class="modal-trailer" id="trailerModal">
+        <div class="modal-trailer-content">
+            <span class="close" id="closeModal">
+                &times;
+            </span>
+            <iframe allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen="" class="w-full h-64"
+                src="https://www.youtube.com/embed/2CnsNzo74e8?si=hYVvaQ0ExIDIrM5k" title="YouTube video player">
+            </iframe>
+        </div>
+    </div>
+    <script>
+        document.getElementById('trailerBtn').onclick = function () {
+            document.getElementById('trailerModal').style.display = "block";
+        }
+
+        document.getElementById('closeModal').onclick = function () {
+            document.getElementById('trailerModal').style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == document.getElementById('trailerModal')) {
+                document.getElementById('trailerModal').style.display = "none";
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let timeLeft = 600; // 10 minutes in seconds
+            const timerElement = document.getElementById('timer');
+
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `Thời gian chọn ghế: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (timeLeft > 0) {
+                    timeLeft--;
+                } else {
+                    clearInterval(timerInterval);
+                }
+            }
+
+            const timerInterval = setInterval(updateTimer, 1000);
+            updateTimer();
+        });
+    </script>
+</body>
+
+</html>
