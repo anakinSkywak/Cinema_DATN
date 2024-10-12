@@ -52,6 +52,10 @@ class BookingController extends Controller
         $tong_tien = ($gia_phim * $so_luong) + $gia_do_an; // defult là 1 : đặt được 1 vé 
 
         // ap dung ma giam gia : code sau
+
+        // tinh toan tien theo the hoi vien
+        
+
         // tong tien thanh toan = tongtien
         $tong_tien_thanh_toan = $tong_tien;
 
