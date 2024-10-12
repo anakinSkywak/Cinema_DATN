@@ -2,6 +2,7 @@
 
 
 // để yên
+use App\Http\Controllers\Api\ContactController;
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -129,6 +130,15 @@ Route::post('bookings/{booking}/select-seat', [BookingDetailController::class, '
 
 // Ánh : call api Payments
 Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
+
+
+// Ánh : call contact : liên hệ theo user_id
+Route::get('contacts', [ContactController::class, 'index']); // xuat all
+Route::post('contacts', [ContactController::class, 'store']); // them ban ghi moi
+Route::get('contacts/{id}', [ContactController::class, 'show']);  // show theo id
+Route::put('contacts/{id}', [ContactController::class, 'update']);  // cap nhat theo id
+Route::delete('contacts/{id}', [ContactController::class, 'delete']);  // xoa theo id
+
 
 
 // Ánh : call countdownVoucher : săn mã voucher
