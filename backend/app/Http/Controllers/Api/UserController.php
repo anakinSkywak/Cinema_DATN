@@ -22,6 +22,7 @@ class UserController extends Controller
             'so_dien_thoai' => 'required|string|max:10|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'gioi_tinh' => 'required|in:nam,nu,khac',
+            'vai_tro' => 'required|in:user,admin,nhan_vien',
         ]);
 
         // tạo người user voi ma hoa mk vao db
@@ -31,7 +32,7 @@ class UserController extends Controller
             'so_dien_thoai' => $validated['so_dien_thoai'],
             'password' => bcrypt($validated['password']), // 
             'gioi_tinh' => $validated['gioi_tinh'],
-          
+            'vai_tro' => $validated['vai_tro'],
         ]);
         //dd($user);
 

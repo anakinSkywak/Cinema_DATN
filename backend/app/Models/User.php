@@ -29,6 +29,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'email',
         'so_dien_thoai',
         'password',
+        'vai_tro',
         'diem_thuong',
         'ma_giam_gia',
         'so_luot_quay',
@@ -59,7 +60,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getJWTCustomClaims()
     {
         // return [];
-        return ['role' => $this->role]; 
+        return ['vai_tro' => $this->vai_tro]; 
     }
 
     /**
