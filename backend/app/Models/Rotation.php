@@ -11,9 +11,11 @@ class Rotation extends Model
 
     protected $fillable = [
         'ten_phan_thuong',
-        'mota',
-        'so_luong_con_lai',
+        'muc_giam_gia',
+        'mo_ta',
         'xac_xuat',
-        'trang_thai'
+        'so_luong',
+        'so_luong_con_lai',
+        'trang_thai',
     ];
 }
