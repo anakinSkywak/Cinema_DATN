@@ -9,7 +9,6 @@ use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
-use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BookingController;
@@ -35,9 +34,6 @@ use App\Http\Controllers\Api\AuthController; //  auth api
 // });
 
 
-// Ánh : call api Users
-Route::post('registers', [UserController::class, 'register']);
-
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill(); // xác minh email thành công
@@ -45,13 +41,24 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     return response()->json([
         'message' => 'Email đã được xác minh thành công.'
     ], 200);
-
 })->middleware(['auth:api', 'signed'])->name('verification.verify');
 // xac minh an vao neu hien web foud loigin la ok se den de login
 
-// login tra ve token cho fronend 
-Route::post('login',[AuthController::class , 'login']);
-// api khac cua user viet sau 
+// 
+Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
+    // Đăng ký người dùng mới
+    Route::post('registers', [AuthController::class, 'register']);
+
+    // Đăng nhập và trả về token cho frontend
+    Route::post('login', [AuthController::class, 'login']);
+
+    // Lấy thông tin chi tiết của người dùng (yêu cầu phải có token hợp lệ)
+    Route::get('profile', [AuthController::class, 'userProfile']);
+
+    // Đăng xuất (invalidate token để người dùng không thể tiếp tục sử dụng token cũ)
+    Route::post('logout', [AuthController::class, 'logout']);
+});
+
 
 
 // call user : sửa , xóa , phân quyền , check quyền login : làm sau khi có admin 
@@ -196,9 +203,3 @@ Route::post('contacts', [ContactController::class, 'store']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
-
-
-
-
-
-
