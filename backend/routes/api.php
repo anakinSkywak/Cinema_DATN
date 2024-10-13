@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\RotationController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
+use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\BookingDetailController;
@@ -45,12 +46,11 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     return response()->json([
         'message' => 'Email đã được xác minh thành công.'
     ], 200);
-
 })->middleware(['auth:api', 'signed'])->name('verification.verify');
 // xac minh an vao neu hien web foud loigin la ok se den de login
 
 // login tra ve token cho fronend 
-Route::post('login',[AuthController::class , 'login']);
+Route::post('login', [AuthController::class, 'login']);
 // api khac cua user viet sau 
 
 
@@ -154,12 +154,16 @@ Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
 Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
 Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
 Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
-
-
-
-
-
-
-
-
+//cal api contacts
+Route::get('contacts', [ContactController::class, 'index']);
+Route::get('contacts/{id}', [ContactController::class, 'show']);
+Route::post('contacts', [ContactController::class, 'store']);
+Route::put('contacts/{id}', [ContactController::class, 'update']);
+Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
+//call api rotations
+Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
+Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
+Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
+Route::put('/rotations/{id}', [RotationsController::class, 'update']);
+Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
