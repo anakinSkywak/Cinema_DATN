@@ -21,6 +21,7 @@ class Movie extends Model
         'trailer',
         'gia_ve',
         'danh_gia',
+        'hinh_thuc_phim'
     ];
 
     protected $dates = ['deleted_at'];
