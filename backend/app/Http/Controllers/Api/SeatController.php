@@ -36,7 +36,7 @@ class SeatController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // them moi ghe ngoi
     }
 
     /**
@@ -46,7 +46,6 @@ class SeatController extends Controller
     {
         // show seat theo id
         $dataID = Seat::find($id);
-
 
         if (!$dataID) {
             return response()->json([
@@ -78,7 +77,6 @@ class SeatController extends Controller
         $validated = $request->validate([
             'so_ghe_ngoi' => 'required|string|max:250',
             'loai_ghe_ngoi' => 'required|string|max:250',
-            
         ]);
 
         // cap nhat
