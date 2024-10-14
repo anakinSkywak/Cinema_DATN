@@ -157,6 +157,7 @@ Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 //cal api contacts
 Route::get('contacts', [ContactController::class, 'index']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
+Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
