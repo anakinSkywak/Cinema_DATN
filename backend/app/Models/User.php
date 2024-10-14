@@ -33,7 +33,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'diem_thuong',
         'ma_giam_gia',
         'so_luot_quay',
-        'quyen_han' 
+        'quyen_han',
+
     ];
 
     protected $dates = ['deleted_at'];
