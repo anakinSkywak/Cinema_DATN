@@ -72,7 +72,6 @@ class SeatController extends Controller
     }
 
     // ham de tao pham vi ghe ngoi
-
     public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id)
     {
         $seats = [];
