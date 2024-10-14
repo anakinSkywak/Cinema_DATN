@@ -104,6 +104,8 @@ Route::post('movies', [MovieController::class, 'store']); // them ban ghi moi
 Route::get('movies/{id}', [MovieController::class, 'show']);  // show theo id
 Route::put('movies/{id}', [MovieController::class, 'update']);  // cap nhat theo id
 Route::delete('movies/{id}', [MovieController::class, 'delete']);  // xoa theo id
+Route::post('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
+Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo thể loại
 
 // Ánh : call api Foods
 Route::get('foods', [FoodController::class, 'index']); // xuat all
