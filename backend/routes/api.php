@@ -53,10 +53,12 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('login', [AuthController::class, 'login']);
 
     // Lấy thông tin chi tiết của người dùng (yêu cầu phải có token hợp lệ)
-    Route::get('profile', [AuthController::class, 'userProfile']);
+    Route::get('profile', [AuthController::class, 'userProfile']);  
 
     // Đăng xuất (invalidate token để người dùng không thể tiếp tục sử dụng token cũ)
     Route::post('logout', [AuthController::class, 'logout']);
+    // update tài khoản phía user
+    Route::post('updateProfile', [AuthController::class, 'updateProfile']);
 });
 
 

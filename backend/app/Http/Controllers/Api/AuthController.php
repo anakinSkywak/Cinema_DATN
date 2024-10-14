@@ -8,6 +8,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Member;
+use App\Models\RegisterMember;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -82,15 +83,19 @@ class AuthController extends Controller
     public function userProfile()
     {
         // dữ liệu booking user đã đặt
-        $dataBooking = Booking::where('user_id', auth()->id())->get();
+        $dataBooking = Booking::where('user_id', auth()->id())->orderBy('id', 'DESC')->get();
+        $dataRegisterMember = RegisterMember::where('user_id', auth()->id())->get();
 
         if (!auth()->check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Bạn hiện chưa có tài khoản'], 401);
         }
         return response()->json([
-            'data' => auth()->user(),
-            // trả về dữ liệu booking
-            'Booking' => $dataBooking
+            'data' => [
+                'user' => auth()->user(),
+                // trả về dữ liệu booking
+                'Booking' => $dataBooking,
+                'RegisterMember' => $dataRegisterMember,
+            ],
         ]);
     }
 
@@ -103,5 +108,34 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Đã xảy ra lỗi khi đăng xuất'], 500);
         }
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = JWTAuth::parseToken()->authenticate(); // Lấy đối tượng User
+
+        $validator = Validator::make($request->all(), [
+            'ho_ten' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->user_id,
+            'so_dien_thoai' => 'required|string|max:10|unique:users,so_dien_thoai,' . $user->user_id,
+            // dùng email để cập nhật mật khẩu
+            // 'password' => 'nullable|string|min:8|confirmed', // Cho phép trường password không bắt buộc
+            'gioi_tinh' => 'required|in:nam,nu,khac',
+            'vai_tro' => 'required|in:user,admin,nhan_vien',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        // Chỉ lấy những trường cần cập nhật
+        $dataToUpdate = $validator->validated();
+
+        // Cập nhật thông tin người dùng
+        $user->update($dataToUpdate); // Sử dụng update
+
+        return response()->json([
+            'message' => 'Bạn đã cập nhật tài khoản thành công'
+        ]);
     }
 }
