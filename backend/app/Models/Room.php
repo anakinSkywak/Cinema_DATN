@@ -11,16 +11,13 @@ class Room extends Model
     use HasFactory;
     use SoftDeletes;
     protected $table = 'rooms';
-
+    protected $dates = ['deleted_at'];
     protected $fillable = [
         'ten_phong_chieu',
         'tong_ghe_phong',
         'rapphim_id',
     ];
-    
-    protected $dates = ['deleted_at'];
-    
-
+     
     // đĩnh nghĩa mỗi phòng chiếu một rạp phim 
     public function theater(){
         // xác định mối quan hệ giữa 2 bảng với nhau nhiều room có ở một theater

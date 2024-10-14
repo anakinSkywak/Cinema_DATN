@@ -36,7 +36,11 @@ class SeatController extends Controller
      */
     public function store(Request $request)
     {
-        // them moi ghe ngoi
+        // them moi ghe ngoi 
+        // xac thuc du lieu dau vao cua ghe
+        $validated = $request->validate([
+            
+        ]);
     }
 
     /**

@@ -77,7 +77,7 @@ Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all
-//Route::post('seats' , [SeatController::class , 'store']); // them ban ghi moi ko cần thiết
+Route::post('seats' , [SeatController::class , 'store']); // them ban ghi ghe ngoi bang tay 
 Route::get('seats/{id}', [SeatController::class, 'show']);  // show theo id
 Route::put('seats/{id}', [SeatController::class, 'update']);  // cap nhat theo id
 Route::delete('seats/{id}', [SeatController::class, 'delete']);  // xoa theo id
