@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\BookingDetail;
-use App\Models\Payment;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Models\Booking;
+use App\Models\Payment;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Models\BookingDetail;
+use App\Models\RegisterMember;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
 
 class PaymentController extends Controller
 {
@@ -29,7 +31,7 @@ class PaymentController extends Controller
             ], 404);
         }
 
-        //  // Lấy thông tin ghế ngồi đã chọn từ booking_detail
+        // Lấy thông tin ghế ngồi đã chọn từ booking_detail
         $bookingDetail = BookingDetail::where('booking_id', $bookingId)->first();
 
         if (!$bookingDetail) {
@@ -60,15 +62,68 @@ class PaymentController extends Controller
         $booking->update(['trang_thai' => 1]); // thanh toán ok
         $bookingDetail->update(['trang_thai' => 1]); // ghế ngồi bị chặn k thể đặt
 
-        //
-        // xu li chan ghe sau 
-        //
+        
 
         return response()->json([
             'message' => 'Thanh toán thành công !',
             'booking_id' => $booking->id,
             'tong_tien_thanh_toan' => $tong_tien_thanh_toan, // so tien thanh toan ca booking vs ghe ngoi
         ], 200);
+    }
+    public function processPaymentForRegister(Request $request, RegisterMember $registerMember)
+    {
+        // Validate phương thức thanh toán
+        $request->validate([
+            'phuong_thuc_thanh_toan' => 'required|in:credit_card,paypal,cash,bank_transfer',
+        ]);
+
+        // Lấy tổng tiền từ RegisterMember
+        $tong_tien = $registerMember->tong_tien;
+
+        // Tạo bản ghi thanh toán mới
+        try {
+            // Tạo bản ghi thanh toán thành công
+            $payment = Payment::create([
+                'registermember_id' => $registerMember->id,
+                'tong_tien' => $tong_tien,
+                'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
+                'ma_thanh_toan' => strtoupper(uniqid('PAY_')),
+                'ngay_thanh_toan' => Carbon::now(),
+                'trang_thai' => 1, // Đã thanh toán
+            ]);
+
+            Log::info('Payment created successfully', ['payment' => $payment]);
+
+            // Cập nhật trạng thái cho RegisterMember
+            $registerMember->update(['trang_thai' => 1]); // Thanh toán thành công
+
+            return response()->json([
+                'message' => 'Thanh toán thành công cho RegisterMember!',
+                'register_id' => $registerMember->id,
+                'tong_tien_thanh_toan' => $tong_tien,
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Payment creation failed', [
+                'error' => $e->getMessage(),
+                'registermember_id' => $registerMember->id
+            ]);
+
+            // Nếu có lỗi xảy ra, tạo bản ghi thanh toán thất bại
+            Payment::create([
+                'registermember_id' => $registerMember->id,
+                'tong_tien' => $tong_tien,
+                'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
+                'ma_thanh_toan' => strtoupper(uniqid('PAY_FAIL_')), // Đánh dấu là thất bại
+                'ngay_thanh_toan' => Carbon::now(),
+                'trang_thai' => 0, 
+            ]);
+
+            return response()->json([
+                'message' => 'Thanh toán không thành công!',
+                'register_id' => $registerMember->id,
+                'tong_tien_thanh_toan' => $tong_tien,
+            ], 500); // Trả về mã lỗi 500 cho trường hợp lỗi hệ thống
+        }
     }
 
     /**
