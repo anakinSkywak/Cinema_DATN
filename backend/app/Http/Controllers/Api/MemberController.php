@@ -3,9 +3,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Models\Member;
+use Illuminate\Http\Request;
+
+
+namespace App\Http\Controllers\Api;
+
 use App\Models\Member;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+
 
 class MemberController extends Controller
 {
@@ -14,6 +22,27 @@ class MemberController extends Controller
      */
     public function index()
     {
+
+        $data = Member::query()->orderBy('id', 'DESC')->paginate(10);
+
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có hội viên',
+            ], 204);
+        }
+
+        return response()->json([
+            'data' => $data->items(),
+            'pagination' => [
+                'current_page' => $data->currentPage(),
+                'total_pages' => $data->lastPage(),
+                'total_items' => $data->total(),
+                'per_page' => $data->perPage(),
+                'next_page_url' => $data->nextPageUrl(),
+                'prev_page_url' => $data->previousPageUrl(),
+            ]
+        ], 200);
+
         // Lấy tất cả dữ liệu từ bảng Member
         $data = Member::all();
         
@@ -27,6 +56,7 @@ class MemberController extends Controller
             'message' => 'Hiển thị dữ liệu thành công',
             'data' => $data
         ]);
+
     }
 
     /**
@@ -34,6 +64,14 @@ class MemberController extends Controller
      */
     public function store(Request $request)
     {
+
+        $data = Member::create($request->all());
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Thêm hội viên thành công!'
+        ], 201);
+
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
@@ -51,6 +89,7 @@ class MemberController extends Controller
             'message' => 'Thêm mới Member thành công',
             'data' => $member
         ], 200); // Chỉnh sửa từ 201 thành 200
+
     }
 
     /**
@@ -58,6 +97,12 @@ class MemberController extends Controller
      */
     public function show($id)
     {
+        $data = Member::findOrFail($id);
+
+        return response()->json([
+            'data' => $data
+        ], 200);
+
         // Hiển thị Member theo ID
         $dataID = Member::find($id);
 
@@ -71,6 +116,7 @@ class MemberController extends Controller
             'message' => 'Dữ liệu show theo ID thành công',
             'data' => $dataID,
         ]);
+
     }
 
     /**
@@ -78,6 +124,14 @@ class MemberController extends Controller
      */
     public function update(Request $request, $id)
     {
+
+        $data = Member::findOrFail($id);
+        $data->update($request->all());
+
+        return response()->json([
+            'data' => $data,
+            'message' => 'Cập nhật hội viên thành công!'
+
         // Cập nhật Member theo ID
         $dataID = Member::find($id);
 
@@ -106,6 +160,7 @@ class MemberController extends Controller
         return response()->json([
             'message' => 'Cập nhật dữ liệu thành công',
             'data' => $dataID,
+
         ], 200);
     }
 
@@ -114,6 +169,15 @@ class MemberController extends Controller
      */
     public function destroy($id)
     {
+
+        $data = Member::findOrFail($id);
+        $data->delete();
+
+        return response()->json([
+            'message' => 'Xóa hội viên thành công!'
+        ], 200);
+    }
+
         // Xóa Member theo ID
         $dataID = Member::find($id);
 
@@ -144,4 +208,5 @@ class MemberController extends Controller
                 return 0; // Giá mặc định nếu không khớp loại
         }
     }
+
 }

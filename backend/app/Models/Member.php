@@ -9,6 +9,22 @@ class Member extends Model
 {
     use HasFactory;
 
+
+    protected $fillable = [
+        'loai_hoi_vien',
+        'uu_dai',
+        'thoi_gian',
+        'ghi_chu',
+        'gia',
+        'trang_thai',
+    ];
+
+    public function registrations()
+    {
+        return $this->hasMany(RegisterMember::class, 'member_id');
+    }
+}
+
     protected $fillable = ['loai_hoi_vien', 'uu_dai', 'thoi_gian', 'ghi_chu', 'gia', 'trang_thai'];
 
     public function registerMembers()
@@ -16,3 +32,4 @@ class Member extends Model
         return $this->hasMany(RegisterMember::class);
     }
 }
+
