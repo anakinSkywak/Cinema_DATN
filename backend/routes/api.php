@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 // để yên
@@ -167,4 +168,9 @@ Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi
 Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
 Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
-
+//call api countdown_vouchers
+Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
+Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
+Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
+Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
+Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);

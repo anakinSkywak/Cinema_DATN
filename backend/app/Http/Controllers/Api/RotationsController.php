@@ -36,7 +36,7 @@ class RotationsController extends Controller
         'mo_ta' => 'required|string|max:255',
         'xac_xuat' => 'required|numeric|min:0|max:100',
         'so_luong' => 'required|integer|min:1',
-        'so_luong_con_lai' => 'nullable|integer|max:' . $request->so_luong,
+        'so_luong_con_lai' => 'integer|min:0|max:' . $request->so_luong,
         'trang_thai' => 'nullable|integer',
     ]);
 
@@ -59,7 +59,7 @@ public function update(Request $request, $id)
         'mo_ta' => 'string|max:255',
         'xac_xuat' => 'numeric|min:0|max:100',
         'so_luong' => 'integer|min:1',
-        'so_luong_con_lai' => 'nullable|integer|max:' . ($request->so_luong ?? $rotation->so_luong),
+        'so_luong_con_lai' => 'integer|min:0|max:' . ($request->so_luong ?? $rotation->so_luong),
         'trang_thai' => 'nullable|integer',
     ]);
 
