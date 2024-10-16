@@ -29,7 +29,7 @@ class PaymentController extends Controller
             ], 404);
         }
 
-        //  // Lấy thông tin ghế ngồi đã chọn từ booking_detail
+        // Lấy thông tin ghế ngồi đã chọn từ booking_detail
         $bookingDetail = BookingDetail::where('booking_id', $bookingId)->first();
 
         if (!$bookingDetail) {

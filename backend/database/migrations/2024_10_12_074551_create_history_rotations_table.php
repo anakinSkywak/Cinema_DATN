@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('members', function (Blueprint $table) {
+        Schema::create('history_rotations', function (Blueprint $table) {
             $table->id();
-            $table->enum('loai_hoi_vien', ['thuong', 'vip']);
-            $table->float('uu_dai');
-            $table->float('thoi_gian');
-            $table->string('ghi_chu' , 255);
-            $table->decimal('gia', 12,3);
+            $table->foreignId('user_id')->references('id')->on('users');
+            $table->foreignId('vongquay_id')->references('id')->on('rotations');
+            $table->string('ket_qua' , 255); // ket qua do vao theo ten_phan_thuong
+            $table->date('ngay_quay');
             $table->tinyInteger('trang_thai')->default(0)->nullable();
             $table->timestamps();
         });
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('members');
+        Schema::dropIfExists('history_rotations');
     }
 };

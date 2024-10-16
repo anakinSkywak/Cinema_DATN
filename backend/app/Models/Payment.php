@@ -25,8 +25,10 @@ class Payment extends Model
         return $this->belongsTo(Booking::class); // tao moi quan he voi booking 
     }
 
+
+    ////////////////
     public function registerMember()
     {
-        return $this->belongsTo(RegisterMember::class, 'register_member_id');
+        return $this->belongsTo(RegisterMember::class, 'register_member_id'); // ?? register_member_id
     }
 }
