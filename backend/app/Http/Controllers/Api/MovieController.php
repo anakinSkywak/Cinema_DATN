@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
+use App\Models\MovieGenre;
 use Illuminate\Http\Request;
 
 class MovieController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+
     public function index()
     {
         // call show all du lieu ra 
@@ -28,9 +28,24 @@ class MovieController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+
+    public function getMovieGenre()
+    {
+        $getmoviegenre = MovieGenre::all();
+
+        if ($getmoviegenre->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có thể loại phim nào hãy thêm thể loại phim !!!'
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Thể loại phim',
+            'data' => $getmoviegenre
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         // call api them movie 
@@ -41,9 +56,10 @@ class MovieController extends Controller
             'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048', // xác thực file hình ảnh
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
-            'noi_dung' => 'required|string',
+            'noi_dung' => 'required|string|max:255',
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
+            'hinh_thuc_phim' => 'required|string|max:255',
             // 'danh_gia' => 'required|numeric|min:0|max:10',
             'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
@@ -69,28 +85,14 @@ class MovieController extends Controller
             'data' => $movie->load(relations: 'movie_genres'),  // trả về cả thông tin thể loại phim đã lưu
             'image_url' => asset($validated['anh_phim']), // trả về đường dẫn ảnh phim
         ], 201);
-
-        // {
-        //     "ten_phim": "Phim Ahffgggggg",
-        //     "anh_phim": "movie-image.jpg",
-        //     "dao_dien": "Đạo diễn X",
-        //     "dien_vien": "anh , anh , yeu",
-        //     "noi_dung": "Nội dung phim ABC",
-        //     "trailer": "https://example.com/trailer.mp4",
-        //     "gia_ve": 120000,
-        //     "loaiphim_ids": [11 , 9 , 10]
-        // }
-
-
     }
 
-    /**
-     * Display the specified resource.
-     */
+
+
     public function show(string $id)
     {
         // show movie theo id
-        $dataID = Movie::with('movie_genres')->find($id); // dung with nap lay thong tin o bang trung gian
+        $dataID = Movie::with('movie_genres')->find($id); // dung with nlay thong tin o bang trung gian
 
         // check 
         if (!$dataID) {
@@ -105,45 +107,96 @@ class MovieController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
+    public function showEditID(Request $request, string $id)
+    {
+        // khi ấn vào edit theo id sẽ đưa đến from đổ all dữ liệu phim theo id đó
+        // đổ thêm all thể loại phim để chọn nếu có thay đổi
+
+        // Lấy phim dựa trên id
+        $movie = Movie::findOrFail($id);
+
+        // lấy tất cả các thể loại phim để chọn phim khác khi update
+        $allGenre = MovieGenre::all();
+
+        // Trả về dữ liệu phim (có thể trả về view hoặc JSON tuỳ theo nhu cầu)
+        return response()->json([
+            'movie' => $movie->load('movie_genres'),  // Trả về phim kèm theo thể loại
+            'all_genre'=>$allGenre, // đổ all thể loại phim ra để chọn chỉnh sửa để update
+        ], 200);
+    }
+
+
     public function update(Request $request, string $id)
     {
-        // cap nhat moi du lieu cho movie
-        // tìm phim theo id
-        $dataID = Movie::find($id);
 
-        // chekc khi sua du lieu
+        $movieID = Movie::findOrFail($id); // lấy dữ liệu phim hiện tại
+
         $validated = $request->validate([
             'ten_phim' => 'required|string|max:255',
-            'anh_phim' => 'required|string|max:255',
+            'anh_phim' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
-            'noi_dung' => 'required|string',
+            'noi_dung' => 'required|string|max:255',
             'trailer' => 'required|string|max:255',
             'gia_ve' => 'required|numeric',
-            // 'danh_gia' => 'required|numeric|min:0|max:10',
+            'hinh_thuc_phim' => 'required|string|max:255',
             'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
         ]);
 
-        // cap nhat du lieu moi cho phim 
-        $dataID->update($validated);
+        // kiểm tra xem có thay đổi ảnh không
+        if ($request->hasFile('anh_phim')) {
+            //dd($request->file('anh_phim'));
+            // xóa ảnh cũ
+            if ($movieID->anh_phim) {
+                $oldImagePath = public_path($movieID->anh_phim);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
 
-        // cap nhat the loai phim moi khi thay doi
-        $dataID->movie_genres()->sync($request->loaiphim_ids);
+            // nếu có xóa , upload ảnh mới lên
+            $file = $request->file('anh_phim');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
+            $validated['anh_phim'] = '/storage/' . $filePath;
+           
+        } else {
+            // k xóa để lại ảnh cũ
+            $validated['anh_phim'] = $movieID->anh_phim;
+        }
 
-        // tra ve neu cap nhat thanh cong
+        //dd($request->file('anh_phim'));
+
+        // cập nhật phim
+        $movieID->update($validated);
+        
+        // cập nhật thể loại phim nếu thay đổi
+        $movieID->movie_genres()->sync($request->loaiphim_ids);
+
+        // trẻ về nếu ok
         return response()->json([
             'message' => 'Cập nhật dữ liệu mới cho Movie thành công ',
-            'data' => $dataID->load('movie_genres'),
+            'data' => $movieID->load('movie_genres'),
+            'image_url' => asset($movieID->anh_phim), // trả về đường dẫn ánh mới hoặc cũ 
         ], 200);
+
+        // {
+        //     "ten_phim": "Phim Aaaa",
+        //     "dao_dien": "Đạo diễn Baa",
+        //     "dien_vien": "Diễn viên Caa",
+        //     "noi_dung": "Nội dung phimaaa",
+        //     "trailer": "https://example.com/trailer.mp4",
+        //     "gia_ve": 120,
+        //     "hinh_thuc_phim": "2D",
+        //     "loaiphim_ids": [10 , 9]
+        // }
+        
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
+
     public function delete(string $id)
     {
         // xoa theo id

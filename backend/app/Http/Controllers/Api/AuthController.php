@@ -84,7 +84,7 @@ class AuthController extends Controller
     {
         // dữ liệu booking user đã đặt
         $dataBooking = Booking::where('user_id', auth()->id())->orderBy('id', 'DESC')->get();
-        $dataRegisterMember = RegisterMember::where('user_id', auth()->id())->get();
+        // $dataRegisterMember = RegisterMember::where('user_id', auth()->id())->get();
 
         if (!auth()->check()) {
             return response()->json(['error' => 'Bạn hiện chưa có tài khoản'], 401);
@@ -94,7 +94,7 @@ class AuthController extends Controller
                 'user' => auth()->user(),
                 // trả về dữ liệu booking
                 'Booking' => $dataBooking,
-                'RegisterMember' => $dataRegisterMember,
+                // 'RegisterMember' => $dataRegisterMember,
             ],
         ]);
     }
@@ -138,4 +138,6 @@ class AuthController extends Controller
             'message' => 'Bạn đã cập nhật tài khoản thành công'
         ]);
     }
+
+    // xác nhận đăng ký thành công
 }
