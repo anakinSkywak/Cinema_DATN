@@ -71,11 +71,13 @@ Route::post('login', [AuthController::class, 'login']);
 
 
 //Ánh call api theaters
-Route::get('theaters', [TheaterController::class, 'index']); // xuat all
+Route::get('theaters', [TheaterController::class, 'index']); // xuất all
 Route::post('theaters', [TheaterController::class, 'store']); // them ban ghi moi
 Route::get('theaters/{id}', [TheaterController::class, 'show']);  // show theo id
-Route::put('theaters/{id}', [TheaterController::class, 'update']);  // cap nhat theo id
+Route::get('editTheater/{id}', [TheaterController::class, 'editTheaterID']); // đưa đến trang edit ổ thông tin edit ra
+Route::put('editTheater/{id}', [TheaterController::class, 'update']);  // cap nhat theo id
 Route::delete('theaters/{id}', [TheaterController::class, 'delete']);  // xoa theo id
+
 
 //Ánh call api rooms
 Route::get('rooms', [RoomController::class, 'index']); // xuat all
@@ -86,7 +88,7 @@ Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all
-Route::post('seats' , [SeatController::class , 'store']); // them ban ghi moi ko cần thiết
+Route::post('seats' , [SeatController::class , 'store']); // 
 Route::get('seats/{id}', [SeatController::class, 'show']);  // show theo id
 Route::put('seats/{id}', [SeatController::class, 'update']);  // cap nhat theo id
 Route::delete('seats/{id}', [SeatController::class, 'delete']);  // xoa theo id
