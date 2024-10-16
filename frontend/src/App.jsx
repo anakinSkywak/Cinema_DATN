@@ -8,7 +8,40 @@ import "./style.css";
 
 function App() {
     return (
-  <></>
+        <HistoryRouter history={myHistory}>
+            <div className="App">
+                <Routes>
+                    {routes.map((page, index) => {
+                        const loginRequire = page.private;
+                        const roles = page.roles;
+                        return (
+                            <Route
+                                key={index}
+                                path={page.path}
+                                element={
+                                    page.layout ? (
+                                        loginRequire ? (
+                                            <PrivateRoute roles={roles}>
+                                                <page.layout>
+                                                    <page.component />
+                                                </page.layout>
+                                            </PrivateRoute>
+                                        ) : (
+                                            <page.layout>
+                                                <page.component />
+                                            </page.layout>
+                                        )
+                                    ) : (
+                                        <page.component />
+                                    )
+                                }
+                            />
+                        );
+                    })}
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </div>
+        </HistoryRouter>
     );
 }
 
