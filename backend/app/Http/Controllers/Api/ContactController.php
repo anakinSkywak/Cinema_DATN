@@ -8,105 +8,72 @@ use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
-    /**
-     * Hiển thị danh sách tất cả các contact.
-     */
+    // Lấy danh sách tất cả các contact
     public function index()
     {
-        // Lấy tất cả các contact
         $contacts = Contact::all();
-        return response()->json([
-            'message' => 'Danh sách các contact',
-            'data' => $contacts
-        ], 200);
+        return response()->json($contacts);
     }
 
-    /**
-     * Lưu một contact mới.
-     */
-    public function store(Request $request)
-    {
-        // Validation dữ liệu
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'message' => 'required|string',
-        ]);
-
-        // Tạo contact mới
-        $contact = Contact::create($request->all());
-
-        return response()->json([
-            'message' => 'Tạo contact mới thành công',
-            'data' => $contact
-        ], 201);
-    }
-
-    /**
-     * Hiển thị chi tiết một contact.
-     */
+    // Lấy thông tin một contact theo ID
     public function show($id)
     {
-        // Tìm contact theo ID
         $contact = Contact::find($id);
-
         if ($contact) {
-            return response()->json([
-                'message' => 'Chi tiết contact',
-                'data' => $contact
-            ], 200);
+            return response()->json($contact);
         } else {
-            return response()->json([
-                'message' => 'Contact không tồn tại'
-            ], 404);
+            return response()->json(['message' => 'Không tìm thấy contact'], 404);
         }
     }
 
-    /**
-     * Cập nhật thông tin contact.
-     */
-    public function update(Request $request, $id)
+    // Tạo một contact mới
+    public function store(Request $request)
     {
-        // Validation dữ liệu
         $request->validate([
-            'name' => 'string|max:255',
-            'email' => 'email|max:255',
-            'message' => 'string',
+            'noidung' => 'required|string|max:255',
+            'user_id' => 'required|exists:users,id',
         ]);
 
-        // Tìm contact theo ID và cập nhật
-        $contact = Contact::find($id);
+        $contact = Contact::create([
+            'noidung' => $request->noidung,
+            'user_id' => $request->user_id,
+        ]);
 
-        if ($contact) {
-            $contact->update($request->all());
-            return response()->json([
-                'message' => 'Cập nhật contact thành công',
-                'data' => $contact
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Contact không tồn tại để cập nhật'
-            ], 404);
-        }
+        return response()->json($contact, 201);
     }
 
-    /**
-     * Xóa một contact.
-     */
-    public function destroy($id)
+    // Cập nhật thông tin contact
+    public function update(Request $request, $id)
     {
-        // Tìm contact theo ID và xóa
         $contact = Contact::find($id);
 
-        if ($contact) {
-            $contact->delete();
-            return response()->json([
-                'message' => 'Xóa contact thành công'
-            ], 200);
-        } else {
-            return response()->json([
-                'message' => 'Contact không tồn tại để xóa'
-            ], 404);
+        if (!$contact) {
+            return response()->json(['message' => 'Không tìm thấy contact'], 404);
         }
+
+        $request->validate([
+            'noidung' => 'string|max:255',
+            'user_id' => 'exists:users,id',
+        ]);
+
+        $contact->update([
+            'noidung' => $request->noidung ?? $contact->noidung,
+            'user_id' => $request->user_id ?? $contact->user_id,
+        ]);
+
+        return response()->json($contact);
+    }
+
+    // Xóa contact
+    public function destroy($id)
+    {
+        $contact = Contact::find($id);
+
+        if (!$contact) {
+            return response()->json(['message' => 'Không tìm thấy contact'], 404);
+        }
+
+        $contact->delete();
+        return response()->json(['message' => 'Xóa contact thành công']);
     }
 }

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\RegisterMember;
+use App\Models\Member; // Import thêm Member để lấy giá từ bảng hội viên
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Carbon;
 
 class RegisterMemberController extends Controller
 {
@@ -32,24 +34,38 @@ class RegisterMemberController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        // Validate dữ liệu khi tạo RegisterMember mới
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'hoivien_id' => 'required|exists:members,id',
-            'tong_tien' => 'required|numeric',
-            'ngay_dang_ky' => 'required|date',
-            'trang_thai' => 'required|integer',
-        ]);
+{
+    // Validate dữ liệu khi tạo RegisterMember mới
+    $validated = $request->validate([
+        'user_id' => 'required|integer|exists:users,id',
+        'hoivien_id' => 'required|integer|exists:members,id',
+        'trang_thai' => 'required|integer',
+    ]);
 
-        // Tạo mới RegisterMember
-        $registerMember = RegisterMember::create($validated);
-
-        return response()->json([
-            'message' => 'Thêm mới RegisterMember thành công',
-            'data' => $registerMember
-        ], 201);
+    // Lấy giá hội viên
+    $member = Member::find($validated['hoivien_id']);
+    if (!$member) {
+        return response()->json(['message' => 'Hội viên không tồn tại!'], 404);
     }
+
+    // Tính toán tổng tiền
+    $tong_tien = $member->gia;
+
+    // Tạo mới RegisterMember
+    $registerMember = RegisterMember::create([
+        'user_id' => $validated['user_id'],
+        'hoivien_id' => $validated['hoivien_id'],
+        'tong_tien' => $tong_tien,  // Thêm trường tong_tien
+        'ngay_dang_ky' => Carbon::now(),
+        'trang_thai' => $validated['trang_thai'],
+    ]);
+
+    return response()->json([
+        'message' => 'Thêm mới RegisterMember thành công',
+        'data' => $registerMember
+    ], 200);
+}
+
 
     /**
      * Display the specified resource.
@@ -89,10 +105,20 @@ class RegisterMemberController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'hoivien_id' => 'required|exists:members,id',
-            'tong_tien' => 'required|numeric',
             'ngay_dang_ky' => 'required|date',
             'trang_thai' => 'required|integer',
         ]);
+
+        // Lấy thông tin hội viên để tính giá mới
+        $member = Member::find($request->hoivien_id);
+        if (!$member) {
+            return response()->json([
+                'message' => 'Hội viên không tồn tại'
+            ], 404);
+        }
+
+        // Cập nhật giá dựa trên loại hội viên
+        $validated['tong_tien'] = $member->gia;
 
         // Cập nhật RegisterMember
         $dataID->update($validated);
