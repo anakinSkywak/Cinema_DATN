@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('rotations', function (Blueprint $table) {
             $table->id();
-            $table->string('ten_phan_thuong' , 255);
-            $table->string('mota', 255);
-            $table->integer('so_luong_con_lai');
-            $table->float('xac_xuat' , 11);
+            $table->string('ten_phan_thuong',255);
+            $table->decimal('muc_giam_gia' , 12,3)->nullable(); // gia cho ve giam gia theo muc tien 10k 20k
+            $table->string('mo_ta',255);
+            $table->integer('xac_xuat'); // xac xuat bao nhieu % de lam quay nhan phan thuong
+            $table->integer('so_luong');
+            $table->integer('so_luong_con_lai')->nullable();
             $table->tinyInteger('trang_thai')->default(0)->nullable();
             $table->timestamps();
         });
