@@ -28,7 +28,6 @@ class TheaterController extends Controller
         ], 200);
     }
 
-
     public function store(Request $request)
     {
 
@@ -76,11 +75,7 @@ class TheaterController extends Controller
         // trả về 
         return response()->json( $dataID);
 
-        
-
     }
-
-
 
     public function update(Request $request, string $id)
     {

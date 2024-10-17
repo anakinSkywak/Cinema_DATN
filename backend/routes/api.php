@@ -81,9 +81,11 @@ Route::delete('theaters/{id}', [TheaterController::class, 'delete']);  // xoa th
 
 //Ánh call api rooms
 Route::get('rooms', [RoomController::class, 'index']); // xuat all
-Route::post('rooms', [RoomController::class, 'store']); // them ban ghi moi
+Route::get('addRoom', [RoomController::class, 'addroom']); // đưa đến trang from add đổ all rạp phim để khi thêm room chọn rạp phim
+Route::post('addRoom', [RoomController::class, 'store']); // them ban ghi moi
 Route::get('rooms/{id}', [RoomController::class, 'show']);  // show theo id
-Route::put('rooms/{id}', [RoomController::class, 'update']);  // cap nhat theo id
+Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);  // đưa đến from edit room theo id , đổ all rạp phim để chọn nếu thay đổi
+Route::put('editRoom/{id}', [RoomController::class, 'update']);  // cap nhat room theo id
 Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
