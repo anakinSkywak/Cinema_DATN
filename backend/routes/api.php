@@ -1,6 +1,5 @@
 <?php
 
-
 // để yên
 use App\Models\Movie;
 use Illuminate\Http\Request;
@@ -23,8 +22,6 @@ use App\Http\Controllers\Api\BookingDetailController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 // để yên
-
-
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -88,9 +85,11 @@ Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);  // đưa đ�
 Route::put('editRoom/{id}', [RoomController::class, 'update']);  // cap nhat room theo id
 Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
 
+
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all
-Route::post('seats' , [SeatController::class , 'store']); // 
+Route::get('addSeats', [SeatController::class, 'addSeat']); // xuat ghế theo phòng
+Route::post('addSeats' , [SeatController::class , 'store']); // thêm ghế theo phòng
 Route::get('seats/{id}', [SeatController::class, 'show']);  // show theo id
 Route::put('seats/{id}', [SeatController::class, 'update']);  // cap nhat theo id
 Route::delete('seats/{id}', [SeatController::class, 'delete']);  // xoa theo id
@@ -119,7 +118,6 @@ Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']
 
 
 
-
 // Ánh : call api Foods
 Route::get('foods', [FoodController::class, 'index']); // xuat all
 Route::post('foods', [FoodController::class, 'store']); // them ban ghi moi
@@ -127,12 +125,17 @@ Route::get('foods/{id}', [FoodController::class, 'show']);  // show theo id
 Route::put('foods/{id}', [FoodController::class, 'update']);  // cap nhat theo id
 Route::delete('foods/{id}', [FoodController::class, 'delete']);  // xoa theo id
 
-// Ánh : call api showtimes
+
+
+// Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // xuat all
 Route::post('showtimes', [ShowtimeController::class, 'store']); // them ban ghi moi
 Route::get('showtimes/{id}', [ShowtimeController::class, 'show']);  // show theo id
 Route::put('showtimes/{id}', [ShowtimeController::class, 'update']);  // cap nhat theo id
 Route::delete('showtimes/{id}', [ShowtimeController::class, 'delete']);  // xoa theo id
+
+
+
 
 // Ánh : call api vouchers 
 Route::get('vouchers', [VoucherController::class, 'index']); // xuat all
@@ -140,6 +143,8 @@ Route::post('vouchers', [VoucherController::class, 'store']); // them ban ghi mo
 Route::get('vouchers/{id}', [VoucherController::class, 'show']);  // show theo id
 Route::put('vouchers/{id}', [VoucherController::class, 'update']);  // cap nhat theo id
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
+
+
 
 // Ánh : call api Bookings // call sau call showtimes trước
 //Route::get('bookings', [BookingController::class, 'index']); // xuat all
@@ -149,6 +154,7 @@ Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat 
 Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
 // show chi tiết booking theo id
 Route::get('bookings/{booking}/details', [BookingController::class, 'showBookingDetails']);
+
 
 
 // // Ánh : call api Booking_details
@@ -162,7 +168,6 @@ Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPay
 
 // Ánh : call countdownVoucher : săn mã voucher
 
-// Ánh : cal thành viên 
 
 
 
@@ -232,10 +237,4 @@ Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
 
-// //lien he
-// Route::get('contacts', [ContactController::class, 'index']);
-// Route::post('contacts', [ContactController::class, 'store']);
-// Route::get('contacts/{id}', [ContactController::class, 'show']);
-// Route::put('contacts/{id}', [ContactController::class, 'update']);
-// Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
 

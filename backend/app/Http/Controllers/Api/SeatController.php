@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Room;
 use App\Models\Seat;
 use Illuminate\Http\Request;
 
 class SeatController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+
+
     public function index()
     {
         // call api xuat all seats 
@@ -31,9 +32,26 @@ class SeatController extends Controller
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // đưa đến from thêm ghế và đổ all phòng ra thêm ghế theo phòng
+    public function addSeat()
+    {
+
+        // đổ all phòng ra khi thêm
+        $roomall = Room::all();
+
+        if ($roomall->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phòng hãy thêm phòng'
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Xuất all phòng ok',
+            'data' => $roomall
+        ], 200);
+    }
+
+
     public function store(Request $request)
     {
         // them moi ghe ngoi 
@@ -71,6 +89,8 @@ class SeatController extends Controller
         ], 201);
     }
 
+
+
     // ham de tao pham vi ghe ngoi
     public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id)
     {
@@ -97,9 +117,8 @@ class SeatController extends Controller
         return $seats;
     }
 
-    /**
-     * Display the specified resource.
-     */
+
+
     public function show(string $id)
     {
         // show seat theo id
@@ -117,9 +136,8 @@ class SeatController extends Controller
         ], 200);  // 200 có dữ liệu trả về
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
+
     public function update(Request $request, string $id)
     {
         // cap nhat seat theo id 
@@ -147,9 +165,8 @@ class SeatController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
+
     public function delete(string $id)
     {
         // xoa theo id
