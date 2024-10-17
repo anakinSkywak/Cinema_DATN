@@ -122,9 +122,9 @@ class SeatController extends Controller
     public function show(string $id)
     {
         // show seat theo id
-        $dataID = Seat::find($id);
+        $seatID = Seat::find($id);
 
-        if (!$dataID) {
+        if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này',
             ], 404); // 404 ko có dữ liệu 
@@ -132,7 +132,24 @@ class SeatController extends Controller
 
         return response()->json([
             'message' => 'Lấy thông tin Seat theo ID thành công',
-            'data' => $dataID,
+            'data' => $seatID,
+        ], 200);  // 200 có dữ liệu trả về
+    }
+
+    public function editSeat(string $id)
+    {
+        // show seat theo id
+        $seatID = Seat::find($id);
+
+        if (!$seatID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Seat theo id này',
+            ], 404); // 404 ko có dữ liệu 
+        }
+
+        return response()->json([
+            'message' => 'Lấy thông tin Seat theo ID thành công',
+            'data' => $seatID,
         ], 200);  // 200 có dữ liệu trả về
     }
 
@@ -153,6 +170,7 @@ class SeatController extends Controller
         $validated = $request->validate([
             'so_ghe_ngoi' => 'required|string|max:250',
             'loai_ghe_ngoi' => 'required|string|max:250',
+            'gia_ghe' => 'required|numeric',
         ]);
 
         // cap nhat

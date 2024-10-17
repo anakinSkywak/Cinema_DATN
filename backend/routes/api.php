@@ -91,7 +91,8 @@ Route::get('seats', [SeatController::class, 'index']); // xuat all
 Route::get('addSeats', [SeatController::class, 'addSeat']); // xuat ghế theo phòng
 Route::post('addSeats' , [SeatController::class , 'store']); // thêm ghế theo phòng
 Route::get('seats/{id}', [SeatController::class, 'show']);  // show theo id
-Route::put('seats/{id}', [SeatController::class, 'update']);  // cap nhat theo id
+Route::get('editSeats/{id}', [SeatController::class, 'editSeat']);  // show theo id
+Route::put('editSeats/{id}', [SeatController::class, 'update']);  // cap nhat theo id
 Route::delete('seats/{id}', [SeatController::class, 'delete']);  // xoa theo id
 
 
