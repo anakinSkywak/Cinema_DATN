@@ -79,7 +79,7 @@ Route::delete('theaters/{id}', [TheaterController::class, 'delete']);  // xoa th
 //Ánh call api rooms
 Route::get('rooms', [RoomController::class, 'index']); // xuat all
 Route::get('addRoom', [RoomController::class, 'addroom']); // đưa đến trang from add đổ all rạp phim để khi thêm room chọn rạp phim
-Route::post('addRoom', [RoomController::class, 'store']); // them ban ghi moi
+Route::post('storeRoom', [RoomController::class, 'store']); // them ban ghi moi
 Route::get('rooms/{id}', [RoomController::class, 'show']);  // show theo id
 Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);  // đưa đến from edit room theo id , đổ all rạp phim để chọn nếu thay đổi
 Route::put('editRoom/{id}', [RoomController::class, 'update']);  // cap nhat room theo id
@@ -89,7 +89,7 @@ Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all
 Route::get('addSeats', [SeatController::class, 'addSeat']); // xuat ghế theo phòng
-Route::post('addSeats' , [SeatController::class , 'store']); // thêm ghế theo phòng
+Route::post('storeSeats' , [SeatController::class , 'store']); // thêm ghế theo phòng
 Route::get('seats/{id}', [SeatController::class, 'show']);  // show theo id
 Route::get('editSeats/{id}', [SeatController::class, 'editSeat']);  // show theo id
 Route::put('editSeats/{id}', [SeatController::class, 'update']);  // cap nhat theo id
@@ -130,9 +130,11 @@ Route::delete('foods/{id}', [FoodController::class, 'delete']);  // xoa theo id
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // xuat all
-Route::post('showtimes', [ShowtimeController::class, 'store']); // them ban ghi moi
+Route::get('addShowtimes', [ShowtimeController::class, 'addShowtime']); // đưa đến from add thêm showtime đổ rạp + phòng + phim để thêm
+Route::post('storeShowtimes', [ShowtimeController::class, 'store']); // them ban ghi moi
 Route::get('showtimes/{id}', [ShowtimeController::class, 'show']);  // show theo id
-Route::put('showtimes/{id}', [ShowtimeController::class, 'update']);  // cap nhat theo id
+Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);  // dua den trang edit
+Route::put('editShowtime/{id}', [ShowtimeController::class, 'update']);  // cap nhat theo id
 Route::delete('showtimes/{id}', [ShowtimeController::class, 'delete']);  // xoa theo id
 
 
