@@ -61,7 +61,7 @@ class AuthController extends Controller
         ));
 
         // khi nào cần xác nhận bằng mail thì dùng 
-        // $user->sendEmailVerificationNotification();
+        //$user->sendEmailVerificationNotification();
 
         return response()->json([
             'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'

@@ -54,12 +54,13 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     // update tài khoản phía user
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
 
-    // user booking khi đã login ok
+    // user booking khi đã login 
+    Route::post('booking', [BookingController::class, 'userBooking']); // them ban ghi moi
 
 });
 
 // login tra ve token cho fronend 
-Route::post('login', [AuthController::class, 'login']);
+//Route::post('login', [AuthController::class, 'login']);
 // api khac cua user viet sau f
 
 
@@ -159,7 +160,7 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa th
 //
 Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
 //
-Route::post('bookings', [BookingController::class, 'store']); // them ban ghi moi
+// Route::post('bookings', [BookingController::class, 'store']); // them ban ghi moi
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
 Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
 Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
