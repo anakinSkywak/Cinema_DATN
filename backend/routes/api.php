@@ -110,10 +110,10 @@ Route::delete('moviegenres/{id}', [MoviegenreController::class, 'delete']);
 //Ánh call api movie
 Route::get('movies', [MovieController::class, 'index']); // xuất all phim
 Route::get('addMovie', [MovieController::class, 'getMovieGenre']); // chuyen huong den form them moi do the loai phim cho chon
-Route::post('movies', [MovieController::class, 'store']); // ấn lưu thêm mới phim mới với thể loại phim
-Route::get('movies/{id}', [MovieController::class, 'show']);  // show theo id
-Route::get('editmovie/{id}', [MovieController::class, 'showEditID']);  // show dữ liệu theo id để edit
-Route::put('editmovie/{id}', [MovieController::class, 'update']);  // cap nhat theo id
+Route::post('storeMovie', [MovieController::class, 'store']); // ấn lưu thêm mới phim mới với thể loại phim
+Route::get('showMovies/{id}', [MovieController::class, 'show']);  // show theo id
+Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);  // show dữ liệu theo id để edit
+Route::put('updateMovie/{id}', [MovieController::class, 'update']);  // cap nhat theo id
 Route::delete('movies/{id}', [MovieController::class, 'delete']);  // xoa theo id
 Route::post('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
 Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo thể loại

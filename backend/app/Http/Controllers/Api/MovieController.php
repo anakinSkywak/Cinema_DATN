@@ -121,8 +121,9 @@ class MovieController extends Controller
 
         // Trả về dữ liệu phim (có thể trả về view hoặc JSON tuỳ theo nhu cầu)
         return response()->json([
+            'message' => 'show thông tin phim theo id , đổ all thể loại phim để chọn khi thay đổi ok',
             'movie' => $movie->load('movie_genres'),  // Trả về phim kèm theo thể loại
-            'all_genre'=>$allGenre, // đổ all thể loại phim ra để chọn chỉnh sửa để update
+            'all_genre' => $allGenre, // đổ all thể loại phim ra để chọn chỉnh sửa để update
         ], 200);
     }
 
@@ -147,10 +148,11 @@ class MovieController extends Controller
 
         // kiểm tra xem có thay đổi ảnh không
         if ($request->hasFile('anh_phim')) {
-            //dd($request->file('anh_phim'));
             // xóa ảnh cũ
             if ($movieID->anh_phim) {
-                $oldImagePath = public_path($movieID->anh_phim);
+                $oldImagePath = public_path(str_replace('/storage', 'storage', $movieID->anh_phim));
+                //$oldImagePath = public_path($movieID->anh_phim);
+
                 if (file_exists($oldImagePath)) {
                     unlink($oldImagePath);
                 }
@@ -161,17 +163,15 @@ class MovieController extends Controller
             $filename = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
             $validated['anh_phim'] = '/storage/' . $filePath;
-           
         } else {
+
             // k xóa để lại ảnh cũ
             $validated['anh_phim'] = $movieID->anh_phim;
         }
 
-        //dd($request->file('anh_phim'));
-
         // cập nhật phim
         $movieID->update($validated);
-        
+
         // cập nhật thể loại phim nếu thay đổi
         $movieID->movie_genres()->sync($request->loaiphim_ids);
 
@@ -179,7 +179,9 @@ class MovieController extends Controller
         return response()->json([
             'message' => 'Cập nhật dữ liệu mới cho Movie thành công ',
             'data' => $movieID->load('movie_genres'),
-            'image_url' => asset($movieID->anh_phim), // trả về đường dẫn ánh mới hoặc cũ 
+            //'image_url' => asset($movieID->anh_phim), // trả về đường dẫn ánh mới hoặc cũ 
+            'image_url' => asset('storage/' . str_replace('storage/', '', $movieID->anh_phim)),
+
         ], 200);
 
         // {
@@ -192,7 +194,7 @@ class MovieController extends Controller
         //     "hinh_thuc_phim": "2D",
         //     "loaiphim_ids": [10 , 9]
         // }
-        
+
     }
 
 
@@ -216,14 +218,15 @@ class MovieController extends Controller
     }
 
     // lọc phim theo thể loại
-    public function movieFilter(string $id){
+    public function movieFilter(string $id)
+    {
         $dataID =   Movie::with('movie_genres')
-        ->whereHas('movie_genres', function($query) use ($id) {
-            $query->where('moviegenres.id', $id); // Chỉ định rõ ràng tên bảng
-        })
-        ->get();
+            ->whereHas('movie_genres', function ($query) use ($id) {
+                $query->where('moviegenres.id', $id); // Chỉ định rõ ràng tên bảng
+            })
+            ->get();
         if ($dataID->isEmpty()) {
-            return response()->json([   
+            return response()->json([
                 'message' => 'Không có dữ liệu Movie theo id này',
             ], 404);
         }
@@ -233,12 +236,13 @@ class MovieController extends Controller
     }
 
     // tìm kiếm phịm theo từ khóa
-    public function movieFilterKeyword(Request $request){
-        $keyword = $request->input('keyword'); 
+    public function movieFilterKeyword(Request $request)
+    {
+        $keyword = $request->input('keyword');
 
-        $dataID =  Movie::with('movie_genres')->where('ten_phim', 'like', '%'.$keyword.'%')->get();
+        $dataID =  Movie::with('movie_genres')->where('ten_phim', 'like', '%' . $keyword . '%')->get();
         if ($dataID->isEmpty()) {
-            return response()->json([   
+            return response()->json([
                 'message' => 'Không có dữ liệu Movie theo theo từ khóa này',
             ], 404);
         }
