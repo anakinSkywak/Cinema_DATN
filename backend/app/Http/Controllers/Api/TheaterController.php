@@ -8,16 +8,14 @@ use App\Models\Theater;
 
 class TheaterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index()
     {
         // call api xuat all theatrs 
-        $data  = Theater::all();
-        
+        $theaterall  = Theater::all();
+
         // check rỗng nếu ko co dữ liệu trả về thông báo
-        if ($data->isEmpty()) {
+        if ($theaterall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu nào của rạp phim ! .',
             ], 200);
@@ -26,16 +24,12 @@ class TheaterController extends Controller
         // trả về dữ liệu
         return response()->json([
             'message' => 'Lấy All dữ liệu rạp phim thành công ',
-            'data' => $data,
+            'data' => $theaterall,
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // call them ban ghi moi rap phim 
 
         // check cac truong khi them
         $validated = $request->validate([
@@ -55,15 +49,13 @@ class TheaterController extends Controller
 
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
-        // lay thong tin rap theo id
-        $dataID = Theater::find($id);
+        // lấy thông tin rạp theo id
+        $theateraID = Theater::find($id);
 
-        if (!$dataID) {
+        if (!$theateraID) {
             return response()->json([
                 'message' => 'Không có dữ liệu rạp phim theo id này',
             ], 404); // 404 ko có dữ liệu 
@@ -71,13 +63,20 @@ class TheaterController extends Controller
 
         return response()->json([
             'message' => 'Lấy thông tin rạp phim theo ID thành công',
-            'data' => $dataID,
+            'data' => $theateraID,
         ], 200);  // 200 có dữ liệu trả về
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
+    public function editTheaterID(Request $request, string $id) {
+        // đổ dữ liệu theo id ra khi ấn nút edit theo id
+        $dataID = Theater::find($id);
+
+        // trả về 
+        return response()->json( $dataID);
+
+    }
+
     public function update(Request $request, string $id)
     {
         // cap nhat rap phim theo id
@@ -106,9 +105,7 @@ class TheaterController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function delete(string $id)
     {
         // xoa theo id

@@ -3,20 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Movie;
+use App\Models\Room;
 use App\Models\Showtime;
+use App\Models\Theater;
 use Illuminate\Http\Request;
 
 class ShowtimeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+
     public function index()
     {
         // xuat all
-        $data = Showtime::with(['movie', 'theater', 'room'])->get();
+        $showtimeall = Showtime::with(['movie', 'theater', 'room'])->get();
 
-        if (!$data) {
+        if (!$showtimeall) {
             return response()->json([
                 'message' => 'Không tìm thấy suất chiếu'
             ], 404);
@@ -24,13 +26,48 @@ class ShowtimeController extends Controller
 
         return response()->json([
             'message' => 'Lấy thông tin suất chiếu thành công',
-            'data' => $data,
+            'data' => $showtimeall,
         ], 200);  // 200 có dữ liệu trả về
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+    public function addShowtime()
+    {
+
+        $movies = Movie::all();
+
+        if ($movies->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phim hãy thêm phim'
+            ], 404);
+        }
+
+        $theaters = Theater::all();
+
+        if ($theaters->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có rạp hãy thêm rạp'
+            ], 404);
+        }
+
+        $rooms = Room::all();
+
+        if ($rooms->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phòng hãy thêm phòng'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Lấy các thông tin đổ ra để thêm ok',
+            'data' => [
+                'movies' => $movies,
+                'theaters' => $theaters,
+                'rooms' => $rooms,
+            ],
+        ], 200);  // 200 có dữ liệu trả về
+    }
+
     public function store(Request $request)
     {
         // them moi show tham , nhieu show tham cho phim de user booking
@@ -57,18 +94,17 @@ class ShowtimeController extends Controller
         // }
 
         // truy van them xuat chieu moi 
-        $showtiems = Showtime::create($validated);
+        $showtimes = Showtime::create($validated);
 
         // tra ve neu them ok
         return response()->json([
             'message' => 'Thêm mới showtime thành công',
-            'data' => $showtiems
+            'data' => $showtimes
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+
+
     public function show(string $id)
     {
         // show du lieu theo id
@@ -88,9 +124,37 @@ class ShowtimeController extends Controller
         ], 200);  // 200 có dữ liệu trả về
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+
+    public function editShowtime(string $id)
+    {
+
+        // Lấy suất chiếu theo id cùng với thông tin phim, rạp và phòng chiếu
+        $showtimeID = Showtime::with(['movie', 'theater', 'room'])->find($id);
+
+        if (!$showtimeID) {
+            return response()->json([
+                'message' => 'Không tìm thấy suất chiếu theo id này'
+            ], 404);
+        }
+
+        // đổ all phim rạp phòng nếu có chọn sẽ chọn để thay đổi
+        $movies = Movie::all();
+        $theaters = Theater::all();
+        $rooms = Room::all();
+
+        return response()->json([
+            'message' => 'Lấy thông tin suất chiếu theo id thành công',
+            'data' => [
+                'showtime' => $showtimeID,
+                'movies' => $movies,
+                'theaters' => $theaters,
+                'rooms' => $rooms,
+            ],
+        ], 200);  // 200 có dữ liệu trả về
+    }
+
+
+
     public function update(Request $request, string $id)
     {
         // cap nhat theo id
@@ -123,9 +187,8 @@ class ShowtimeController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
+
     public function delete(string $id)
     {
         // xoa theo id
