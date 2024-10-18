@@ -53,6 +53,9 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('logout', [AuthController::class, 'logout']);
     // update tài khoản phía user
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+
+    // user booking khi đã login ok
+
 });
 
 // login tra ve token cho fronend 

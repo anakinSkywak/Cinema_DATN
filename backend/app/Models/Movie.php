@@ -26,15 +26,6 @@ class Movie extends Model
     protected $dates = ['deleted_at'];
 
     // thiet lap quan he nhieu nhieu voi bang the loai phim
-    // public function movie_genres()
-    // { // trung gian luu tru phim va nhieu the loai phim
-    //     return $this->belongsToMany(MovieGenre::class, 'movie_movie_genre'); // trung gian luu tru phim va nhieu the loai phim
-    // }
-
-    // public function storage_movie_genres()
-    // {
-    //     return $this->belongsToMany(MovieGenre::class, 'movie_genre_movie', 'movie_id', 'movie_genre_id');
-    // }
 
     public function movie_genres()
     {
