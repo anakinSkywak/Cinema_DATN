@@ -11,14 +11,11 @@ use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
+
     public function index() {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
     {
         // user booking movie 
@@ -70,7 +67,6 @@ class BookingController extends Controller
         ]);
 
         // test 
-
         // tra ve khi booking voi cac thong tin thanh cong 
         // booking xong chuyen den booking_deltail chon ghe ngoi sau do thanh toan
         // sau do chuyen den paymet call thanh toan va do du lieu vao booking_datail cap nhat trang thai sang da than toan
@@ -80,9 +76,11 @@ class BookingController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+   
+
+    
+    
+
     public function showBookingDetails($bookingId)
     {
 
@@ -109,9 +107,7 @@ class BookingController extends Controller
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     */
+   
     public function test_đểyên(Request $request, string $id)
     {
 
@@ -176,7 +172,6 @@ class BookingController extends Controller
     {
 
         // dd($request->all());
-
         $dataID = Booking::find($id);
         if (!$dataID) {
             return response()->json([
@@ -231,9 +226,8 @@ class BookingController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+  
+
     public function delete(string $id)
     {
         // delete theo id

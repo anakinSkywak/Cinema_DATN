@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use App\Models\MovieGenre;
+use App\Models\Showtime;
 use Illuminate\Http\Request;
 
 class MovieController extends Controller
@@ -249,5 +250,30 @@ class MovieController extends Controller
         return response()->json([
             'data' => $dataID,
         ], 200);
+    }
+
+
+    // hàm xem chi tiết phim và show all showtime của phim đó đã thêm để user lựa chọn booking
+    public function movie_detail($movieID)
+    {
+        
+        // truy vấn show các showtime khi ấn vào phim theo id phim đó
+        // truy vấn ấn vào phim đổ all thông tin phim đó theo id và các showtime theo id phim
+        $movieDetailID = Movie::with('showtimes')->findOrFail($movieID);
+
+        // check xem có showtime hay ko
+        $checkShowtimes = Showtime::where('phim_id', $movieID)->exists();
+
+        if (!$checkShowtimes) {
+            return response()->json([
+                'message' => 'Chưa có thông tin chiếu cho phim này | thêm thông tin chiếu cho phim',
+                'data' => $movieDetailID   // trả về phim với các thông tin chiếu của phim đó
+            ], 200);
+        } else {
+            return response()->json([
+                'message' => 'Lấy thông tin phim và showtime đó theo id phim ok',
+                'data' => $movieDetailID // trả về phim với các thông tin chiếu của phim đó
+            ], 200);
+        }
     }
 }
