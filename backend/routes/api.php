@@ -99,9 +99,10 @@ Route::delete('seats/{id}', [SeatController::class, 'delete']);  // xoa theo id
 
 // Ánh : call api moviegenres
 Route::get('moviegenres', [MoviegenreController::class, 'index']);
-Route::post('moviegenres', [MoviegenreController::class, 'store']);
-Route::get('moviegenres/{id}', [MoviegenreController::class, 'show']);
-Route::put('moviegenres/{id}', [MoviegenreController::class, 'update']);
+Route::post('storeMoviegenres', [MoviegenreController::class, 'store']);
+Route::get('showMoviegenres/{id}', [MoviegenreController::class, 'show']);
+Route::get('editMoviegenres/{id}', [MoviegenreController::class, 'edit']);
+Route::put('updateMoviegenres/{id}', [MoviegenreController::class, 'update']);
 Route::delete('moviegenres/{id}', [MoviegenreController::class, 'delete']);
 
 
