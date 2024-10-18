@@ -8,15 +8,14 @@ use Illuminate\Http\Request;
 
 class FoodController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+
     public function index()
     {
         // xuat all 
-        $data = Food::all();
+        $foodall = Food::all();
 
-        if ($data->isEmpty()) {
+        if ($foodall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu Foods !'
             ], 200);
@@ -24,17 +23,14 @@ class FoodController extends Controller
 
         return response()->json([
             'message' => 'Xuất all dữ liệu Foods thành công',
-            'data' => $data,
+            'data' => $foodall,
         ], 200);
     }
 
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // 
+
         // check cac truong 
         $validated = $request->validate([
             'ten_do_an' => 'required|string|max:250',
@@ -43,27 +39,25 @@ class FoodController extends Controller
         ]);
 
         // them moi food
-        $room = Food::create($validated);
+        $food = Food::create($validated);
 
         // tra ve khi them moi ok
         return response()->json([
             'message' => 'Thêm mới Food thành công',
-            'data' => $room
+            'data' => $food
         ], 201);    // tra về 201 them moi thanh cong
 
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         // show theo id
         // show food theo id
-        $dataID = Food::find($id);
+        $foodID = Food::find($id);
 
 
-        if (!$dataID) {
+        if (!$foodID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Food theo id này',
             ], 404); // 404 ko có dữ liệu 
@@ -71,22 +65,37 @@ class FoodController extends Controller
 
         return response()->json([
             'message' => 'Lấy thông tin Food theo ID thành công',
-            'data' => $dataID,
+            'data' => $foodID,
         ], 200);  // 200 có dữ liệu trả về
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    public function edit(string $id)
+    {
+        // show theo id
+        // show food theo id
+        $foodID = Food::find($id);
+
+        if (!$foodID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Food theo id này',
+            ], 404); // 404 ko có dữ liệu 
+        }
+
+        return response()->json([
+            'message' => 'Lấy thông tin Food theo ID để edit ok ',
+            'data' => $foodID,
+        ], 200);  // 200 có dữ liệu trả về
+    }
+
     public function update(Request $request, string $id)
     {
         //
 
         // cap nhat food theo id 
-        $dataID = Food::find($id);
+        $foodID = Food::find($id);
 
         //check khi sửa de cap nhat 
-        if (!$dataID) {
+        if (!$foodID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Food theo id này',
             ], 404);
@@ -99,18 +108,16 @@ class FoodController extends Controller
         ]);
 
         // cap nhat
-        $dataID->update($validated);
+        $foodID->update($validated);
 
         // trả về 
         return response()->json([
             'message' => 'Cập nhật dữ liệu Food id thành công',
-            'data' => $dataID
+            'data' => $foodID
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function delete(string $id)
     {
         // xoa theo id

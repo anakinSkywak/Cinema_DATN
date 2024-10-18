@@ -122,10 +122,11 @@ Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']
 
 // Ánh : call api Foods
 Route::get('foods', [FoodController::class, 'index']); // xuat all
-Route::post('foods', [FoodController::class, 'store']); // them ban ghi moi
-Route::get('foods/{id}', [FoodController::class, 'show']);  // show theo id
-Route::put('foods/{id}', [FoodController::class, 'update']);  // cap nhat theo id
-Route::delete('foods/{id}', [FoodController::class, 'delete']);  // xoa theo id
+Route::post('storeFood', [FoodController::class, 'store']); // them ban ghi moi
+Route::get('showFood/{id}', [FoodController::class, 'show']);  // show theo id
+Route::get('editFood/{id}', [FoodController::class, 'edit']);  // đến from edit do du lieu theo id do
+Route::put('updateFood/{id}', [FoodController::class, 'update']);  // cap nhat theo id
+Route::delete('food/{id}', [FoodController::class, 'delete']);  // xoa theo id
 
 
 
