@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 // để yên
@@ -95,8 +96,12 @@ Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all
+
+Route::post('seats' , [SeatController::class , 'store']); // them ban ghi ghe ngoi bang tay 
+
 Route::get('addSeats', [SeatController::class, 'addSeat']); // xuat ghế theo phòng
 Route::post('storeSeats' , [SeatController::class , 'store']); // thêm ghế theo phòng
+
 Route::get('seats/{id}', [SeatController::class, 'show']);  // show theo id
 Route::get('editSeats/{id}', [SeatController::class, 'editSeat']);  // show theo id
 Route::put('editSeats/{id}', [SeatController::class, 'update']);  // cap nhat theo id
@@ -124,7 +129,6 @@ Route::put('updateMovie/{id}', [MovieController::class, 'update']);  // cap nhat
 Route::delete('movies/{id}', [MovieController::class, 'delete']);  // xoa theo id
 Route::post('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
 Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo thể loại
-
 
 
 // Ánh : call api Foods
@@ -263,6 +267,7 @@ Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // 
 //cal api contacts
 Route::get('contacts', [ContactController::class, 'index']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
+Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
@@ -272,6 +277,15 @@ Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi
 Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
 Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
+
+//call api countdown_vouchers
+Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
+Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
+Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
+Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
+Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+
+
 
 
 

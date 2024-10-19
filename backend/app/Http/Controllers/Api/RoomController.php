@@ -1,5 +1,3 @@
-<?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -9,152 +7,119 @@ use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-
-
+    // Get all rooms
     public function index()
     {
-        // show all room 
-        $roomall = Room::all();
+        $rooms = Room::all();
 
-        if ($roomall->isEmpty()) {
-            return response()->json([
-                'message' => 'Không có dữ liệu rạp phim !'
-            ], 200);
+        if ($rooms->isEmpty()) {
+            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 200);
         }
 
         return response()->json([
             'message' => 'Xuất dữ liệu Room thành công',
-            'data' => $roomall,
+            'data' => $rooms,
         ], 200);
     }
 
-
-    // hàm đến from add thêm mới đổ rạp phim để thêm khi thêm mới
+    // Get all theaters for adding a new room
     public function addRoom()
     {
-        // đổ all rạp phim để chọn khi thêm
-        $thearteall = Theater::all();
+        $theaters = Theater::all();
 
-        if ($thearteall->isEmpty()) {
-            return response()->json([
-                'message' => 'Không có dữ liệu nào của rạp phim ! .',
-            ], 200);
+        if ($theaters->isEmpty()) {
+            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 200);
         }
 
-        return response()->json($thearteall);
-
+        return response()->json($theaters);
     }
 
-
+    // Store new room
     public function store(Request $request)
     {
-        // thêm moi room
-        // check cac truong 
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
             'tong_ghe_phong' => 'required|integer',
-            'rapphim_id' => 'required|exists:theaters,id', // dam bao co rap theo id
+            'rapphim_id' => 'required|exists:theaters,id',
         ]);
 
-        // them moi phong chieu
         $room = Room::create($validated);
 
-        // tra ve khi them moi ok
         return response()->json([
-            'message' => 'Thêm mới phòng chiếu phim  thành công',
-            'data' => $room
-        ], 201);    // tra về 201 them moi thanh cong
+            'message' => 'Thêm mới phòng chiếu phim thành công',
+            'data' => $room,
+        ], 201);
     }
 
-
+    // Show room by id
     public function show(string $id)
     {
-        // show room theo id
-        $dataID = Room::find($id);
+        $room = Room::find($id);
 
-        if (!$dataID) {
-            return response()->json([
-                'message' => 'Không có dữ liệu Room theo id này',
-            ], 404); // 404 ko có dữ liệu 
+        if (!$room) {
+            return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
 
         return response()->json([
             'message' => 'Lấy thông tin Room theo ID thành công',
-            'data' => $dataID,
-        ], 200);  // 200 có dữ liệu trả về
+            'data' => $room,
+        ], 200);
     }
 
-    
-    // đưa đến trang edit với thông tin edit đó và Theater để thay đổi rạp nếu muốn
+    // Edit room with theater list
     public function editRoom(string $id)
     {
-        // show room theo id
-        $roomID = Room::find($id);
+        $room = Room::find($id);
 
-        if (!$roomID) {
-            return response()->json([
-                'message' => 'Không có dữ liệu Room theo id này',
-            ], 404); // 404 ko có dữ liệu 
+        if (!$room) {
+            return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
 
-        // đổ all theaters ra để chọn nếu thay đổi rạp phim của phòng đó
         $theaters = Theater::all();
 
         return response()->json([
             'message' => 'Lấy thông tin Room theo ID thành công',
             'data' => [
-                'room' =>$roomID , // phong theo id
-                'theaters' => $theaters,  // all rap phim
+                'room' => $room,
+                'theaters' => $theaters,
             ],
-        ], 200);  // 200 có dữ liệu trả về
+        ], 200);
     }
 
-
+    // Update room by id
     public function update(Request $request, string $id)
     {
-        // cap nhat room theo id 
-        $roomID = Room::find($id);
+        $room = Room::find($id);
 
-        //check khi sửa de cap nhat 
-        if (!$roomID) {
-            return response()->json([
-                'message' => 'Không có dữ liệu Room phim theo id này',
-            ], 404);
+        if (!$room) {
+            return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
-        // check cac truong 
+
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
             'tong_ghe_phong' => 'required|integer',
-            'rapphim_id' => 'required|exists:theaters,id', // dam bao co rap theo id
+            'rapphim_id' => 'required|exists:theaters,id',
         ]);
 
-        // cap nhat
-        $roomID->update($validated);
+        $room->update($validated);
 
-        // trả về 
         return response()->json([
-            'message' => 'Cập nhật dữ liệu Room theo id thành công',
-            'data' => $roomID
+            'message' => 'Cập nhật dữ liệu Room thành công',
+            'data' => $room,
         ], 200);
     }
 
-
+    // Delete room by id (Soft Delete)
     public function delete(string $id)
     {
-        // xoa theo id có softdelete
-        $dataID = Room::find($id);
+        $room = Room::find($id);
 
-        // check xem co du lieu hay ko
-        if (!$dataID) {
-            return response()->json([
-                'message' => 'Không có dữ liệu Room theo id này',
-            ], 404);
+        if (!$room) {
+            return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
 
-        $dataID->delete();
+        $room->delete();
 
-        return response()->json([
-            'message' => 'Xóa Room theo id thành công'
-        ], 200);
+        return response()->json(['message' => 'Xóa Room theo id thành công'], 200);
     }
 }
