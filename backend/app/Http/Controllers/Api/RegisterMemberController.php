@@ -10,9 +10,7 @@ use Illuminate\Support\Carbon;
 
 class RegisterMemberController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
     public function index()
     {
         // Lấy tất cả dữ liệu từ bảng RegisterMember
@@ -30,12 +28,10 @@ class RegisterMemberController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+   
     public function store(Request $request)
     {
-        // Xác thực dữ liệu khi tạo RegisterMember mới
+        // Xác thực dữ liệu skhi tạo RegisterMember mới
         $validated = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'hoivien_id' => 'required|integer|exists:members,id',
@@ -84,11 +80,7 @@ class RegisterMemberController extends Controller
 
 
 
-
-
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request, $id)
     {
         // Cập nhật RegisterMember theo ID
@@ -133,9 +125,7 @@ class RegisterMemberController extends Controller
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    
     public function destroy($id)
     {
         // Xóa RegisterMember theo ID

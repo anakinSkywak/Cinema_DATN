@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Food;
+use App\Models\Seat;
 use App\Models\Showtime;
 use App\Models\Voucher;
 use Auth;
@@ -38,18 +39,25 @@ class BookingController extends Controller
             'ghi_chu' => 'nullable|string|max:255',
             'ma_giam_gia' => 'nullable|string|max:255',
             'doan_id' => 'required|exists:foods,id',
-            'so_luong' => 'nullable|numeric' 
+            'so_luong' => 'nullable|numeric' ,
+            'ghe_ngoi'=> 'string|max:255',
+            'ghengoi_id' => 'equired|exists:seats,id'
         ]);
         
 
         // lấy phim từ xuất chiếu khi booking
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
-
         // if (!$showtime) {
         //     return response()->json([
         //         'message' => 'Suất chiếu không tồn tại'
         //     ], 404);
         // }
+
+
+        // chọn ghế tình tiền theo ghế các ghế đã chọn
+        
+        // giá vé + giá ghế theo từng ghế đã chọn 
+
 
         $food = Food::with('movie')->find('doan_id');
         $gia_phim = $showtime->movie->gia_ve;  // lay gia ve de tinh tien ve phim
@@ -61,7 +69,7 @@ class BookingController extends Controller
 
 
         // tinh tong tien cua ve phim 
-        $tong_tien = $gia_phim + $gia_do_an; // 
+        $tong_tien = $gia_phim + $gia_do_an; 
 
         // ap dung ma giam gia : code sau
         
@@ -82,11 +90,7 @@ class BookingController extends Controller
             'ngay_mua' => Carbon::now(), // ngay mua theo ngay hien tai ko can them
             'trang_thai' => 0 // mac dinh 0 vi chua thanh toan
         ]);
-
-        // test 
-        // tra ve khi booking voi cac thong tin thanh cong 
-        // booking xong chuyen den booking_deltail chon ghe ngoi sau do thanh toan
-        // sau do chuyen den paymet call thanh toan va do du lieu vao booking_datail cap nhat trang thai sang da than toan
+        
         return response()->json([
             'message' => 'Tạo booking thành công , den trang thanh toan payment!',
             'data' => $booking

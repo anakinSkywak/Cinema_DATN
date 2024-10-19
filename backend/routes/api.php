@@ -211,7 +211,9 @@ Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa the
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
+
 Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
+
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
 Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id

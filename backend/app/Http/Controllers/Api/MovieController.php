@@ -66,6 +66,9 @@ class MovieController extends Controller
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
         ]);
 
+        // check ko chấp nhận kiểu ảnh webp : check sau
+        
+
         // xu ly upload ảnh 
         if ($request->hasFile('anh_phim')) {
             $file = $request->file('anh_phim');
@@ -258,8 +261,8 @@ class MovieController extends Controller
     {
         
         // truy vấn show các showtime khi ấn vào phim theo id phim đó
-        // truy vấn ấn vào phim đổ all thông tin phim đó theo id và các showtime theo id phim
-        $movieDetailID = Movie::with('showtimes')->findOrFail($movieID);
+        // truy vấn ấn vào phim đổ all thông tin phim đó theo id và các showtime theo id phim và ghế của phòng đó
+        $movieDetailID = Movie::with(['showtimes.room.seat'])->findOrFail($movieID);
 
         // check xem có showtime hay ko
         $checkShowtimes = Showtime::where('phim_id', $movieID)->exists();
