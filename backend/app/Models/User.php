@@ -33,6 +33,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'diem_thuong',
         'ma_giam_gia',
         'so_luot_quay',
+        'quyen_han',
+
     ];
 
     protected $dates = ['deleted_at'];
@@ -60,8 +62,15 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getJWTCustomClaims()
     {
         // return [];
+
+        return ['role' => $this->role];
+
         return ['vai_tro' => $this->vai_tro]; 
+
     }
+
+
+    
 
     /**
      * The attributes that should be cast.
@@ -72,4 +81,13 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed', // bam mk
     ];
+
+
+    //Đăng kí thẻ hội viên
+    public function registerMembers()
+    {
+        return $this->hasMany(RegisterMember::class, 'user_id');
+    }
+
+    
 }

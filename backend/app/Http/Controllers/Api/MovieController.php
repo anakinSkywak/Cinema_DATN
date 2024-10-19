@@ -158,7 +158,39 @@ class MovieController extends Controller
         $dataID->delete();
 
         return response()->json([
-            'message' => 'Xóa Room theo id thành công'
+            'message' => 'Xóa phim theo id thành công'
+        ], 200);
+    }
+
+    // lọc phim theo thể loại
+    public function movieFilter(string $id){
+        $dataID =   Movie::with('movie_genres')
+        ->whereHas('movie_genres', function($query) use ($id) {
+            $query->where('moviegenres.id', $id); // Chỉ định rõ ràng tên bảng
+        })
+        ->get();
+        if ($dataID->isEmpty()) {
+            return response()->json([   
+                'message' => 'Không có dữ liệu Movie theo id này',
+            ], 404);
+        }
+        return response()->json([
+            'data' => $dataID,
+        ], 200);
+    }
+
+    // tìm kiếm phịm theo từ khóa
+    public function movieFilterKeyword(Request $request){
+        $keyword = $request->input('keyword'); 
+
+        $dataID =  Movie::with('movie_genres')->where('ten_phim', 'like', '%'.$keyword.'%')->get();
+        if ($dataID->isEmpty()) {
+            return response()->json([   
+                'message' => 'Không có dữ liệu Movie theo theo từ khóa này',
+            ], 404);
+        }
+        return response()->json([
+            'data' => $dataID,
         ], 200);
     }
 }

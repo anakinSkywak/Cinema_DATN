@@ -46,17 +46,10 @@ class RoomController extends Controller
         // them moi phong chieu
         $room = Room::create($validated);
 
-        // goi phuong thuc tao ghe ngoi o model Seat
-        
-        $room->addCreate(10);   // tạm test là 10
-
-        // Lấy thông tin phòng chiếu cùng với rạp phim và ghế ngồi
-        $roomWithDetails  = Room::with(['theater', 'seats'])->find($room->id);
-
         // tra ve khi them moi ok
         return response()->json([
-            'message' => 'Thêm mới phòng chiếu phim va ghế ngồi thành công',
-            'data' => $roomWithDetails 
+            'message' => 'Thêm mới phòng chiếu phim  thành công',
+            'data' => $room 
         ], 201);    // tra về 201 them moi thanh cong
     }
 
@@ -67,7 +60,6 @@ class RoomController extends Controller
     {
         // show room theo id
         $dataID = Room::find($id);
-
 
         if (!$dataID) {
             return response()->json([
