@@ -4,21 +4,19 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Room;
-
-
+use App\Models\Theater;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+
     public function index()
     {
         // show all room 
-        $data = Room::all();
+        $roomall = Room::all();
 
-        if ($data->isEmpty()) {
+        if ($roomall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu rạp phim !'
             ], 200);
@@ -26,13 +24,28 @@ class RoomController extends Controller
 
         return response()->json([
             'message' => 'Xuất dữ liệu Room thành công',
-            'data' => $data,
+            'data' => $roomall,
         ], 200);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+    // hàm đến from add thêm mới đổ rạp phim để thêm khi thêm mới
+    public function addRoom()
+    {
+        // đổ all rạp phim để chọn khi thêm
+        $thearteall = Theater::all();
+
+        if ($thearteall->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu nào của rạp phim ! .',
+            ], 200);
+        }
+
+        return response()->json($thearteall);
+
+    }
+
+
     public function store(Request $request)
     {
         // thêm moi room
@@ -46,28 +59,18 @@ class RoomController extends Controller
         // them moi phong chieu
         $room = Room::create($validated);
 
-        // goi phuong thuc tao ghe ngoi o model Seat
-        
-        $room->addCreate(10);   // tạm test là 10
-
-        // Lấy thông tin phòng chiếu cùng với rạp phim và ghế ngồi
-        $roomWithDetails  = Room::with(['theater', 'seats'])->find($room->id);
-
         // tra ve khi them moi ok
         return response()->json([
-            'message' => 'Thêm mới phòng chiếu phim va ghế ngồi thành công',
-            'data' => $roomWithDetails 
+            'message' => 'Thêm mới phòng chiếu phim  thành công',
+            'data' => $room
         ], 201);    // tra về 201 them moi thanh cong
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(string $id)
     {
         // show room theo id
         $dataID = Room::find($id);
-
 
         if (!$dataID) {
             return response()->json([
@@ -81,16 +84,39 @@ class RoomController extends Controller
         ], 200);  // 200 có dữ liệu trả về
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
+    // đưa đến trang edit với thông tin edit đó và Theater để thay đổi rạp nếu muốn
+    public function editRoom(string $id)
+    {
+        // show room theo id
+        $roomID = Room::find($id);
+
+        if (!$roomID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Room theo id này',
+            ], 404); // 404 ko có dữ liệu 
+        }
+
+        // đổ all theaters ra để chọn nếu thay đổi rạp phim của phòng đó
+        $theaters = Theater::all();
+
+        return response()->json([
+            'message' => 'Lấy thông tin Room theo ID thành công',
+            'data' => [
+                'room' =>$roomID , // phong theo id
+                'theaters' => $theaters,  // all rap phim
+            ],
+        ], 200);  // 200 có dữ liệu trả về
+    }
+
+
     public function update(Request $request, string $id)
     {
         // cap nhat room theo id 
-        $dataID = Room::find($id);
+        $roomID = Room::find($id);
 
         //check khi sửa de cap nhat 
-        if (!$dataID) {
+        if (!$roomID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Room phim theo id này',
             ], 404);
@@ -103,18 +129,16 @@ class RoomController extends Controller
         ]);
 
         // cap nhat
-        $dataID->update($validated);
+        $roomID->update($validated);
 
         // trả về 
         return response()->json([
             'message' => 'Cập nhật dữ liệu Room theo id thành công',
-            'data' => $dataID
+            'data' => $roomID
         ], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function delete(string $id)
     {
         // xoa theo id có softdelete
