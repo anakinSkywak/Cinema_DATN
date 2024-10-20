@@ -26,7 +26,9 @@ class Booking extends Model
         'trang_thai',
         'so_luong_do_an',
         'do_an',
-        'ghe_ngoi'
+        'ghe_ngoi',
+        'magiamgia_id'
+
     ];
 
     protected $dates = ['deleted_at'];

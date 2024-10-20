@@ -13,6 +13,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+use function PHPUnit\Framework\isEmpty;
+
 class BookingController extends Controller
 {
 
@@ -149,41 +151,39 @@ class BookingController extends Controller
     {
 
         $user = auth()->user();
-        // if (!$user) {
-        //     return response()->json([
-        //         'message' => 'chua dn'
-        //     ], 404);
-        // }
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'Chưa đăng nhập phải đăng nhập'
+            ], 401);
+        }
 
         // xác thực dữ liệu đầu vào
         $request->validate([
-            // 'user_id' => 'required|exists:users,id',
-
             'thongtinchieu_id' => 'required|exists:showtimes,id',
             'ma_giam_gia' => 'nullable|string|max:255',
+            //'magiamgia_id' => 'required|exists:vouchers,id',
             'doan_id' => 'nullable|exists:foods,id',
-            'ghe_ngoi' => 'required|array',
+            'ghe_ngoi' => 'required|min:1',
             'ghe_ngoi.*' => 'required|exists:seats,id',
             'so_luong_do_an' => 'nullable|numeric|min:1',
-
         ]);
 
         // Lấy thông tin suất chiếu
-        $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
-        if (!$showtime) {
-            return response()->json(['message' => 'Suất chiếu không tồn tại chọn xuất chiếu.'], 404);
-        }
+        $showtime = Showtime::with('movie')->findOrFail($request->thongtinchieu_id);
 
         // lấy các ghế ngồi đã chọn
         $selectedSeats = $request->ghe_ngoi;
 
         $seatNames = [];
+
         foreach ($selectedSeats as $seatId) {
             $seat = Seat::find($seatId);
             if ($seat) {
                 $seatNames[] = $seat->so_ghe_ngoi;
             }
         }
+
 
         // sắp xếp các ghế ngồi đã chọn liền kề nhau
         sort($selectedSeats);
@@ -206,7 +206,6 @@ class BookingController extends Controller
         if (!$checkSeats) {
             return response()->json(['message' => 'Các ghế đã chọn phải liền kề nhau.'], 400);
         }
-
 
         // tính toán tính tiền đồ ăn nếu chọn
         $food = $request->doan_id ? Food::find($request->doan_id) : null;
@@ -259,6 +258,8 @@ class BookingController extends Controller
             'data' => $booking
         ], 201);
     }
+
+
 
     public function showBookingDetails($bookingId)
     {
