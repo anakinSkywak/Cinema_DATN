@@ -118,8 +118,6 @@ class AuthController extends Controller
             'ho_ten' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->user_id,
             'so_dien_thoai' => 'required|string|max:10|unique:users,so_dien_thoai,' . $user->user_id,
-            // dùng email để cập nhật mật khẩu
-            // 'password' => 'nullable|string|min:8|confirmed', // Cho phép trường password không bắt buộc
             'gioi_tinh' => 'required|in:nam,nu,khac',
             'vai_tro' => 'required|in:user,admin,nhan_vien',
         ]);
@@ -138,4 +136,6 @@ class AuthController extends Controller
             'message' => 'Bạn đã cập nhật tài khoản thành công'
         ]);
     }
+
+    // xác nhận đăng ký thành công
 }
