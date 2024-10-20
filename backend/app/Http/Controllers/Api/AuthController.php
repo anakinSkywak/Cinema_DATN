@@ -35,8 +35,10 @@ class AuthController extends Controller
             return response()->json(['error' => 'Không thể đăng nhập'], 401);
         }
 
+
         // Trả về token
         return $this->createNewToken($token);
+
     }
 
     // Đăng ký tài khoản người dùng với xác thực
@@ -61,7 +63,7 @@ class AuthController extends Controller
         ));
 
         // khi nào cần xác nhận bằng mail thì dùng 
-        //$user->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
         return response()->json([
             'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'

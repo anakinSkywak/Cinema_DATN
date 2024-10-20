@@ -23,7 +23,10 @@ class Booking extends Model
         'tong_tien',
         'tong_tien_thanh_toan',
         'ngay_mua',
-        'trang_thai'
+        'trang_thai',
+        'so_luong_do_an',
+        'do_an',
+        'ghe_ngoi'
     ];
 
     protected $dates = ['deleted_at'];
