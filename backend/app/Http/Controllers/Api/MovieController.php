@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Food;
 use App\Models\Movie;
 use App\Models\MovieGenre;
 use App\Models\Showtime;
@@ -264,6 +265,7 @@ class MovieController extends Controller
         // truy vấn ấn vào phim đổ all thông tin phim đó theo id và các showtime theo id phim và ghế của phòng đó
         $movieDetailID = Movie::with(['showtimes.room.seat'])->findOrFail($movieID);
 
+        $getFoodAll = Food::all();
         // check xem có showtime hay ko
         $checkShowtimes = Showtime::where('phim_id', $movieID)->exists();
 
@@ -274,8 +276,9 @@ class MovieController extends Controller
             ], 200);
         } else {
             return response()->json([
-                'message' => 'Lấy thông tin phim và showtime đó theo id phim ok',
-                'data' => $movieDetailID // trả về phim với các thông tin chiếu của phim đó
+                'message' => 'Lấy thông tin phim và showtime đó theo id phim ok ',
+                'data' => $movieDetailID, // trả về phim với các thông tin chiếu của phim đó
+                'foods' => $getFoodAll,
             ], 200);
         }
     }

@@ -151,7 +151,6 @@ class BookingController extends Controller
     {
 
         $user = auth()->user();
-
         if (!$user) {
             return response()->json([
                 'message' => 'Chưa đăng nhập phải đăng nhập'
@@ -162,16 +161,23 @@ class BookingController extends Controller
         $request->validate([
             'thongtinchieu_id' => 'required|exists:showtimes,id',
             'ma_giam_gia' => 'nullable|string|max:255',
-            //'magiamgia_id' => 'required|exists:vouchers,id',
+            'magiamgia_id' => 'nullable|exists:vouchers,id',
             'doan_id' => 'nullable|exists:foods,id',
-            'ghe_ngoi' => 'required|min:1',
+            'ghe_ngoi' => 'required|array|min:1',
             'ghe_ngoi.*' => 'required|exists:seats,id',
             'so_luong_do_an' => 'nullable|numeric|min:1',
         ]);
 
-        // Lấy thông tin suất chiếu
-        $showtime = Showtime::with('movie')->findOrFail($request->thongtinchieu_id);
 
+        // Lấy thông tin suất chiếu
+        // $showtime = Showtime::with('movie')->findOrFail($request->thongtinchieu_id);
+
+        $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
+        if (!$showtime) {
+            return response()->json([
+                'message' => 'Suất chiếu không tồn tại.'
+            ], 404);
+        }
         // lấy các ghế ngồi đã chọn
         $selectedSeats = $request->ghe_ngoi;
 
@@ -191,7 +197,6 @@ class BookingController extends Controller
         // kiểm tra tính liền kề
         $checkSeats = true;
         for ($i = 0; $i < count($selectedSeats) - 1; $i++) {
-
             // check kiểm tra chọn ghế phải mỗi lần chọn phải tăng lên 1 
             // Kiểm tra nếu ghế hiện tại không liền kề với ghế tiếp theo
             if ($selectedSeats[$i] + 1 !== $selectedSeats[$i + 1]) {
@@ -231,6 +236,9 @@ class BookingController extends Controller
                 $tong_tien_ghe += $seat->gia_ghe; // Cộng giá của từng ghế vào tổng tiền ghế
             }
         }
+
+        // xử lý giảm giá nếu có 
+        
 
         // tính tổng tiền theo : gồm gía vé phim và tiền tổng ghế đã chọn
         $tong_tien_ve_phim = $tong_gia_ve_phim + $tong_tien_ghe;

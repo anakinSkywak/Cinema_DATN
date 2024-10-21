@@ -56,14 +56,21 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('logout', [AuthController::class, 'logout']);
     // update tài khoản phía user
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
-
-
-
 });
 
 // user booking khi đã login 
-Route::post('/booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
+//Route::post('/booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
+Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
+Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
 
+
+
+
+
+Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
+Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
+Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
+Route::get('bookings/{booking}/details', [BookingController::class, 'showBookingDetails']);
 
 
 // login tra ve token cho fronend 
@@ -164,17 +171,6 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa th
 
 // Ánh : call api Bookings // call sau call showtimes trước
 //Route::get('bookings', [BookingController::class, 'index']); // xuat all
-
-
-Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
-Route::post('/booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
-
-
-Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
-Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
-Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
-// show chi tiết booking theo id
-Route::get('bookings/{booking}/details', [BookingController::class, 'showBookingDetails']);
 
 
 
