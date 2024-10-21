@@ -64,9 +64,6 @@ Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xu
 Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
 
 
-
-
-
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
 Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
 Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
