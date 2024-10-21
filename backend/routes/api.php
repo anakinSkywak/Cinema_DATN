@@ -4,47 +4,33 @@
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MomentController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
-
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\MovieController;
-use App\Http\Controllers\Api\MemberController;
-use App\Http\Controllers\Api\BookingController;
-
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PaymentController;
-
 use App\Http\Controllers\Api\TheaterController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
-use App\Http\Controllers\Api\TypeBlogController;
-
-
 // Giải quyết xung đột bằng cách kết hợp cả hai nhánh
+use App\Http\Controllers\Api\TypeBlogController;
+use App\Http\Controllers\Api\RotationsController;
+use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\MemberShipsController;
-use App\Http\Controllers\Api\RegisterMemberController;
-use App\Http\Controllers\Api\BookingDetailController;
-use App\Http\Controllers\Api\PaymentController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Controllers\Api\AuthController; // auth api 
-
-
-
-use App\Http\Controllers\Api\MembershipController;
-use App\Http\Controllers\Api\RotationsController;
-use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\AuthController; // auth api 
+
+
 // để yên
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -310,8 +296,12 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
-
-
+//call api moments
+Route::get('moments', [MomentController::class, 'index']); // Lấy danh sách tất cả moments
+Route::post('moments', [MomentController::class, 'store']); // Tạo moment mới
+Route::get('moments/{id}', [MomentController::class, 'show']); // Lấy thông tin 1 moment
+Route::put('moments/{id}', [MomentController::class, 'update']); // Cập nhật moment
+Route::delete('moments/{id}', [MomentController::class, 'destroy']); // Xóa moment
 
 
 
