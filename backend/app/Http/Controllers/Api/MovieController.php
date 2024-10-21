@@ -272,12 +272,12 @@ class MovieController extends Controller
         if (!$checkShowtimes) {
             return response()->json([
                 'message' => 'Chưa có thông tin chiếu cho phim này | thêm thông tin chiếu cho phim',
-                'data' => $movieDetailID   // trả về phim với các thông tin chiếu của phim đó
+                'movie-detail' => $movieDetailID   // trả về phim với các thông tin chiếu của phim đó
             ], 200);
         } else {
             return response()->json([
                 'message' => 'Lấy thông tin phim và showtime đó theo id phim ok ',
-                'data' => $movieDetailID, // trả về phim với các thông tin chiếu của phim đó
+                'movie-detail' => $movieDetailID, // trả về phim với các thông tin chiếu của phim đó
                 'foods' => $getFoodAll,
             ], 200);
         }
