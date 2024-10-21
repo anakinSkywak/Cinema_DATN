@@ -25,8 +25,16 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
-        Schema::dropIfExists('register_members');
-    }
+    /**
+ * Reverse the migrations.
+ */
+public function down(): void
+{
+    Schema::table('payments', function (Blueprint $table) {
+        $table->dropForeign(['registermember_id']); // Xóa khóa ngoại
+    });
+
+    Schema::dropIfExists('register_members'); // Sau đó mới xóa bảng
+}
+
 };
