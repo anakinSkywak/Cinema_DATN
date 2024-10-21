@@ -42,16 +42,13 @@ class MembershipController extends Controller
 
         // Tạo mới Membership
         $membership = Membership::create($validated);
-
         return response()->json([
             'message' => 'Thêm mới Membership thành công',
             'data' => $membership
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show($id)
     {
         // Hiển thị Membership theo ID
