@@ -162,9 +162,10 @@ Route::delete('showtimes/{id}', [ShowtimeController::class, 'delete']);  // xoa 
 
 // Ánh : call api vouchers 
 Route::get('vouchers', [VoucherController::class, 'index']); // xuat all
-Route::post('vouchers', [VoucherController::class, 'store']); // them ban ghi moi
-Route::get('vouchers/{id}', [VoucherController::class, 'show']);  // show theo id
-Route::put('vouchers/{id}', [VoucherController::class, 'update']);  // cap nhat theo id
+Route::post('storeVoucher', [VoucherController::class, 'store']); // them ban ghi moi
+Route::get('showVoucher/{id}', [VoucherController::class, 'show']);  // show theo id
+Route::get('editVoucher/{id}', [VoucherController::class, 'edit']);  // dua den trang edit theo id do thong tin theo id
+Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);  // cap nhat theo id
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
 
 
