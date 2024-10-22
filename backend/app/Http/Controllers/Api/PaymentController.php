@@ -67,8 +67,13 @@ class PaymentController extends Controller
         // cập nhật trạng thái cho booking và booking_detail thanh toán thanhd công full 1 
         $bookingId->update(['trang_thai' => 1]); // thanh toán ok
 
-        // update all ghế ngồi theo phòng đó đã booking thành 1 chặn ko cho booking nữa
-        
+
+        // Thêm thông tin vào booking_details
+        BookingDetail::create([
+            'booking_id' => $bookingId->id,
+            'trang_thai' => 1, // trạng thái đã thanh toán (1)
+            'thanhtoan_id' => $payment->id, // ID thanh toán vừa tạo
+        ]);
 
 
         // Trả về phản hồi sau khi thanh toán thành công

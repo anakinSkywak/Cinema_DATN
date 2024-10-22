@@ -13,7 +13,7 @@ class BookingDetail extends Model
 
     protected $fillable = [
         'booking_id',
-        'ghengoi_id',
+        'thanhtoan_id',
         'trang_thai'
     ];
 
@@ -28,9 +28,9 @@ class BookingDetail extends Model
     }
 
     // thiet lap moi quan he voi seats qua ngengoi_id de lay ghe ngoi khi booking
-    public function seat()
+    public function payment()
     {
-        return $this->belongsTo(Seat::class, 'ghengoi_id');
+        return $this->hasOne(Seat::class, 'thanhtoan_id');
     }
 
     
