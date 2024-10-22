@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Member;
+use App\Models\Booking;
 use Illuminate\Http\Request;
+use App\Models\RegisterMember;
+use App\Models\PasswordResetToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\Member;
-use App\Models\RegisterMember;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+
 
 class AuthController extends Controller
 {
@@ -61,13 +65,13 @@ class AuthController extends Controller
         ));
 
         // khi nào cần xác nhận bằng mail thì dùng 
-        // $user->sendEmailVerificationNotification();
-
+        $user->sendEmailVerificationNotification();
+        
         return response()->json([
             'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'
         ], 201);
-    }
 
+    }
     // Tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
     {
@@ -119,7 +123,6 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->user_id,
             'so_dien_thoai' => 'required|string|max:10|unique:users,so_dien_thoai,' . $user->user_id,
             'gioi_tinh' => 'required|in:nam,nu,khac',
-            'vai_tro' => 'required|in:user,admin,nhan_vien',
         ]);
 
         if ($validator->fails()) {
@@ -136,6 +139,80 @@ class AuthController extends Controller
             'message' => 'Bạn đã cập nhật tài khoản thành công'
         ]);
     }
-
     // xác nhận đăng ký thành công
+    public function sendResetLinkEmail(Request $request)
+    {
+        // Validate email input
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email'
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Email không hợp lệ',
+                'errors' => $validator->errors()
+            ], 400);
+        }
+    
+        // Kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
+        $user = User::where('email', $request->email)->first();
+    
+        if (!$user) {
+            return response()->json([
+                'message' => "Không thể tìm thấy email"
+            ], 404); // Trả về mã 404 nếu không tìm thấy email
+        }
+    
+        // Attempt to send reset link
+        $status = Password::sendResetLink([
+            'email' => $user->email // Gửi email, không phải là đối tượng User
+        ]);
+    
+        // Check status and return appropriate response
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json([
+                'message' => 'Link reset mật khẩu đã được gửi tới email của bạn'
+            ], 200);
+        }
+    
+        // Trả về thông báo lỗi nếu không thể gửi link
+        return response()->json([
+            'message' => 'Đã xảy ra lỗi khi gửi link reset mật khẩu. Vui lòng thử lại.'
+        ], 500);
+    }
+    
+    
+    public function resetPassword(Request $request, $token){
+          // Tìm token đặt lại mật khẩu từ bảng password_reset_tokens
+        $passwordReset = PasswordResetToken::where('token', $token)->first();
+
+        // Kiểm tra token có tồn tại không
+        if (!$passwordReset) {
+            return response()->json([
+                'message' => 'Token không hợp lệ hoặc đã hết hạn.'
+            ], 422);
+        }
+
+        // Tìm người dùng theo email từ bản ghi reset password
+        $user = User::where('email', $passwordReset->email)->first();
+
+        // Kiểm tra người dùng có tồn tại không
+        if (!$user) {
+            return response()->json([
+                'message' => 'Không tìm thấy người dùng với email này.'
+            ], 404);
+        }
+
+        // Cập nhật mật khẩu mới cho người dùng
+        $user->password = bcrypt($request->input('password'));
+        $user->save();
+
+        // Xóa token sau khi thành công
+        $passwordReset->delete();
+
+        return response()->json([
+            'message' => 'Mật khẩu đã được cập nhật thành công!'
+        ]);
+    }
+    
 }

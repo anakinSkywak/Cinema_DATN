@@ -43,12 +43,14 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
 // xac minh an vao neu hien web foud loigin la ok se den de login
 
 
+
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     // Đăng ký người dùng mới
     Route::post('registers', [AuthController::class, 'register']);
 
     // Đăng nhập và trả về token cho frontend
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login'])->name('login');
+    // Route::get('login', [AuthController::class, 'login'])->name('login');
 
     // Lấy thông tin chi tiết của người dùng (yêu cầu phải có token hợp lệ)
     Route::get('profile', [AuthController::class, 'userProfile']);  
@@ -58,13 +60,20 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     // update tài khoản phía user
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
 
+
+    Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
+
     // user booking khi đã login 
     Route::post('booking', [BookingController::class, 'userBooking']); // them ban ghi moi
+
 
 });
 
 // login tra ve token cho fronend 
-//Route::post('login', [AuthController::class, 'login']);
+Route::get('login', [AuthController::class, 'login']);
+
+
 // api khac cua user viet sau f
 
 

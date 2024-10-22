@@ -82,6 +82,19 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password' => 'hashed', // bam mk
     ];
 
+<<<<<<< HEAD
+    /**
+     * Mark the given user's email as verified.
+     *
+     * @return bool
+     */
+    public function markEmailAsVerified()
+    {
+        return $this->forceFill([
+            'emailVerifiedAt' => $this->freshTimestamp(),
+        ])->save();
+    }
+=======
 
     //Đăng kí thẻ hội viên
     public function registerMembers()
@@ -90,4 +103,5 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
     
+>>>>>>> ac678e8f7713bddcc0f66477665f144b031bc56e
 }
