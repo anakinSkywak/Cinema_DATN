@@ -74,4 +74,16 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed', // bam mk
     ];
+
+    /**
+     * Mark the given user's email as verified.
+     *
+     * @return bool
+     */
+    public function markEmailAsVerified()
+    {
+        return $this->forceFill([
+            'emailVerifiedAt' => $this->freshTimestamp(),
+        ])->save();
+    }
 }
