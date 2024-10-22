@@ -20,15 +20,19 @@ class Movie extends Model
         'noi_dung',
         'trailer',
         'gia_ve',
-        'danh_gia',
         'hinh_thuc_phim'
     ];
 
     protected $dates = ['deleted_at'];
 
     // thiet lap quan he nhieu nhieu voi bang the loai phim
-    public function movie_genres(){ // trung gian luu tru phim va nhieu the loai phim
-        return $this->belongsToMany(MovieGenre::class , 'movie_movie_genre'); // trung gian luu tru phim va nhieu the loai phim
+
+    public function movie_genres()
+    {
+        return $this->belongsToMany(MovieGenre::class, 'movie_movie_genre', 'movie_id', 'movie_genre_id');
     }
 
+    public function showtimes(){
+        return $this->hasMany(Showtime::class , 'phim_id');
+    }
 }

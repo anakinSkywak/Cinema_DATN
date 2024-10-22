@@ -6,39 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Food;
 use App\Models\Showtime;
+use App\Models\Voucher;
+use Auth;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+
     public function index() {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    public function userBooking(Request $request)
     {
-        // user booking movie 
+
+        // lấy user_id khi đã login
+        //$userID = Auth()->id();
+
+        // Kiểm tra nếu user chưa đăng nhập
+        // if (!$userID) {
+        //     return response()->json([
+        //         'message' => 'Người dùng chưa đăng nhập.'
+        //     ], 401); // Trả về mã lỗi 401 nếu người dùng chưa đăng nhập
+        // }
+
         // check khi chọn all booking
         $request->validate([
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|exists:users,id', // fix 
             'thongtinchieu_id' => 'required|exists:showtimes,id',
-            'so_luong' => 'numeric|min:1',
-            'ghi_chu' => 'string|255',
-            'ma_giam_gia' => 'string|255',
-            'doan_id' => 'required|exists:foods,id'
+            'ghi_chu' => 'nullable|string|max:255',
+            'ma_giam_gia' => 'nullable|string|max:255',
+            'doan_id' => 'required|exists:foods,id',
+            'so_luong' => 'nullable|numeric' 
         ]);
+        
 
         // lấy phim từ xuất chiếu khi booking
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
-        if (!$showtime) {
-            return response()->json([
-                'message' => 'Suất chiếu không tồn tại'
-            ], 404);
-        }
+
+        // if (!$showtime) {
+        //     return response()->json([
+        //         'message' => 'Suất chiếu không tồn tại'
+        //     ], 404);
+        // }
 
         $food = Food::with('movie')->find('doan_id');
         $gia_phim = $showtime->movie->gia_ve;  // lay gia ve de tinh tien ve phim
@@ -46,17 +57,20 @@ class BookingController extends Controller
         //lấy giá đồ ăn từ bảng foods 
         $food = Food::find($request->doan_id);
         $gia_do_an = $food ? $food->gia : 0; // co do an thì tinh tien k co id do an thi = 0 ko co tien
-        $so_luong = $request->so_luong ?? 1;
+        //$so_luong = $request->so_luong ?? 1;
+
 
         // tinh tong tien cua ve phim 
-        $tong_tien = ($gia_phim * $so_luong) + $gia_do_an; // defult là 1 : đặt được 1 vé 
+        $tong_tien = $gia_phim + $gia_do_an; // 
 
         // ap dung ma giam gia : code sau
+        
         // tong tien thanh toan = tongtien
         $tong_tien_thanh_toan = $tong_tien;
 
         // tạo thêm mới booking
         $booking = Booking::create([
+            //'user_id' => $userID,
             'user_id' => $request->user_id,
             'thongtinchieu_id' => $request->thongtinchieu_id,
             'so_luong' => $request->so_luong,
@@ -70,7 +84,6 @@ class BookingController extends Controller
         ]);
 
         // test 
-
         // tra ve khi booking voi cac thong tin thanh cong 
         // booking xong chuyen den booking_deltail chon ghe ngoi sau do thanh toan
         // sau do chuyen den paymet call thanh toan va do du lieu vao booking_datail cap nhat trang thai sang da than toan
@@ -80,9 +93,8 @@ class BookingController extends Controller
         ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+
+
     public function showBookingDetails($bookingId)
     {
 
@@ -109,9 +121,84 @@ class BookingController extends Controller
     }
 
 
-    /**
-     * Update the specified resource in storage.
-     */
+    public function update(Request $request, string $id)
+    {
+
+        // dd($request->all());
+        $dataID = Booking::find($id);
+        if (!$dataID) {
+            return response()->json([
+                'message' => 'Không có booking theo id này'
+            ], 404);
+        }
+
+        // Kiểm tra validate dữ liệu gửi lên
+        $request->validate([
+            'ghi_chu' => 'nullable|string|max:255',
+            'doan_id' => 'nullable|exists:foods,id'
+        ]);
+
+        // lấy giá đồ ăn hiện tại hoặc giữ nguyên
+        $gia_do_an = 0;
+
+        if ($request->has('doan_id') && $request->doan_id != $dataID->doan_id) {
+            // Thay đổi đồ ăn, lấy giá mới
+            $food = Food::find($request->doan_id);
+            $gia_do_an = $food ? $food->gia : 0;
+        } else {
+            // Nếu không thay đổi, giữ nguyên giá đồ ăn hiện tại
+            $food = Food::find($dataID->doan_id);
+            $gia_do_an = $food ? $food->gia : 0;
+        }
+
+        // lấy giá phim từ thông tin chiếu
+        $showtime = Showtime::with('movie')->find($dataID->thongtinchieu_id);
+        if (!$showtime) {
+            return response()->json([
+                'message' => 'Suất chiếu không tồn tại'
+            ], 404);
+        }
+
+        // lấy giá phim từ movie liên kết
+        $gia_phim = $showtime->movie->gia_ve;
+
+        // tính tổng tiền
+        $tong_tien = $gia_phim + $gia_do_an;
+        $tong_tien_thanh_toan = $tong_tien;
+
+        $dataID->update([
+            'ghi_chu' => $request->ghi_chu,
+            'doan_id' => $request->doan_id ?: $dataID->doan_id, //  không có thay đổi đồ ăn thì giữ nguyên doan_id cũ
+            'tong_tien' => $tong_tien,
+            'tong_tien_thanh_toan' => $tong_tien_thanh_toan,
+        ]);
+
+        return response()->json([
+            'message' => 'Cập nhật dữ liệu thành công, phai den trang thanh toan payment!',
+            'data' => $dataID
+        ], 200);
+    }
+
+
+    public function delete(string $id)
+    {
+        // delete theo id
+        $dataID = Booking::find($id);
+
+        if (!$dataID) {
+            return response()->json([
+                'message' => 'Không có booking theo id này'
+            ], 404);
+        }
+
+        $dataID->delete();
+
+        return response()->json([
+            'message' => 'Xóa thành công booking theo id'
+        ], 200);
+    }
+
+
     public function test_đểyên(Request $request, string $id)
     {
 
@@ -169,86 +256,6 @@ class BookingController extends Controller
         return response()->json([
             'message' => 'Cập nhật dữ liệu thành công , phai den trang thanh toan payment!',
             'data' => $dataID
-        ], 200);
-    }
-
-    public function update(Request $request, string $id)
-    {
-
-        // dd($request->all());
-
-        $dataID = Booking::find($id);
-        if (!$dataID) {
-            return response()->json([
-                'message' => 'Không có booking theo id này'
-            ], 404);
-        }
-
-        // Kiểm tra validate dữ liệu gửi lên
-        $request->validate([
-            'ghi_chu' => 'nullable|string|max:255',
-            'doan_id' => 'nullable|exists:foods,id'
-        ]);
-
-        // lấy giá đồ ăn hiện tại hoặc giữ nguyên
-        $gia_do_an = 0;
-
-        if ($request->has('doan_id') && $request->doan_id != $dataID->doan_id) {
-            // Thay đổi đồ ăn, lấy giá mới
-            $food = Food::find($request->doan_id);
-            $gia_do_an = $food ? $food->gia : 0;
-        } else {
-            // Nếu không thay đổi, giữ nguyên giá đồ ăn hiện tại
-            $food = Food::find($dataID->doan_id);
-            $gia_do_an = $food ? $food->gia : 0;
-        }
-
-        // lấy giá phim từ thông tin chiếu
-        $showtime = Showtime::with('movie')->find($dataID->thongtinchieu_id);
-        if (!$showtime) {
-            return response()->json([
-                'message' => 'Suất chiếu không tồn tại'
-            ], 404);
-        }
-
-        // lấy giá phim từ movie liên kết
-        $gia_phim = $showtime->movie->gia_ve;
-
-        // tính tổng tiền
-        $tong_tien = $gia_phim + $gia_do_an;
-        $tong_tien_thanh_toan = $tong_tien;
-
-        $dataID->update([
-            'ghi_chu' => $request->ghi_chu,
-            'doan_id' => $request->doan_id ?: $dataID->doan_id, //  không có thay đổi đồ ăn thì giữ nguyên doan_id cũ
-            'tong_tien' => $tong_tien,
-            'tong_tien_thanh_toan' => $tong_tien_thanh_toan,
-        ]);
-
-        return response()->json([
-            'message' => 'Cập nhật dữ liệu thành công, phai den trang thanh toan payment!',
-            'data' => $dataID
-        ], 200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function delete(string $id)
-    {
-        // delete theo id
-        $dataID = Booking::find($id);
-
-        if (!$dataID) {
-            return response()->json([
-                'message' => 'Không có booking theo id này'
-            ], 404);
-        }
-
-        $dataID->delete();
-
-        return response()->json([
-            'message' => 'Xóa thành công booking theo id'
         ], 200);
     }
 }

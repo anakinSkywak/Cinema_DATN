@@ -56,4 +56,9 @@ class Booking extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+    
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class, 'magiamgia_id');
+    }
 }
