@@ -70,7 +70,7 @@ class TheaterController extends Controller
 
     public function editTheaterID(Request $request, string $id) {
         // đổ dữ liệu theo id ra khi ấn nút edit theo id
-        $dataID = Theater::find($id);
+        $dataID = Theater::findOrFail($id);
 
         // trả về 
         return response()->json( $dataID);
@@ -80,7 +80,7 @@ class TheaterController extends Controller
     public function update(Request $request, string $id)
     {
         // cap nhat rap phim theo id
-        $dataID = Theater::find($id);
+        $dataID = Theater::findOrFail($id);
 
         // kiểm tra xem có dữ liêụ theo id đó ko
         if (!$dataID) {

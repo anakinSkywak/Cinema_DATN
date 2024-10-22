@@ -75,7 +75,7 @@ class VoucherController extends Controller
     {
         // show theo id
         // show Voucher theo id
-        $voucherID = Voucher::find($id);
+        $voucherID = Voucher::findOrFail($id);
 
 
         if (!$voucherID) {
@@ -93,7 +93,7 @@ class VoucherController extends Controller
     public function update(Request $request, string $id)
     {
         // cap nhat Voucher theo id 
-        $dataID = Voucher::find($id);
+        $dataID = Voucher::findOrFail($id);
 
         //check khi sửa de cap nhat 
         if (!$dataID) {

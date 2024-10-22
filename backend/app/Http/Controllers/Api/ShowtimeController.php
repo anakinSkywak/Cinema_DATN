@@ -93,6 +93,8 @@ class ShowtimeController extends Controller
         //     ], 400);
         // }
 
+        // truy vấn thêm thời lượng chiếu theo thời lượng của phim đó k cần thêm bằng tay
+
         // truy van them xuat chieu moi 
         $showtimes = Showtime::create($validated);
 
@@ -160,7 +162,7 @@ class ShowtimeController extends Controller
         // cap nhat theo id
 
         // Tìm và cập nhật suất chiếu
-        $showtimeID = Showtime::find($id);
+        $showtimeID = Showtime::findOrFail($id);
 
         if (!$showtimeID) {
             return response()->json([

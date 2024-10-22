@@ -107,11 +107,17 @@ class BookingController extends Controller
         if (!$voucher) {
 
             return [
-                'message' => 'Mã giảm giá không hợp lệ , không đúng hoặc đã hết hạn .',
+                'error' => 'Mã giảm giá không hợp lệ , không đúng hoặc đã hết hạn .',
                 'tong_tien_sau_giam' => $tong_tien,
             ];
         }
 
+        if ($voucher->so_luong_da_su_dung >= $voucher->so_luong) {
+            return [
+                'error' => 'mã đã hết.',
+                'tong_tien_sau_giam' => $tong_tien,
+            ];
+        }
 
         // tính toán mức giảm giá theo % giảm giá
         $muc_giam_gia = $voucher->muc_giam_gia; // truy vấn lấy mức giảm giá
@@ -191,6 +197,8 @@ class BookingController extends Controller
             $result = $this->tinhTienVoucher($request->ma_giam_gia, $tong_tien);
             $tong_tien = $result['tong_tien_sau_giam']; // Cập nhật tổng tiền
         }
+
+        
 
 
         $booking =  Booking::create([

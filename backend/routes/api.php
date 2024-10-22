@@ -62,7 +62,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 // user booking khi đã login 
 //Route::post('/booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
 Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
+
 Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
+// đưa đến trang thanh toán với theo boooking id
+Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api');
+Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking'])->middleware('auth:api');
 
 
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
@@ -170,7 +174,7 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa th
 Route::get('bookingdetails', [BookingDetailController::class, 'index']); // xuat all
 
 // Ánh : call api Payments
-Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
+// Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
 
 
 

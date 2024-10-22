@@ -71,7 +71,7 @@ class MoviegenreController extends Controller
     public function edit(string $id)
     {
         // show MovieGenre theo id
-        $moviegenreID = MovieGenre::find($id);
+        $moviegenreID = MovieGenre::findOrFail($id);
 
         if (!$moviegenreID) {
             return response()->json([
@@ -89,7 +89,7 @@ class MoviegenreController extends Controller
     public function update(Request $request, string $id)
     {
         // cap nhat MovieGenre theo id 
-        $moviegenreID = MovieGenre::find($id);
+        $moviegenreID = MovieGenre::findOrFail($id);
 
         //check khi sửa de cap nhat 
         if (!$moviegenreID) {

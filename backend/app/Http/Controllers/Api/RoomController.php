@@ -89,7 +89,7 @@ class RoomController extends Controller
     public function editRoom(string $id)
     {
         // show room theo id
-        $roomID = Room::find($id);
+        $roomID = Room::findOrFail($id);
 
         if (!$roomID) {
             return response()->json([
@@ -113,7 +113,7 @@ class RoomController extends Controller
     public function update(Request $request, string $id)
     {
         // cap nhat room theo id 
-        $roomID = Room::find($id);
+        $roomID = Room::findOrFail($id);
 
         //check khi sửa de cap nhat 
         if (!$roomID) {

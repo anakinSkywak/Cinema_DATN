@@ -92,7 +92,7 @@ class FoodController extends Controller
         //
 
         // cap nhat food theo id 
-        $foodID = Food::find($id);
+        $foodID = Food::findOrFail($id);
 
         //check khi sửa de cap nhat 
         if (!$foodID) {
