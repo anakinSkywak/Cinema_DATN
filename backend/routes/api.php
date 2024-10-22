@@ -58,6 +58,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
 });
 
+
 // user booking khi đã login 
 //Route::post('/booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
 Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
