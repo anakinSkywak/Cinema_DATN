@@ -68,6 +68,8 @@ Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('
 Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api');
 Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking'])->middleware('auth:api');
 
+// show booking đã  book cho user
+Route::get('booking-Detail', [BookingDetailController::class, 'bookingDetail'])->middleware('auth:api');
 
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
 Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
