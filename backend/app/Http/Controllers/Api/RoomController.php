@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Room;
+use App\Models\Seat;
 use App\Models\Theater;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -159,7 +160,6 @@ class RoomController extends Controller
     public function allSeatRoom(string $id)
     {
 
-        
         $roomID = Room::find($id);
        
         if (!$roomID) {
@@ -176,4 +176,29 @@ class RoomController extends Controller
             'data' =>  $allSeatRoom
         ], 200);
     }
+
+    // chức năng bảo trì tắt ghế ko cho thuê nếu gặp sự cố 
+    public function baoTriSeat(string $id){
+        // 0 la co the thue
+        // 1 la da bi thue het thoi gian chieu phim set thanh 0 
+        // 2 la cap nhat dang lỗi hoặc đang bảo trì ko cho thuê 
+        
+        $seatID = Seat::find($id);
+        if (!$seatID) {
+            return response()->json([
+                'message' => 'Ghế không tồn tại',
+            ], 404);
+        }
+
+        // cập nhật trạng thái là 2 bảo trị lỗi
+        $seatID->update(['trang_thai' => 2]);
+        
+
+        return response()->json([
+            'message' => 'Tắt ghế để bảo trì ghế theo id này ok',
+            'data' => $seatID
+        ], 200);
+    }
+
+    
 }

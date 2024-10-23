@@ -16,6 +16,7 @@ class Room extends Model
         'ten_phong_chieu',
         'tong_ghe_phong',
         'rapphim_id',
+        'trang_thai'
     ];
      
     // đĩnh nghĩa mỗi phòng chiếu một rạp phim 
