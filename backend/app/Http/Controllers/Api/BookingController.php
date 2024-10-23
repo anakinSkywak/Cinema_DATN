@@ -212,7 +212,7 @@ class BookingController extends Controller
             'so_luong_do_an' => $so_luong_do_an,
             'do_an' => $ten_do_an,
             'ma_giam_gia' => $request->ma_giam_gia // luu mã giảm giá nếu có
-        ]);
+        ]); 
 
         return response()->json([
             'message' => 'Tạo booking thành công đến trang thanh toán.',
@@ -223,7 +223,7 @@ class BookingController extends Controller
         // {                   
         //     "thongtinchieu_id":12,                
         //     "doan_id": 2,                   
-        //     "ghe_ngoi": [525],
+        //     "ghe_ngoi": [525,526,527],
         //     "so_luong_do_an" : 1  
         //     "ma_giam_gia" : "Giam"  
         // }
