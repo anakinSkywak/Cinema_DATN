@@ -94,6 +94,7 @@ class ShowtimeController extends Controller
         // }
 
         // truy vấn thêm thời lượng chiếu theo thời lượng của phim đó k cần thêm bằng tay
+        
 
         // truy van them xuat chieu moi 
         $showtimes = Showtime::create($validated);

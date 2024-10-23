@@ -60,9 +60,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
 
 // user booking khi đã login 
-//Route::post('/booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
-Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
 
+Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
 Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
 // đưa đến trang thanh toán với theo boooking id
 Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api');
@@ -74,18 +73,6 @@ Route::get('booking-Detail', [BookingDetailController::class, 'bookingDetail'])-
 Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
 Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
 Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
-Route::get('bookings/{booking}/details', [BookingController::class, 'showBookingDetails']);
-
-
-// login tra ve token cho fronend 
-//Route::post('login', [AuthController::class, 'login']);
-// api khac cua user viet sau f
-
-
-// call user : sửa , xóa , phân quyền , check quyền login : làm sau khi có admin 
-// Ánh call user : sửa theo id , xóa theo id , show user theo id phía người dùng
-
-// Ánh code user bên admin
 
 
 
