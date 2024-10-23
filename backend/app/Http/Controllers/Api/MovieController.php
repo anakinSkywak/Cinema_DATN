@@ -62,6 +62,7 @@ class MovieController extends Controller
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
             'hinh_thuc_phim' => 'required|string|max:255',
+            'thoi_gian_phim' => 'required|numeric',
             // 'danh_gia' => 'required|numeric|min:0|max:10',
             'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
