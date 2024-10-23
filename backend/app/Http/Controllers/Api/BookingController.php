@@ -198,7 +198,7 @@ class BookingController extends Controller
             $tong_tien = $result['tong_tien_sau_giam']; // Cập nhật tổng tiền
         }
 
-        
+
         $booking =  Booking::create([
             'user_id' => $user->id,
             'thongtinchieu_id' => $request->thongtinchieu_id,
@@ -212,7 +212,20 @@ class BookingController extends Controller
             'so_luong_do_an' => $so_luong_do_an,
             'do_an' => $ten_do_an,
             'ma_giam_gia' => $request->ma_giam_gia // luu mã giảm giá nếu có
-        ]); 
+        ]);
+
+        // // Sau khi tạo booking thành công
+        foreach ($selectedSeats as $seatId) {
+            DB::table('seat_showtime_status')->updateOrInsert(
+                [
+                    'ghengoi_id' => $seatId,
+                    'thongtinchieu_id' => $request->thongtinchieu_id
+                ],
+                [
+                    'trang_thai' => 1 // 1 = booked
+                ]
+            );
+        }
 
         return response()->json([
             'message' => 'Tạo booking thành công đến trang thanh toán.',

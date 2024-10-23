@@ -78,11 +78,11 @@ Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa th
 
 //Ánh call api theaters
 Route::get('theaters', [TheaterController::class, 'index']); // xuất all
-Route::post('theaters', [TheaterController::class, 'store']); // them ban ghi moi
-Route::get('theaters/{id}', [TheaterController::class, 'show']);  // show theo id
+Route::post('storeTheater', [TheaterController::class, 'store']); // them ban ghi moi
+Route::get('showTheater/{id}', [TheaterController::class, 'show']);  // show theo id
 Route::get('editTheater/{id}', [TheaterController::class, 'editTheaterID']); // đưa đến trang edit ổ thông tin edit ra
 Route::put('updateTheater/{id}', [TheaterController::class, 'update']);  // cap nhat theo id
-Route::delete('theaters/{id}', [TheaterController::class, 'delete']);  // xoa theo id
+Route::delete('deleteTheater/{id}', [TheaterController::class, 'delete']);  // xoa theo id
 
 
 //Ánh call api rooms
@@ -92,7 +92,7 @@ Route::post('storeRoom', [RoomController::class, 'store']); // them ban ghi moi
 Route::get('showRoom/{id}', [RoomController::class, 'show']);  // show theo id
 Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);  // đưa đến from edit room theo id , đổ all rạp phim để chọn nếu thay đổi
 Route::put('updatetRoom/{id}', [RoomController::class, 'update']);  // cap nhat room theo id
-Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
+Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);  // xoa theo id
 Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
 Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
@@ -102,7 +102,7 @@ Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
 Route::get('seats', [SeatController::class, 'index']); // xuat all
 Route::get('addSeat', [SeatController::class, 'addSeat']); // xuat ghế theo phòng
 Route::post('storeSeat', [SeatController::class, 'store']); // thêm ghế theo phòng
-Route::get('seat/{id}', [SeatController::class, 'show']);  // show theo id
+Route::get('showSeat/{id}', [SeatController::class, 'show']);  // show theo id
 Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);  // show theo id
 Route::put('updateSeat/{id}', [SeatController::class, 'update']);  // cap nhat theo id
 Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);  // xoa theo id
@@ -110,18 +110,18 @@ Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);  // xoa the
 
 // Ánh : call api moviegenres
 Route::get('moviegenres', [MoviegenreController::class, 'index']);
-Route::post('storeMoviegenres', [MoviegenreController::class, 'store']);
-Route::get('showMoviegenres/{id}', [MoviegenreController::class, 'show']);
-Route::get('editMoviegenres/{id}', [MoviegenreController::class, 'edit']);
-Route::put('updateMoviegenres/{id}', [MoviegenreController::class, 'update']);
-Route::delete('moviegenres/{id}', [MoviegenreController::class, 'delete']);
+Route::post('storeMoviegenre', [MoviegenreController::class, 'store']);
+Route::get('showMoviegenre/{id}', [MoviegenreController::class, 'show']);
+Route::get('editMoviegenre/{id}', [MoviegenreController::class, 'edit']);
+Route::put('updateMoviegenre/{id}', [MoviegenreController::class, 'update']);
+Route::delete('moviegenre/{id}', [MoviegenreController::class, 'delete']);
 
 
 //Ánh call api movie
 Route::get('movies', [MovieController::class, 'index']); // xuất all phim
 Route::get('addMovie', [MovieController::class, 'getMovieGenre']); // chuyen huong den form them moi do the loai phim cho chon
 Route::post('storeMovie', [MovieController::class, 'store']); // ấn lưu thêm mới phim mới với thể loại phim
-Route::get('showMovies/{id}', [MovieController::class, 'show']);  // show theo id
+Route::get('showMovie/{id}', [MovieController::class, 'show']);  // show theo id
 Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);  // show dữ liệu theo id để edit
 Route::put('updateMovie/{id}', [MovieController::class, 'update']);  // cap nhat theo id
 Route::delete('movies/{id}', [MovieController::class, 'delete']);  // xoa theo id

@@ -18,5 +18,7 @@ class SeatShowtimeStatu extends Model
         'trang_thai'
     ];
 
-    
+    // 
+
+
 }
