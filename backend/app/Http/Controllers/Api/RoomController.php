@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Room;
 use App\Models\Theater;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -28,7 +29,6 @@ class RoomController extends Controller
         ], 200);
     }
 
-
     // hàm đến from add thêm mới đổ rạp phim để thêm khi thêm mới
     public function addRoom()
     {
@@ -42,7 +42,6 @@ class RoomController extends Controller
         }
 
         return response()->json($thearteall);
-
     }
 
 
@@ -84,7 +83,7 @@ class RoomController extends Controller
         ], 200);  // 200 có dữ liệu trả về
     }
 
-    
+
     // đưa đến trang edit với thông tin edit đó và Theater để thay đổi rạp nếu muốn
     public function editRoom(string $id)
     {
@@ -103,12 +102,11 @@ class RoomController extends Controller
         return response()->json([
             'message' => 'Lấy thông tin Room theo ID thành công',
             'data' => [
-                'room' =>$roomID , // phong theo id
+                'room' => $roomID, // phong theo id
                 'theaters' => $theaters,  // all rap phim
             ],
         ], 200);  // 200 có dữ liệu trả về
     }
-
 
     public function update(Request $request, string $id)
     {
@@ -138,7 +136,6 @@ class RoomController extends Controller
         ], 200);
     }
 
-
     public function delete(string $id)
     {
         // xoa theo id có softdelete
@@ -155,6 +152,28 @@ class RoomController extends Controller
 
         return response()->json([
             'message' => 'Xóa Room theo id thành công'
+        ], 200);
+    }
+
+    // show all ghế theo phòng đó để xem all ghế và 1 số chức năng phụ
+    public function allSeatRoom(string $id)
+    {
+
+        
+        $roomID = Room::find($id);
+       
+        if (!$roomID) {
+            return response()->json([
+                'message' => 'Phòng không tồn tại',
+            ], 404);
+        }
+        // show all ghế theo phòng đó theo id
+        $allSeatRoom = DB::table('seats')->where('room_id', $roomID->id)->get();
+
+
+        return response()->json([
+            'message' => 'đổ toàn bộ ghế theo id room ok',
+            'data' =>  $allSeatRoom
         ], 200);
     }
 }

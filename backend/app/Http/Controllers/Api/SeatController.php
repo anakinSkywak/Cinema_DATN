@@ -11,7 +11,6 @@ class SeatController extends Controller
 {
 
 
-
     public function index()
     {
         // call api xuat all seats 
@@ -90,7 +89,6 @@ class SeatController extends Controller
     }
 
 
-
     // ham de tao pham vi ghe ngoi
     public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id)
     {
@@ -116,7 +114,6 @@ class SeatController extends Controller
 
         return $seats;
     }
-
 
 
     public function show(string $id)
@@ -154,7 +151,6 @@ class SeatController extends Controller
     }
 
 
-
     public function update(Request $request, string $id)
     {
         // cap nhat seat theo id 
@@ -182,8 +178,6 @@ class SeatController extends Controller
             'data' => $dataID
         ], 200);
     }
-
-
 
     public function delete(string $id)
     {

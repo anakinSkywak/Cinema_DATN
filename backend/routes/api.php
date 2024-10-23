@@ -93,7 +93,7 @@ Route::get('showRoom/{id}', [RoomController::class, 'show']);  // show theo id
 Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);  // đưa đến from edit room theo id , đổ all rạp phim để chọn nếu thay đổi
 Route::put('updatetRoom/{id}', [RoomController::class, 'update']);  // cap nhat room theo id
 Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
-
+Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all
