@@ -199,8 +199,6 @@ class BookingController extends Controller
         }
 
         
-
-
         $booking =  Booking::create([
             'user_id' => $user->id,
             'thongtinchieu_id' => $request->thongtinchieu_id,

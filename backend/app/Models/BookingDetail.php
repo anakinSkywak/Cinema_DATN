@@ -24,13 +24,13 @@ class BookingDetail extends Model
 
     public function booking()
     {
-        return $this->belongsTo(Booking::class); // moi quan hej nguoc lai tro den booking
+        return $this->belongsTo(Booking::class, 'booking_id'); // moi quan hej nguoc lai tro den booking
     }
 
     // thiet lap moi quan he voi seats qua ngengoi_id de lay ghe ngoi khi booking
     public function payment()
     {
-        return $this->hasOne(Seat::class, 'thanhtoan_id');
+        return $this->belongsTo(Seat::class, 'thanhtoan_id');
     }
 
     

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Auth;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -14,8 +15,6 @@ use App\Http\Controllers\Controller;
 
 class PaymentController extends Controller
 {
-
-
 
     // đưa đến from chọn phương thức thanh toán
     public function PaymentBooking($bookingId)
@@ -37,6 +36,7 @@ class PaymentController extends Controller
     public function processPaymentBooking(Request $request, $bookingId)
     {
 
+        
 
         // Lấy thông tin booking theo id booking khi call go dung id cua bang booking
         $bookingId = Booking::findOrFail($bookingId);
