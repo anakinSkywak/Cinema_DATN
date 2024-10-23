@@ -95,6 +95,7 @@ Route::put('updatetRoom/{id}', [RoomController::class, 'update']);  // cap nhat 
 Route::delete('rooms/{id}', [RoomController::class, 'delete']);  // xoa theo id
 Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
+Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all

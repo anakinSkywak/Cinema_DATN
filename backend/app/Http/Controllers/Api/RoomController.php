@@ -200,5 +200,29 @@ class RoomController extends Controller
         ], 200);
     }
 
-    
+    // tắt bảo trì ghế update lại trạng thái thành 0 có thể thuê
+    // chức năng bảo trì tắt ghế ko cho thuê nếu gặp sự cố 
+    public function tatbaoTriSeat(string $id){
+        // 0 la co the thue
+        // 1 la da bi thue het thoi gian chieu phim set thanh 0 
+        // 2 la cap nhat dang lỗi hoặc đang bảo trì ko cho thuê 
+        
+        $seatID = Seat::find($id);
+        if (!$seatID) {
+            return response()->json([
+                'message' => 'Ghế không tồn tại',
+            ], 404);
+        }
+
+        // cập nhật trạng thái là 2 bảo trị lỗi
+        $seatID->update(['trang_thai' => 0]);
+        
+
+        return response()->json([
+            'message' => 'Bỏ bảo trì ghế ok có thể booking',
+            'data' => $seatID
+        ], 200);
+    }
+
+
 }
