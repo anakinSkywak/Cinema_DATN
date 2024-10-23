@@ -99,7 +99,7 @@ class ShowtimeController extends Controller
             ->where('id', $request->phim_id)
             ->value('thoi_gian_phim');
         // truy van them xuat chieu moi 
-        
+
         $showtimes = Showtime::create([
             'ngay_chieu' => $request->ngay_chieu,
             'thoi_luong_chieu' => $thoi_luong_chieu,
@@ -184,7 +184,6 @@ class ShowtimeController extends Controller
         // Xác thực dữ liệu đầu vào
         $validated = $request->validate([
             'ngay_chieu' => 'required|date',
-            'thoi_luong_chieu' => 'required|integer',
             'phim_id' => 'required|exists:movies,id',
             'rapphim_id' => 'required|exists:theaters,id',
             'room_id' => 'required|exists:rooms,id',
