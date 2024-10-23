@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\Showtime;
 use App\Models\Theater;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShowtimeController extends Controller
 {
@@ -72,9 +73,9 @@ class ShowtimeController extends Controller
     {
         // them moi show tham , nhieu show tham cho phim de user booking
         // check khi them
-        $validated = $request->validate([
+        $request->validate([
             'ngay_chieu' => 'required|date',
-            'thoi_luong_chieu' => 'required|string|max:250',
+            'thoi_luong_chieu' => 'string|max:250',
             'phim_id' => 'required|exists:movies,id',
             'rapphim_id' => 'required|exists:theaters,id',
             'room_id' => 'required|exists:rooms,id',
@@ -94,10 +95,19 @@ class ShowtimeController extends Controller
         // }
 
         // truy vấn thêm thời lượng chiếu theo thời lượng của phim đó k cần thêm bằng tay
-        
-
+        $thoi_luong_chieu = DB::table('movies')
+            ->where('id', $request->phim_id)
+            ->value('thoi_gian_phim');
         // truy van them xuat chieu moi 
-        $showtimes = Showtime::create($validated);
+        
+        $showtimes = Showtime::create([
+            'ngay_chieu' => $request->ngay_chieu,
+            'thoi_luong_chieu' => $thoi_luong_chieu,
+            'phim_id' => $request->phim_id,
+            'rapphim_id' => $request->rapphim_id,
+            'room_id' => $request->room_id,
+            'gio_chieu' => $request->gio_chieu,
+        ]);
 
         // tra ve neu them ok
         return response()->json([
