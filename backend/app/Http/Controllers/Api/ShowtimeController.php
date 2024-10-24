@@ -117,7 +117,7 @@ class ShowtimeController extends Controller
     }
 
 
-
+    
     public function show(string $id)
     {
         // show du lieu theo id
@@ -198,7 +198,6 @@ class ShowtimeController extends Controller
             'data' => $showtimeID
         ], 200);
     }
-
 
 
     public function delete(string $id)
