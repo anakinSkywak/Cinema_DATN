@@ -9,39 +9,34 @@ use Illuminate\Http\Request;
 
 class SeatController extends Controller
 {
-
-
-
     public function index()
     {
-        // call api xuat all seats 
+        // call api xuất all seats 
         $data = Seat::all();
 
-        // check rỗng nếu ko co dữ liệu trả về thông báo
+        // check rỗng nếu không có dữ liệu trả về thông báo
         if ($data->isEmpty()) {
             return response()->json([
-                'message' => 'Không có dữ liệu nào của ghế ! .',
+                'message' => 'Không có dữ liệu nào của ghế!',
             ], 200);
         }
 
         // trả về dữ liệu
         return response()->json([
-            'message' => 'Lấy All dữ liệu rạp phim thành công ',
+            'message' => 'Lấy All dữ liệu rạp phim thành công',
             'data' => $data,
         ], 200);
     }
 
-
-    // đưa đến from thêm ghế và đổ all phòng ra thêm ghế theo phòng
+    // Đưa đến form thêm ghế và đổ all phòng ra để thêm ghế theo phòng
     public function addSeat()
     {
-
-        // đổ all phòng ra khi thêm
+        // Đổ all phòng ra khi thêm
         $roomall = Room::all();
 
         if ($roomall->isEmpty()) {
             return response()->json([
-                'message' => 'Không có phòng hãy thêm phòng'
+                'message' => 'Không có phòng, hãy thêm phòng'
             ], 200);
         }
 
@@ -51,35 +46,32 @@ class SeatController extends Controller
         ], 200);
     }
 
-
     public function store(Request $request)
     {
-        // them moi ghe ngoi 
-        // xac thuc du lieu dau vao cua ghe
+        // Thêm mới ghế ngồi 
+        // Xác thực dữ liệu đầu vào của ghế
         $validated = $request->validate([
-            'room_id' => 'required|exists:rooms,id', // khi them 
-            'seats' => 'required|array', // ghế ngồi thêm thành mảng khi thêm ví dụ A1->A15
-            'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế  A1-A15, VIP1-VIP15
+            'room_id' => 'required|exists:rooms,id', // xác định phòng khi thêm
+            'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
+            'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
             'seats.*.loai_ghe_ngoi' => 'required|string|max:255',
             'seats.*.gia_ghe' => 'required|numeric',
         ]);
 
-        // mang ghe ngoi rong
+        // Mảng ghế ngồi rỗng
         $seatCreate = [];
 
-        // lap de them ghe ngoi voi mang 
+        // Lặp qua từng ghế để thêm ghế ngồi
         foreach ($validated['seats'] as $seatConfig) {
-            // phân tích phạm vi ghế ngồi và range tạo ngẫu nhiên - 
-            // lap va tach mang seat ra voi explode
+            // Phân tích phạm vi ghế ngồi và tạo ghế
             $range = explode('-', $seatConfig['range']);
-            // ghe bat dau voi ghe ket thuc
             $starSeat = $range[0];
             $endSeat = $range[1];
 
-            // tạo ghế dựa trên phạm vi đã phân tich
+            // Tạo ghế dựa trên phạm vi đã phân tích
             $seats = $this->generateSeats($starSeat, $endSeat, $seatConfig['loai_ghe_ngoi'], $seatConfig['gia_ghe'], $validated['room_id']);
 
-            // lưu tất cả ghe ngoi vao bang ket qua
+            // Lưu tất cả ghế ngồi vào mảng kết quả
             $seatCreate = array_merge($seatCreate, $seats);
         }
 
@@ -89,111 +81,87 @@ class SeatController extends Controller
         ], 201);
     }
 
-
-
-    // ham de tao pham vi ghe ngoi
+    // Hàm để tạo phạm vi ghế ngồi
     public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id)
     {
         $seats = [];
-        // lấy phần chữ cái và phần số từ tên ghế bắt đầu và kết thúc
+        // Lấy phần chữ cái và phần số từ tên ghế bắt đầu và kết thúc
         preg_match('/([A-Z]+)([0-9]+)/', $starSeat, $startParts);
         preg_match('/([A-Z]+)([0-9]+)/', $endSeat, $endParts);
 
-        $prefix = $startParts[1]; // phần chữ A B C tùy thích
-        $startNum = (int)$startParts[2]; // phần số ghế bắt đầu
+        $prefix = $startParts[1]; // Phần chữ A B C tùy thích
+        $startNum = (int)$startParts[2]; // Phần số ghế bắt đầu
         $endNum = (int)$endParts[2]; // Phần số của ghế kết thúc (ví dụ: 15)
 
-        // tạo ghế từ startNum đến endNum
+        // Tạo ghế từ startNum đến endNum
         for ($i = $startNum; $i <= $endNum; $i++) {
-            $seatName = $prefix . $i; // nhập số ghế A1, A2, ..., A15 
+            $seatName = $prefix . $i; // Nhập số ghế A1, A2, ..., A15
             $seats[] = Seat::create([
                 'so_ghe_ngoi' => $seatName,
-                'loai_ghe_ngoi' => $loai_ghe_ngoi, // loại ghế cho all mảng đó
+                'loai_ghe_ngoi' => $loai_ghe_ngoi,
                 'room_id' => $room_id,
-                'gia_ghe' => $gia_ghe, // gia ghe theo mang đó ví dụ thường 10k
+                'gia_ghe' => $gia_ghe,
             ]);
         }
 
         return $seats;
     }
 
-
-
     public function show(string $id)
     {
-        // show seat theo id
+        // Show seat theo id
         $seatID = Seat::find($id);
 
         if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này',
-            ], 404); // 404 ko có dữ liệu 
+            ], 404); // 404 nếu không có dữ liệu
         }
 
         return response()->json([
             'message' => 'Lấy thông tin Seat theo ID thành công',
             'data' => $seatID,
-        ], 200);  // 200 có dữ liệu trả về
+        ], 200);
     }
-
-    public function editSeat(string $id)
-    {
-        // show seat theo id
-        $seatID = Seat::find($id);
-
-        if (!$seatID) {
-            return response()->json([
-                'message' => 'Không có dữ liệu Seat theo id này',
-            ], 404); // 404 ko có dữ liệu 
-        }
-
-        return response()->json([
-            'message' => 'Lấy thông tin Seat theo ID thành công',
-            'data' => $seatID,
-        ], 200);  // 200 có dữ liệu trả về
-    }
-
-
 
     public function update(Request $request, string $id)
     {
-        // cap nhat seat theo id 
+        // Cập nhật seat theo id 
         $dataID = Seat::find($id);
 
-        //check khi sửa de cap nhat 
+        // Kiểm tra nếu không tìm thấy dữ liệu
         if (!$dataID) {
             return response()->json([
-                'message' => 'Không có dữ liệu Seat theo id này !',
+                'message' => 'Không có dữ liệu Seat theo id này!',
             ], 404);
         }
-        // check cac truong 
+
+        // Kiểm tra và xác thực các trường khi cập nhật
         $validated = $request->validate([
             'so_ghe_ngoi' => 'required|string|max:250',
             'loai_ghe_ngoi' => 'required|string|max:250',
             'gia_ghe' => 'required|numeric',
         ]);
 
-        // cap nhat
+        // Cập nhật dữ liệu
         $dataID->update($validated);
 
-        // trả về 
+        // Trả về kết quả
         return response()->json([
             'message' => 'Cập nhật dữ liệu Seat theo id thành công',
             'data' => $dataID
         ], 200);
     }
 
-
-
     public function delete(string $id)
     {
-        // xoa theo id
+        // Xóa seat theo id
         $dataID = Seat::find($id);
 
-        // check xem co du lieu hay ko
+        // Kiểm tra xem có dữ liệu không
         if (!$dataID) {
             return response()->json([
-                'message' => 'Không có dữ liệu seat theo id này !',
+                'message' => 'Không có dữ liệu seat theo id này!',
             ], 404);
         }
 
