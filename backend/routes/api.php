@@ -18,7 +18,6 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\TheaterController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
-// Giải quyết xung đột bằng cách kết hợp cả hai nhánh
 use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
