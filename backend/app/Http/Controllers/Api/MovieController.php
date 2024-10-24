@@ -11,9 +11,10 @@ use Illuminate\Http\Request;
 
 class MovieController extends Controller
 {
+
+    // xuất all phim với thể loại đã chọn khi thêm phim
     public function index()
     {
-
         // call show all du lieu ra 
         $movieall = Movie::with('movie_genres')->get();
         //dd($data);
@@ -21,7 +22,7 @@ class MovieController extends Controller
 
             return response()->json([
                 'message' => 'Không có dữ liệu Movie nào'
-            ], 200);
+            ], 404);
         }
 
         return response()->json([
@@ -31,7 +32,7 @@ class MovieController extends Controller
     }
 
 
-
+    // đổ all thể loại phim để chọn ghi thêm mới phim
     public function getMovieGenre()
     {
         $getMovieGenre = MovieGenre::all();
@@ -40,7 +41,7 @@ class MovieController extends Controller
         if ($getMovieGenre->isEmpty()) {
             return response()->json([
                 'message' => 'Không có thể loại phim nào'
-            ], 200);
+            ], 404);
         }
 
         return response()->json([
@@ -49,7 +50,8 @@ class MovieController extends Controller
         ]);
     }
 
-    
+
+    // thêm mới phim với các thể loại
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -64,7 +66,7 @@ class MovieController extends Controller
             'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
             'thoi_gian_phim' => 'required|numeric',
-        ],[
+        ], [
             'ten_phim.required' => 'Tên phim không được để trống !',
             'ten_phim.string' => 'Tên phim phải là chuỗi!',
             'ten_phim.max' => 'Tên phim tối đa 250 ký tự !'
@@ -91,36 +93,49 @@ class MovieController extends Controller
         ], 201);
     }
 
-    
+
+    // show phim theo id truy vấn ở bảng trung gian 
     public function show(string $id)
     {
-        $dataID = Movie::with('movie_genres')->find($id);
+        $movieID = Movie::with('movie_genres')->find($id);
 
-        if (!$dataID) {
+        if (!$movieID) {
             return response()->json([
-                'message' => 'Không tìm thấy phim'
+                'message' => 'Không tìm thấy phim theo id :' . $id
             ], 404);
         }
 
         return response()->json([
             'message' => 'Dữ liệu show theo ID thành công',
-            'data' => $dataID,
+            'data' => $movieID,
         ], 200);
-
     }
+
 
     public function showEditID(string $id)
     {
-        $movie = Movie::findOrFail($id);
+        $movieID = Movie::find($id);
+        if (!$movieID) {
+            return response()->json([
+                'message' => 'Không có phim theo id ' .$id
+            ],404);
+        }
+
         $allGenres = MovieGenre::all();
+        if (!$allGenres) {
+            return response()->json([
+                'message' =>  'Không có thể loại phim nào' 
+            ],404);
+        }
 
         return response()->json([
             'message' => 'Hiển thị phim và thể loại',
-            'movie' => $movie->load('movie_genres'),
+            'movie' => $movieID->load('movie_genres'),
             'all_genre' => $allGenres,
-        ]);
+        ],200);
     }
 
+    // cập nhật phim với các thông tin thay đổi đang lỗi fix sau
     public function update(Request $request, string $id)
     {
         $movie = Movie::findOrFail($id);
@@ -162,23 +177,25 @@ class MovieController extends Controller
     }
 
 
+    // xóa theo id
     public function delete(string $id)
     {
-        $movie = Movie::find($id);
+        $movieID = Movie::find($id);
 
-        if (!$movie) {
+        if (!$movieID) {
             return response()->json([
-                'message' => 'Không tìm thấy phim'
+                'message' => 'Không tìm thấy phim theo id ' .$id
             ], 404);
         }
 
-        $movie->delete();
+        $movieID->delete();
 
         return response()->json([
             'message' => 'Xóa thành công'
         ]);
     }
 
+    
     public function movieFilter(string $id)
     {
         $movies = Movie::with('movie_genres')->whereHas('movie_genres', function ($query) use ($id) {
@@ -195,6 +212,7 @@ class MovieController extends Controller
             'data' => $movies,
         ]);
     }
+
 
     public function movieFilterKeyword(Request $request)
     {
@@ -213,14 +231,17 @@ class MovieController extends Controller
         ]);
     }
 
+
+    // chi tiết phim , đổ all showtime theo phim đó , all ghế
     public function movieDetail($movieID)
     {
 
         // truy vấn show các showtime khi ấn vào phim theo id phim đó
         // truy vấn ấn vào phim đổ all thông tin phim đó theo id và các showtime theo id phim và ghế của phòng đó
-        $movieDetailID = Movie::with(['showtimes.room.seat'])->findOrFail($movieID);
+        $movieDetailID = Movie::with(['showtimes.room.seat'])->find($movieID);
 
         $getFoodAll = Food::all();
+
         // check xem có showtime hay ko
         $checkShowtimes = Showtime::where('phim_id', $movieID)->exists();
 
@@ -236,6 +257,5 @@ class MovieController extends Controller
                 'foods' => $getFoodAll,
             ], 200);
         }
-
     }
 }

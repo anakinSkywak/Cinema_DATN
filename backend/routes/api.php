@@ -57,26 +57,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
 
 
-  
-
-    // user booking khi đã login 
-    Route::post('booking', [BookingController::class, 'userBooking']); // them ban ghi moi
-
-
 });
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
-// login tra ve token cho fronend 
-Route::get('login', [AuthController::class, 'login']);
 
 
-// api khac cua user viet sau f
-
-// user booking khi đã login 
-
-Route::get('movie-detail/{id}', [MovieController::class, 'movie_detail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
 Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
 // đưa đến trang thanh toán với theo boooking id
 Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api');
@@ -115,7 +103,6 @@ Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']); // xuat all
-
 Route::get('addSeat', [SeatController::class, 'addSeat']); // xuat ghế theo phòng
 Route::post('storeSeat', [SeatController::class, 'store']); // thêm ghế theo phòng
 Route::get('showSeat/{id}', [SeatController::class, 'show']);  // show theo id
@@ -174,17 +161,12 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa th
 
 
 
-// Ánh : call api Bookings // call sau call showtimes trước
-//Route::get('bookings', [BookingController::class, 'index']); // xuat all
-
 
 // // Ánh : call api Booking_details
 Route::get('bookingdetails', [BookingDetailController::class, 'index']); // xuat all
 
 // Ánh : call api Payments
 // Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
-
-
 
 
 
