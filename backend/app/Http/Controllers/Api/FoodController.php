@@ -117,7 +117,7 @@ class FoodController extends Controller
         ], 200);
     }
 
-    
+
     public function delete(string $id)
     {
         // xoa theo id

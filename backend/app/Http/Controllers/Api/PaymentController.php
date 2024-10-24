@@ -14,7 +14,7 @@ use App\Http\Controllers\Controller;
 
 class PaymentController extends Controller
 {
-   
+
 
     public function processPayment(Request $request, $bookingId)
     {
@@ -62,7 +62,7 @@ class PaymentController extends Controller
         $booking->update(['trang_thai' => 1]); // thanh toán ok
         $bookingDetail->update(['trang_thai' => 1]); // ghế ngồi bị chặn k thể đặt
 
-        
+
 
         return response()->json([
             'message' => 'Thanh toán thành công !',
@@ -115,7 +115,7 @@ class PaymentController extends Controller
                 'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
                 'ma_thanh_toan' => strtoupper(uniqid('PAY_FAIL_')), // Đánh dấu là thất bại
                 'ngay_thanh_toan' => Carbon::now(),
-                'trang_thai' => 0, 
+                'trang_thai' => 0,
             ]);
 
             return response()->json([

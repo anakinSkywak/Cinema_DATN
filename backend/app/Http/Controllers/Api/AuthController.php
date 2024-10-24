@@ -59,18 +59,18 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        $user = User::create(array_merge(
+        //$user = 
+        User::create(array_merge(
             $validator->validated(),
             ['password' => bcrypt($request->password)]
         ));
 
         // khi nào cần xác nhận bằng mail thì dùng 
-        $user->sendEmailVerificationNotification();
-        
+        //$user->sendEmailVerificationNotification();
+
         return response()->json([
             'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'
         ], 201);
-
     }
     // Tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
@@ -146,44 +146,45 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email'
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Email không hợp lệ',
                 'errors' => $validator->errors()
             ], 400);
         }
-    
+
         // Kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
         $user = User::where('email', $request->email)->first();
-    
+
         if (!$user) {
             return response()->json([
                 'message' => "Không thể tìm thấy email"
             ], 404); // Trả về mã 404 nếu không tìm thấy email
         }
-    
+
         // Attempt to send reset link
         $status = Password::sendResetLink([
             'email' => $user->email // Gửi email, không phải là đối tượng User
         ]);
-    
+
         // Check status and return appropriate response
         if ($status === Password::RESET_LINK_SENT) {
             return response()->json([
                 'message' => 'Link reset mật khẩu đã được gửi tới email của bạn'
             ], 200);
         }
-    
+
         // Trả về thông báo lỗi nếu không thể gửi link
         return response()->json([
             'message' => 'Đã xảy ra lỗi khi gửi link reset mật khẩu. Vui lòng thử lại.'
         ], 500);
     }
-    
-    
-    public function resetPassword(Request $request, $token){
-          // Tìm token đặt lại mật khẩu từ bảng password_reset_tokens
+
+
+    public function resetPassword(Request $request, $token)
+    {
+        // Tìm token đặt lại mật khẩu từ bảng password_reset_tokens
         $passwordReset = PasswordResetToken::where('token', $token)->first();
 
         // Kiểm tra token có tồn tại không
@@ -214,5 +215,4 @@ class AuthController extends Controller
             'message' => 'Mật khẩu đã được cập nhật thành công!'
         ]);
     }
-    
 }

@@ -14,19 +14,19 @@ class VoucherController extends Controller
     public function index()
     {
         //
-          // show all Voucher  
-          $data = Voucher::all();
+        // show all Voucher  
+        $data = Voucher::all();
 
-          if ($data->isEmpty()) {
-              return response()->json([
-                  'message' => 'Không có dữ liệu Voucher !'
-              ], 200);
-          }
-  
-          return response()->json([
-              'message' => 'Xuất dữ liệu Voucher thành công',
-              'data' => $data,
-          ], 200);
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Voucher !'
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Xuất dữ liệu Voucher thành công',
+            'data' => $data,
+        ], 200);
     }
 
     /**
@@ -34,15 +34,15 @@ class VoucherController extends Controller
      */
     public function store(Request $request)
     {
-        
+
         // check cac truong khi them
         $validated = $request->validate([
-            'ma_giam_gia'=> 'required|string|max:255',
-            'muc_giam_gia'=> 'required|numeric',
-            'mota'=> 'required|string|max:255',
-            'ngay_het_han'=> 'required|date',
-            'so_luong'=> 'required|integer',
-            'so_luong_da_su_dung'=> 'required|integer',
+            'ma_giam_gia' => 'required|string|max:255',
+            'muc_giam_gia' => 'required|numeric',
+            'mota' => 'required|string|max:255',
+            'ngay_het_han' => 'required|date',
+            'so_luong' => 'required|integer',
+            'so_luong_da_su_dung' => 'required|integer',
         ]);
 
         // them moi khi check ko co loi nao
@@ -82,33 +82,33 @@ class VoucherController extends Controller
      */
     public function update(Request $request, string $id)
     {
-         // cap nhat Voucher theo id 
-         $dataID = Voucher::find($id);
+        // cap nhat Voucher theo id 
+        $dataID = Voucher::find($id);
 
-         //check khi sửa de cap nhat 
-         if (!$dataID) {
-             return response()->json([
-                 'message' => 'Không có dữ liệu Voucher phim theo id này',
-             ], 404);
-         }
-         // check cac truong 
-         $validated = $request->validate([
-            'ma_giam_gia'=> 'required|string|max:255',
-            'muc_giam_gia'=> 'required|numeric',
-            'mota'=> 'required|string|max:255',
-            'ngay_het_han'=> 'required|date',
-            'so_luong'=> 'required|integer',
-            'so_luong_da_su_dung'=> 'required|integer',
+        //check khi sửa de cap nhat 
+        if (!$dataID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Voucher phim theo id này',
+            ], 404);
+        }
+        // check cac truong 
+        $validated = $request->validate([
+            'ma_giam_gia' => 'required|string|max:255',
+            'muc_giam_gia' => 'required|numeric',
+            'mota' => 'required|string|max:255',
+            'ngay_het_han' => 'required|date',
+            'so_luong' => 'required|integer',
+            'so_luong_da_su_dung' => 'required|integer',
         ]);
- 
-         // cap nhat
-         $dataID->update($validated);
- 
-         // trả về 
-         return response()->json([
-             'message' => 'Cập nhật dữ liệu Voucher theo id thành công',
-             'data' => $dataID
-         ], 200);
+
+        // cap nhat
+        $dataID->update($validated);
+
+        // trả về 
+        return response()->json([
+            'message' => 'Cập nhật dữ liệu Voucher theo id thành công',
+            'data' => $dataID
+        ], 200);
     }
 
     /**
@@ -116,20 +116,20 @@ class VoucherController extends Controller
      */
     public function delete(string $id)
     {
-         // xoa theo id có softdelete
-         $dataID = Voucher::find($id);
+        // xoa theo id có softdelete
+        $dataID = Voucher::find($id);
 
-         // check xem co du lieu hay ko
-         if (!$dataID) {
-             return response()->json([
-                 'message' => 'Không có dữ liệu Voucher theo id này',
-             ], 404);
-         }
- 
-         $dataID->delete();
- 
-         return response()->json([
-             'message' => 'Xóa Voucher theo id thành công'
-         ], 200);
+        // check xem co du lieu hay ko
+        if (!$dataID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Voucher theo id này',
+            ], 404);
+        }
+
+        $dataID->delete();
+
+        return response()->json([
+            'message' => 'Xóa Voucher theo id thành công'
+        ], 200);
     }
 }

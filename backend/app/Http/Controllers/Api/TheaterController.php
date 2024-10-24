@@ -68,13 +68,13 @@ class TheaterController extends Controller
     }
 
 
-    public function editTheaterID(Request $request, string $id) {
+    public function editTheaterID(Request $request, string $id)
+    {
         // đổ dữ liệu theo id ra khi ấn nút edit theo id
         $dataID = Theater::find($id);
 
         // trả về 
-        return response()->json( $dataID);
-
+        return response()->json($dataID);
     }
 
     public function update(Request $request, string $id)

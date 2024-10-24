@@ -38,9 +38,9 @@ class BookingController extends Controller
             'ghi_chu' => 'nullable|string|max:255',
             'ma_giam_gia' => 'nullable|string|max:255',
             'doan_id' => 'required|exists:foods,id',
-            'so_luong' => 'nullable|numeric' 
+            'so_luong' => 'nullable|numeric'
         ]);
-        
+
 
         // lấy phim từ xuất chiếu khi booking
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
@@ -64,7 +64,7 @@ class BookingController extends Controller
         $tong_tien = $gia_phim + $gia_do_an; // 
 
         // ap dung ma giam gia : code sau
-        
+
         // tong tien thanh toan = tongtien
         $tong_tien_thanh_toan = $tong_tien;
 

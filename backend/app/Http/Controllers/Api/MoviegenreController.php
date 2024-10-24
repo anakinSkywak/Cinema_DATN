@@ -48,7 +48,7 @@ class MoviegenreController extends Controller
 
     }
 
-    
+
     public function show(string $id)
     {
         // show MovieGenre theo id
@@ -85,7 +85,7 @@ class MoviegenreController extends Controller
         ], 200);  // 200 có dữ liệu trả về
     }
 
-   
+
     public function update(Request $request, string $id)
     {
         // cap nhat MovieGenre theo id 
@@ -112,7 +112,7 @@ class MoviegenreController extends Controller
         ], 200);
     }
 
-   
+
     public function delete(string $id)
     {
         // xoa theo id có softdelete
