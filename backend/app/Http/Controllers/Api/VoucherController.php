@@ -13,9 +13,11 @@ class VoucherController extends Controller
     {
         //
         // show all Voucher  
+
         $voucherall = Voucher::all();
 
         if ($voucherall->isEmpty()) {
+
             return response()->json([
                 'message' => 'Không có dữ liệu Voucher !'
             ], 200);
@@ -24,6 +26,7 @@ class VoucherController extends Controller
         return response()->json([
             'message' => 'Xuất dữ liệu Voucher thành công',
             'data' => $voucherall,
+
         ], 200);
     }
 
@@ -95,6 +98,7 @@ class VoucherController extends Controller
         // cap nhat Voucher theo id 
         $dataID = Voucher::findOrFail($id);
 
+
         //check khi sửa de cap nhat 
         if (!$dataID) {
             return response()->json([
@@ -124,16 +128,20 @@ class VoucherController extends Controller
     public function delete(string $id)
     {
         // xoa theo id có softdelete
+
         $voucherID = Voucher::find($id);
 
         // check xem co du lieu hay ko
         if (!$voucherID) {
+
+  
             return response()->json([
                 'message' => 'Không có dữ liệu Voucher theo id này',
             ], 404);
         }
 
         $voucherID->delete();
+
 
         return response()->json([
             'message' => 'Xóa Voucher theo id thành công'

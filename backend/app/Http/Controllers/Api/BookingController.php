@@ -39,6 +39,7 @@ class BookingController extends Controller
         }
 
         return true;
+
     }
 
     // hàm  truy vấn ghế đã lấy để thêm tên ghế ngồi vào cột ghe_ngoi

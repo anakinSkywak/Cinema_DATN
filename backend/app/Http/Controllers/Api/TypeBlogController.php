@@ -13,7 +13,6 @@ class TypeBlogController extends Controller
     {
         $typeBlogs = TypeBlog::all();
         return response()->json($typeBlogs);
-        
     }
 
     // Tạo loại bài viết mới

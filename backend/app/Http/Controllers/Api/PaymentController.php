@@ -16,6 +16,7 @@ use App\Http\Controllers\Controller;
 class PaymentController extends Controller
 {
 
+
     // đưa đến from chọn phương thức thanh toán
     public function PaymentBooking($bookingId)
     {
@@ -66,6 +67,7 @@ class PaymentController extends Controller
 
         // cập nhật trạng thái cho booking và booking_detail thanh toán thanhd công full 1 
         $bookingId->update(['trang_thai' => 1]); // thanh toán ok
+
 
 
         // Thêm thông tin vào booking_details
