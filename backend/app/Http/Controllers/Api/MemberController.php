@@ -40,7 +40,6 @@ class MemberController extends Controller
      */
     public function store(Request $request)
     {
-        
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
