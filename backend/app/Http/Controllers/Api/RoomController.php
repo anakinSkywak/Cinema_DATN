@@ -11,13 +11,15 @@ use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
+
+
     // Get all rooms
     public function index()
     {
         $rooms = Room::all();
 
         if ($rooms->isEmpty()) {
-            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 200);
+            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 404);
         }
 
         return response()->json([
@@ -34,10 +36,8 @@ class RoomController extends Controller
         $theaters = Theater::all();
 
         if ($theaters->isEmpty()) {
-            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 200);
+            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 404);
         }
-
-
 
         return response()->json($theaters);
 
@@ -80,19 +80,20 @@ class RoomController extends Controller
     public function editRoom(string $id)
     {
         // show room theo id
-        $roomID = Room::findOrFail($id);
-
+        $roomID = Room::find($id);
 
         if (!$roomID) {
             return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
 
         $theaters = Theater::all();
+        if (!$theaters) {
+            return response()->json(['message' => 'Không có dữ liệu Rạp nào'], 404);
+        }
 
         return response()->json([
             'message' => 'Lấy thông tin Room theo ID thành công',
             'data' => [
-
                 'room' => $roomID, // phong theo id
                 'theaters' => $theaters,  // all rap phim
 
@@ -104,8 +105,7 @@ class RoomController extends Controller
     public function update(Request $request, string $id)
     {
         // cap nhat room theo id 
-        $room = Room::findOrFail($id);
-
+        $room = Room::find($id);
 
         if (!$room) {
             return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
@@ -139,6 +139,7 @@ class RoomController extends Controller
         return response()->json(['message' => 'Xóa Room theo id thành công'], 200);
     }
 
+    
     // show all ghế theo phòng đó để xem all ghế và 1 số chức năng phụ
     public function allSeatRoom(string $id)
     {
@@ -159,6 +160,7 @@ class RoomController extends Controller
             'data' =>  $allSeatRoom
         ], 200);
     }
+
 
     // chức năng bảo trì tắt ghế ko cho thuê nếu gặp sự cố 
     public function baoTriSeat(string $id){
@@ -182,6 +184,7 @@ class RoomController extends Controller
             'data' => $seatID
         ], 200);
     }
+
 
     // tắt bảo trì ghế update lại trạng thái thành 0 có thể thuê
     // chức năng bảo trì tắt ghế ko cho thuê nếu gặp sự cố 
