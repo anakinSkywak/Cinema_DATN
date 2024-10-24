@@ -32,27 +32,27 @@ class ShowtimeController extends Controller
     }
 
 
+    // đưa đến from add đổ all phim rạp phòng để chọn thêm
     public function addShowtime()
     {
 
-        $movies = Movie::all();
-
+        $movies = Movie::select('id', 'ten_phim')->get();
         if ($movies->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phim hãy thêm phim'
             ], 404);
         }
 
-        $theaters = Theater::all();
-
+        //$theaters = Theater::all();
+        $theaters = Theater::select('id', 'ten_rap')->get();
         if ($theaters->isEmpty()) {
             return response()->json([
                 'message' => 'Không có rạp hãy thêm rạp'
             ], 404);
         }
 
-        $rooms = Room::all();
-
+        //$rooms = Room::all();
+        $rooms = Room::select('id', 'ten_phong_chieu')->get();
         if ($rooms->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phòng hãy thêm phòng'
@@ -117,7 +117,6 @@ class ShowtimeController extends Controller
     }
 
 
-    
     public function show(string $id)
     {
         // show du lieu theo id
