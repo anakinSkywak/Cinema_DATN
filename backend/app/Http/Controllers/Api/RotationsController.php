@@ -14,9 +14,6 @@ class RotationsController extends Controller
 {
     public function quayThuong()
     {
-        // Kiểm tra người dùng đã đăng nhập hay chưa
-
-
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để quay thưởng'], 401);
         }
@@ -52,10 +49,7 @@ class RotationsController extends Controller
 
             // Lưu lịch sử
             HistoryRotation::create([
-
                 'user_id' => Auth::id(),
-                // 'user_id' => 1,
-
                 'vongquay_id' => $selectedRotation->id,
                 'ket_qua' => $selectedRotation->ten_phan_thuong,
                 'ngay_quay' => Carbon::now(),

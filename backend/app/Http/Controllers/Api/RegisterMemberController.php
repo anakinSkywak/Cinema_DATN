@@ -3,7 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\RegisterMember;
-use App\Models\Member; // Import thêm Member để lấy giá từ bảng hội viên
+use App\Models\Member; 
 use Illuminate\Http\Request;
 
 class RegisterMemberController extends Controller
@@ -121,9 +121,7 @@ class RegisterMemberController extends Controller
         if (!$dataID) {
             return response()->json(['message' => 'Không tìm thấy RegisterMember theo ID'], 404);
         }
-
         $dataID->delete();
-
         return response()->json(['message' => 'Xóa RegisterMember thành công'], 200);
     }
 }
