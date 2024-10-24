@@ -16,9 +16,9 @@ class MovieController extends Controller
     public function index()
     {
         // call show all du lieu ra 
-        $data = Movie::with('movie_genres')->get();
+        $movieall = Movie::with('movie_genres')->get();
         //dd($data);
-        if ($data->isEmpty()) {
+        if ($movieall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu Movie nào'
             ], 200);
@@ -26,10 +26,9 @@ class MovieController extends Controller
 
         return response()->json([
             'message' => 'Hiện thị dữ liệu thành công',
-            'data' => $data
-        ]);
+            'data' => $movieall
+        ], 200);
     }
-
 
 
     public function getMovieGenre()
@@ -37,6 +36,7 @@ class MovieController extends Controller
         $getmoviegenre = MovieGenre::all();
 
         if ($getmoviegenre->isEmpty()) {
+
             return response()->json([
                 'message' => 'Không có thể loại phim nào hãy thêm thể loại phim !!!'
             ], 200);
@@ -48,6 +48,7 @@ class MovieController extends Controller
         ], 200);
     }
 
+    
     public function store(Request $request)
     {
         // call api them movie 
@@ -62,14 +63,17 @@ class MovieController extends Controller
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
             'hinh_thuc_phim' => 'required|string|max:255',
-            // 'danh_gia' => 'required|numeric|min:0|max:10',
             'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
             'thoi_gian_phim' => 'required|numeric',
+        ],[
+            'ten_phim.required' => 'Tên phim không được để trống !',
+            'ten_phim.string' => 'Tên phim phải là chuỗi!',
+            'ten_phim.max' => 'Tên phim tối đa 250 ký tự !'
         ]);
 
         // check ko chấp nhận kiểu ảnh webp : check sau
-        
+
         // xu ly upload ảnh 
         if ($request->hasFile('anh_phim')) {
             $file = $request->file('anh_phim');
@@ -93,7 +97,6 @@ class MovieController extends Controller
     }
 
 
-
     public function show(string $id)
     {
         // show movie theo id
@@ -109,7 +112,7 @@ class MovieController extends Controller
         return response()->json([
             'message' => 'Dữ liệu show theo ID thành công',
             'data' => $dataID,
-        ]);
+        ], 200);
     }
 
 
@@ -203,7 +206,6 @@ class MovieController extends Controller
     }
 
 
-
     public function delete(string $id)
     {
         // xoa theo id
@@ -260,7 +262,7 @@ class MovieController extends Controller
     // hàm xem chi tiết phim và show all showtime của phim đó đã thêm để user lựa chọn booking
     public function movie_detail($movieID)
     {
-        
+
         // truy vấn show các showtime khi ấn vào phim theo id phim đó
         // truy vấn ấn vào phim đổ all thông tin phim đó theo id và các showtime theo id phim và ghế của phòng đó
         $movieDetailID = Movie::with(['showtimes.room.seat'])->findOrFail($movieID);
