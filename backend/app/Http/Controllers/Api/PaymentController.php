@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Auth;
 use Carbon\Carbon;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -14,44 +15,50 @@ use App\Http\Controllers\Controller;
 
 class PaymentController extends Controller
 {
-   
 
-    public function processPayment(Request $request, $bookingId)
+
+    // đưa đến from chọn phương thức thanh toán
+    public function PaymentBooking($bookingId)
     {
-        // validate check thanh toan
-        $request->validate([
-            'phuong_thuc_thanh_toan' => 'required|in:credit_card,paypal,cash,bank_transfer',
-        ]);
+
+        $bookingId = Booking::findOrFail($bookingId);
+
+        // Các phương thức thanh toán có sẵn
+        $paymentMethods = ['credit_card', 'paypal', 'cash', 'bank_transfer'];
+
+        // Trả về danh sách các phương thức thanh toán và thông tin booking
+        return response()->json([
+            'message' => 'Thông tin booking và danh sách phương thức thanh toán',
+            'booking' => $bookingId,
+            'paymentMethods' => $paymentMethods
+        ], 200);
+    }
+
+    public function processPaymentBooking(Request $request, $bookingId)
+    {
+
+        
 
         // Lấy thông tin booking theo id booking khi call go dung id cua bang booking
-        $booking = Booking::find($bookingId);
-        if (!$booking) {
+        $bookingId = Booking::findOrFail($bookingId);
+        if (!$bookingId) {
             return response()->json([
                 'message' => 'Booking id này không tồn tại !'
             ], 404);
         }
 
-        // Lấy thông tin ghế ngồi đã chọn từ booking_detail
-        $bookingDetail = BookingDetail::where('booking_id', $bookingId)->first();
+        // validate check thanh toan
+        $request->validate([
+            'phuong_thuc_thanh_toan' => 'required|in:credit_card,paypal,cash,bank_transfer',
+        ]);
 
-        if (!$bookingDetail) {
-            return response()->json([
-                'message' => 'Chưa chọn ghế ngồi !'
-            ], 400);
-        }
 
-        // lấy giá ghế từ thông tin ghế ngồi
-        $seat = $bookingDetail->seat;
-        //lay gia ghe ngoi de tinh tien ghe voi tien booking de thanh toan
-        $tong_tien_ghe = $seat->gia_ghe;
-
-        // cập nhật tổng tiền của booking bao gồm giá ghế ngồi de thanh toan
-        $tong_tien_thanh_toan = $booking->tong_tien + $tong_tien_ghe;
+        $tong_tien = $bookingId->tong_tien_thanh_toan;
 
         // tao ban ghi thanh toan
-        Payment::create([
-            'booking_id' => $booking->id,
-            'tong_tien' => $tong_tien_thanh_toan,
+        $payment =  Payment::create([
+            'booking_id' => $bookingId->id,
+            'tong_tien' => $tong_tien,
             'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
             'ma_thanh_toan' => strtoupper(uniqid('PAY_')), // giả định thanh toán ok để test tích hơp sau 
             'ngay_thanh_toan' => Carbon::now(),
@@ -59,17 +66,27 @@ class PaymentController extends Controller
         ]);
 
         // cập nhật trạng thái cho booking và booking_detail thanh toán thanhd công full 1 
-        $booking->update(['trang_thai' => 1]); // thanh toán ok
-        $bookingDetail->update(['trang_thai' => 1]); // ghế ngồi bị chặn k thể đặt
+        $bookingId->update(['trang_thai' => 1]); // thanh toán ok
 
-        
 
+
+        // Thêm thông tin vào booking_details
+        BookingDetail::create([
+            'booking_id' => $bookingId->id,
+            'trang_thai' => 1, // trạng thái đã thanh toán (1)
+            'thanhtoan_id' => $payment->id, // ID thanh toán vừa tạo
+        ]);
+
+
+        // Trả về phản hồi sau khi thanh toán thành công
         return response()->json([
-            'message' => 'Thanh toán thành công !',
-            'booking_id' => $booking->id,
-            'tong_tien_thanh_toan' => $tong_tien_thanh_toan, // so tien thanh toan ca booking vs ghe ngoi
-        ], 200);
+            'message' => 'Thanh toán thành công',
+            'payment' => $payment
+        ], 201);
     }
+
+
+
     public function processPaymentForRegister(Request $request, RegisterMember $registerMember)
     {
         // Validate phương thức thanh toán
@@ -115,7 +132,7 @@ class PaymentController extends Controller
                 'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
                 'ma_thanh_toan' => strtoupper(uniqid('PAY_FAIL_')), // Đánh dấu là thất bại
                 'ngay_thanh_toan' => Carbon::now(),
-                'trang_thai' => 0, 
+                'trang_thai' => 0,
             ]);
 
             return response()->json([

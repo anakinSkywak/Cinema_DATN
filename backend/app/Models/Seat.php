@@ -17,7 +17,8 @@ class Seat extends Model
         'so_ghe_ngoi',
         'loai_ghe_ngoi',
         'room_id',
-        'gia_ghe'
+        'gia_ghe',
+        'trang_thai'
     ];
     
     protected $dates = ['deleted_at']; //xoa softdelete

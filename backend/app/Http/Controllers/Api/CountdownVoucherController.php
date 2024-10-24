@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\CountdownVoucher;
@@ -17,13 +17,13 @@ class CountdownVoucherController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-    'magiamgia_id' => 'required|exists:vouchers,id',
-    'ngay' => 'required|date',
-    'thoi_gian_bat_dau' => 'required|date_format:H:i:s',
-    'thoi_gian_ket_thuc' => 'required|date_format:H:i:s|after:thoi_gian_bat_dau',
-    'so_luong' => 'required|integer|min:1',
-    'trang_thai' => 'nullable|integer|in:0,1',
-]);
+            'magiamgia_id' => 'required|exists:vouchers,id',
+            'ngay' => 'required|date',
+            'thoi_gian_bat_dau' => 'required|date_format:H:i:s',
+            'thoi_gian_ket_thuc' => 'required|date_format:H:i:s|after:thoi_gian_bat_dau',
+            'so_luong' => 'required|integer|min:1',
+            'trang_thai' => 'nullable|integer|in:0,1',
+        ]);
 
 
         $countdownVoucher = CountdownVoucher::create($validated);
@@ -50,7 +50,7 @@ class CountdownVoucherController extends Controller
             'so_luong' => 'required|integer|min:1',
             'trang_thai' => 'nullable|integer|in:0,1',
         ]);
-        
+
 
         $countdownVoucher = CountdownVoucher::findOrFail($id);
         $countdownVoucher->update($validated);
