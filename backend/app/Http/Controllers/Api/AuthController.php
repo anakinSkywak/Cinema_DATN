@@ -59,13 +59,14 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        $user = User::create(array_merge(
+        //$user = 
+        User::create(array_merge(
             $validator->validated(),
             ['password' => bcrypt($request->password)]
         ));
 
         // khi nào cần xác nhận bằng mail thì dùng 
-        $user->sendEmailVerificationNotification();
+        //$user->sendEmailVerificationNotification();
         
         return response()->json([
             'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'

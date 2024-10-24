@@ -61,14 +61,16 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
 
 
-    Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
-    Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
+  
 
     // user booking khi đã login 
     Route::post('booking', [BookingController::class, 'userBooking']); // them ban ghi moi
 
 
 });
+
+Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
+Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 // login tra ve token cho fronend 
 Route::get('login', [AuthController::class, 'login']);
