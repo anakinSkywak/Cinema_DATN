@@ -8,15 +8,35 @@ use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
+
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\MovieController;
+use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\BookingController;
+
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PaymentController;
+
 use App\Http\Controllers\Api\TheaterController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
+
+
+// Giải quyết xung đột bằng cách kết hợp cả hai nhánh
+use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\MemberShipsController;
+use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\Api\BookingDetailController;
+use App\Http\Controllers\Api\PaymentController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\Api\AuthController; // auth api 
+
+
+
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MoviegenreController;
@@ -182,6 +202,12 @@ Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
 Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
 Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
+
+
+
+Route::apiResource('members', MemberController::class);
+Route::apiResource('registermembers', RegisterMemberController::class);
+Route::apiResource('memberships', MemberShipsController::class);
 
 Route::apiResource('members', MemberController::class);
 Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
