@@ -21,7 +21,13 @@ class PaymentController extends Controller
     public function PaymentBooking($bookingId)
     {
 
-        $bookingId = Booking::findOrFail($bookingId);
+        $bookingId = Booking::find($bookingId);
+        if (!$bookingId) {
+            return response()->json([
+                'message' => 'No booking id'
+
+            ], 404);
+        }
 
         // Các phương thức thanh toán có sẵn
         $paymentMethods = ['credit_card', 'paypal', 'cash', 'bank_transfer'];
@@ -36,8 +42,6 @@ class PaymentController extends Controller
 
     public function processPaymentBooking(Request $request, $bookingId)
     {
-
-        
 
         // Lấy thông tin booking theo id booking khi call go dung id cua bang booking
         $bookingId = Booking::findOrFail($bookingId);
@@ -68,15 +72,12 @@ class PaymentController extends Controller
         // cập nhật trạng thái cho booking và booking_detail thanh toán thanhd công full 1 
         $bookingId->update(['trang_thai' => 1]); // thanh toán ok
 
-
-
         // Thêm thông tin vào booking_details
         BookingDetail::create([
             'booking_id' => $bookingId->id,
             'trang_thai' => 1, // trạng thái đã thanh toán (1)
             'thanhtoan_id' => $payment->id, // ID thanh toán vừa tạo
         ]);
-
 
         // Trả về phản hồi sau khi thanh toán thành công
         return response()->json([

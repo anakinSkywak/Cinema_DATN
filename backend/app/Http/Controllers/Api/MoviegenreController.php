@@ -32,12 +32,16 @@ class MoviegenreController extends Controller
     {
 
         // check cac truong khi them
+        // $validated = $request->validate([
+        //     'ten_loai_phim' => 'required|string|max:255',
+        // ] ,[
+        //     'ten_loai_phim.required' => 'Vui lòng nhập tên loại phim.',
+        //     'ten_loai_phim.string' => 'Tên loại phim phải là một chuỗi ký tự.',
+        //     'ten_loai_phim.max' => 'Tên loại phim không được vượt quá 255 ký tự.',
+        // ]);
+
         $validated = $request->validate([
             'ten_loai_phim' => 'required|string|max:255',
-        ] ,[
-            'ten_loai_phim.required' => 'Vui lòng nhập tên loại phim.',
-            'ten_loai_phim.string' => 'Tên loại phim phải là một chuỗi ký tự.',
-            'ten_loai_phim.max' => 'Tên loại phim không được vượt quá 255 ký tự.',
         ]);
 
         // them moi khi check ko co loi nao
@@ -67,7 +71,7 @@ class MoviegenreController extends Controller
             'message' => 'Lấy thông tin MovieGenre theo ID thành công',
             'data' => $moviegenreID,
         ], 200);  // 200 có dữ liệu trả về
-    }
+    } 
 
 
     // đưa đến trang edit đỏ dữ liệu ra theo id
@@ -138,6 +142,8 @@ class MoviegenreController extends Controller
             'message' => 'Xóa MovieGenre theo id thành công'
         ], 200);
     }
+
+    
 }
 
 

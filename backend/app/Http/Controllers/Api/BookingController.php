@@ -139,6 +139,10 @@ class BookingController extends Controller
     }
 
 
+    public function selectService(Request $request ,$bookingID){
+
+    }
+
     public function storeBooking(Request $request)
     {
         $user = auth()->user();

@@ -64,19 +64,17 @@ Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])-
 
 
 
+
 Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
 Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
+//Route::post('booking{booking}/selectService', [BookingController::class, 'selectService'])->middleware('auth:api'); // chọn đồ ăn và sử dụng voucher tính tiền 
+
 // đưa đến trang thanh toán với theo boooking id
-Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api');
-Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking'])->middleware('auth:api');
+Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api'); // ko auth
+Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking'])->middleware('auth:api'); // ko auth
 
 // show booking đã  book cho user
-Route::get('booking-Detail', [BookingDetailController::class, 'bookingDetail'])->middleware('auth:api');
-
-// Route::get('bookings/{id}', [BookingController::class, 'show']);  // show theo id
-// Route::put('bookings/{id}', [BookingController::class, 'update']);  // cap nhat theo id
-// Route::delete('bookings/{id}', [BookingController::class, 'delete']);  // xoa theo id
-
+Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail'])->middleware('auth:api');
 
 
 //Ánh call api theaters
@@ -111,7 +109,6 @@ Route::put('updateSeat/{id}', [SeatController::class, 'update']);  // cap nhat t
 Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);  // xoa theo id
 
 
-
 // Ánh : call api moviegenres
 Route::get('moviegenres', [MoviegenreController::class, 'index']);
 Route::post('storeMoviegenre', [MoviegenreController::class, 'store']);
@@ -131,6 +128,7 @@ Route::put('updateMovie/{id}', [MovieController::class, 'update']);  // cap nhat
 Route::delete('movies/{id}', [MovieController::class, 'delete']);  // xoa theo id
 Route::post('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
 Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo từ khóa
+
 
 // Ánh : call api Foods
 Route::get('foods', [FoodController::class, 'index']); // xuat all
@@ -158,8 +156,6 @@ Route::get('showVoucher/{id}', [VoucherController::class, 'show']);  // show the
 Route::get('editVoucher/{id}', [VoucherController::class, 'edit']);  // dua den trang edit theo id do thong tin theo id
 Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);  // cap nhat theo id
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
-
-
 
 
 // // Ánh : call api Booking_details

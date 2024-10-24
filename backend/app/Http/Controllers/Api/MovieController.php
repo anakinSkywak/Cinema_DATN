@@ -240,7 +240,7 @@ class MovieController extends Controller
         // truy vấn ấn vào phim đổ all thông tin phim đó theo id và các showtime theo id phim và ghế của phòng đó
         $movieDetailID = Movie::with(['showtimes.room.seat'])->find($movieID);
 
-        $getFoodAll = Food::all();
+        //$getFoodAll = Food::all();
 
         // check xem có showtime hay ko
         $checkShowtimes = Showtime::where('phim_id', $movieID)->exists();
@@ -249,12 +249,12 @@ class MovieController extends Controller
             return response()->json([
                 'message' => 'Chưa có thông tin chiếu cho phim này | thêm thông tin chiếu cho phim',
                 'movie-detail' => $movieDetailID   // trả về phim với các thông tin chiếu của phim đó
-            ], 200);
+            ], 404);
         } else {
             return response()->json([
                 'message' => 'Lấy thông tin phim và showtime đó theo id phim ok ',
                 'movie-detail' => $movieDetailID, // trả về phim với các thông tin chiếu của phim đó
-                'foods' => $getFoodAll,
+                //'foods' => $getFoodAll,
             ], 200);
         }
     }
