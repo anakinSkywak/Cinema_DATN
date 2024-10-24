@@ -82,17 +82,24 @@ class ShowtimeController extends Controller
             'gio_chieu' => 'required|date_format:H:i'
         ]);
 
-        // check chieu trung lap khi them moi
-        // $checkTimes = Showtime::where('ngay_chieu', $request->ngay_chieu)
-        //     ->where('gio_chieu', $request->gio_chieu)
-        //     ->where('room_id', $request->room_id)
-        //     ->exists();
+    
+        // check date
+        $checkDate = Showtime::where('ngay_chieu', $request->ngay_chieu)->where('room_id', $request->room_id)->exists();
 
-        // if ($checkTimes) {
-        //     return response()->json([
-        //         'error' => 'Giờ chiếu này đã được thêm mới trong phòng này.',
-        //     ], 400);
-        // }
+        if ($checkDate) {
+            return response()->json([
+                'error' => 'Ngày chiếu này đã được thêm mới trong phòng này.',
+            ], 400);
+        }
+
+        // check time
+        $checkTime = Showtime::where('gio_chieu', $request->gio_chieu)->where('room_id', $request->room_id)->exists();
+
+        if ($checkTime) {
+            return response()->json([
+                'error' => 'Giờ chiếu này đã được thêm mới trong phòng này.',
+            ], 400);
+        }
 
         // truy vấn thêm thời lượng chiếu theo thời lượng của phim đó k cần thêm bằng tay
         $thoi_luong_chieu = DB::table('movies')
