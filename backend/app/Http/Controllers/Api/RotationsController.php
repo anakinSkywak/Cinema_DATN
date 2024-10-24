@@ -2,14 +2,60 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Rotation;
 use Illuminate\Http\Request;
+use App\Models\HistoryRotation;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class RotationsController extends Controller
 {
+
+
+    public function quayThuong()
+    {
+        // Lấy các vòng quay có thể quay (trạng thái = 1)
+        $rotations = Rotation::where('trang_thai', 1)->get();
+
+        // Tính toán xác suất dựa trên xac_xuat và chọn ngẫu nhiên
+        $totalXacXuat = $rotations->sum('xac_xuat');
+        $random = rand(1, $totalXacXuat);
+
+        $currentXacXuat = 0;
+        $selectedRotation = null;
+
+        foreach ($rotations as $rotation) {
+            $currentXacXuat += $rotation->xac_xuat;
+            if ($random <= $currentXacXuat) {
+                $selectedRotation = $rotation;
+                break;
+            }
+        }
+
+        if ($selectedRotation && $selectedRotation->so_luong_con_lai > 0) {
+            // Cập nhật số lượng còn lại
+            $selectedRotation->so_luong_con_lai -= 1;
+            $selectedRotation->save();
+
+            // Lưu lịch sử
+            HistoryRotation::create([
+                'user_id' => Auth::id(),
+                'vongquay_id' => $selectedRotation->id,
+                'ket_qua' => $selectedRotation->ten_phan_thuong,
+                'ngay_quay' => Carbon::now(),
+                'trang_thai' => 1
+            ]);
+
+            return response()->json(['ket_qua' => $selectedRotation->ten_phan_thuong, 'message' => 'Quay thành công!']);
+        } else {
+            return response()->json(['message' => 'Không có phần thưởng nào hoặc số lượng phần thưởng đã hết.']);
+        }
+    }
+
     // Lấy danh sách tất cả các rotations
+
     public function index()
     {
         $rotations = Rotation::all();
