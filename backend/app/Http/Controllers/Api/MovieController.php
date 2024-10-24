@@ -178,7 +178,8 @@ class MovieController extends Controller
 
     public function movieFilterKeyword(Request $request)
     {
-        $keyword = $request->input('keyword');
+        // $keyword = $request->input('keyword');
+        $keyword = $request->query('keyword');
         $movies = Movie::with('movie_genres')->where('ten_phim', 'like', '%' . $keyword . '%')->get();
 
         if ($movies->isEmpty()) {
