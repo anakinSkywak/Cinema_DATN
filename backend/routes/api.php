@@ -1,6 +1,8 @@
 <?php
 
 // để yên
+// để yên
+use App\Http\Controllers\Api\MemberShipsController;
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -8,35 +10,15 @@ use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
-
-use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\MovieController;
-use App\Http\Controllers\Api\MemberController;
-use App\Http\Controllers\Api\BookingController;
-
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PaymentController;
-
 use App\Http\Controllers\Api\TheaterController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
-
-
-// Giải quyết xung đột bằng cách kết hợp cả hai nhánh
-use App\Http\Controllers\Api\MoviegenreController;
-use App\Http\Controllers\Api\MemberShipsController;
-use App\Http\Controllers\Api\RegisterMemberController;
-use App\Http\Controllers\Api\BookingDetailController;
-use App\Http\Controllers\Api\PaymentController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Controllers\Api\AuthController; // auth api 
-
-
-
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MoviegenreController;
@@ -45,6 +27,7 @@ use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+
 // để yên
 
 
