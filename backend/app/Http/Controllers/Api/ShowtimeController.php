@@ -82,7 +82,7 @@ class ShowtimeController extends Controller
             'gio_chieu' => 'required|date_format:H:i'
         ]);
 
-    
+
         // check date
         $checkDate = Showtime::where('ngay_chieu', $request->ngay_chieu)->where('room_id', $request->room_id)->exists();
 
@@ -126,10 +126,11 @@ class ShowtimeController extends Controller
 
     public function show(string $id)
     {
-        // show du lieu theo id
 
         // Lấy suất chiếu theo id cùng với thông tin phim, rạp và phòng chiếu
-        $showtimeID = Showtime::with(['movie', 'theater', 'room'])->find($id);
+        $showtimeID = Showtime::with(['movie:id,ten_phim', 'theater:id,ten_rap', 'room:id,ten_phong_chieu'])
+            ->select('id', 'ngay_chieu', 'gio_chieu', 'phim_id', 'rapphim_id', 'room_id')
+            ->find($id);
 
         if (!$showtimeID) {
             return response()->json([
@@ -139,8 +140,12 @@ class ShowtimeController extends Controller
 
         return response()->json([
             'message' => 'Lấy thông tin suất chiếu theo id thành công',
-            'data' => $showtimeID,
-        ], 200);  // 200 có dữ liệu trả về
+            'ngay_chieu' => $showtimeID->ngay_chieu,
+            'gio_chieu' => $showtimeID->gio_chieu,
+            'movie' => $showtimeID->movie->ten_phim,
+            'theater' => $showtimeID->theater->ten_rap,
+            'room' => $showtimeID->room->ten_phong_chieu,
+        ], 200);
     }
 
 
@@ -157,9 +162,12 @@ class ShowtimeController extends Controller
         }
 
         // đổ all phim rạp phòng nếu có chọn sẽ chọn để thay đổi
-        $movies = Movie::all();
-        $theaters = Theater::all();
-        $rooms = Room::all();
+        $movies = Movie::select('id' , 'ten_phim')->get();
+        $theaters = Theater::select('id' , 'ten_rap')->get();
+        $rooms = Room::select('id' , 'ten_phong_chieu')->get();
+        //$movies = Movie::all();
+        //$theaters = Theater::all();
+        //$rooms = Room::all();
 
         return response()->json([
             'message' => 'Lấy thông tin suất chiếu theo id thành công',
@@ -179,7 +187,7 @@ class ShowtimeController extends Controller
         // cap nhat theo id
 
         // Tìm và cập nhật suất chiếu
-        $showtimeID = Showtime::findOrFail($id);
+        $showtimeID = Showtime::find($id);
 
         if (!$showtimeID) {
             return response()->json([

@@ -145,7 +145,7 @@ Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);  // xoa the
 Route::get('showtimes', [ShowtimeController::class, 'index']); // xuat all
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']); // đưa đến from add thêm showtime đổ rạp + phòng + phim để thêm
 Route::post('storeShowtime', [ShowtimeController::class, 'store']); // them ban ghi moi
-Route::get('ShowShowtime/{id}', [ShowtimeController::class, 'show']);  // show theo id
+Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);  // show theo id
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);  // dua den trang edit
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);  // cap nhat theo id
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);  // xoa theo id
