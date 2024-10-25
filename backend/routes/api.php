@@ -70,11 +70,12 @@ Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])-
 
 Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
 Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
-//Route::post('booking{booking}/selectService', [BookingController::class, 'selectService'])->middleware('auth:api'); // chọn đồ ăn và sử dụng voucher tính tiền 
+Route::post('booking/{booking}/selectService', [BookingController::class, 'selectService'])->middleware('auth:api'); // chọn đồ ăn và sử dụng voucher tính tiền 
 
 // đưa đến trang thanh toán với theo boooking id
 Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api'); // ko auth
 Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking'])->middleware('auth:api'); // ko auth
+
 
 // show booking đã  book cho user
 Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail'])->middleware('auth:api');
