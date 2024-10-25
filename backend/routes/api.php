@@ -27,6 +27,8 @@ use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use Illuminate\Routing\Controllers\HasMiddleware;
+use PHPUnit\Framework\Attributes\Group;
 
 // để yên
 
@@ -58,27 +60,28 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('logout', [AuthController::class, 'logout']);
     // update tài khoản phía user
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
-
-
 });
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 
+// xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); 
 
+Route::middleware('auth:api')->group(function () {
 
-Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
-Route::post('booking', [BookingController::class, 'storeBooking'])->middleware('auth:api');
-Route::post('booking/{booking}/selectService', [BookingController::class, 'selectService'])->middleware('auth:api'); // chọn đồ ăn và sử dụng voucher tính tiền 
+    Route::post('booking', [BookingController::class, 'storeBooking']);
+    // chọn đồ ăn và sử dụng voucher tính tiền 
+    Route::post('booking/{booking}/selectService', [BookingController::class, 'selectService']);
 
-// đưa đến trang thanh toán với theo boooking id
-Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking'])->middleware('auth:api'); // ko auth
-Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking'])->middleware('auth:api'); // ko auth
+    // đưa đến trang thanh toán với theo boooking id
+    Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking']); 
+    Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking']);
 
-
-// show booking đã  book cho user
-Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail'])->middleware('auth:api');
+    // show all booking đã book cho user
+    Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
+});
 
 
 //Ánh call api theaters
@@ -268,9 +271,3 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
-
-
-
-
-
-

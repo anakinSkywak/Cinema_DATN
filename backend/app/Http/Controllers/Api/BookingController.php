@@ -187,7 +187,7 @@ class BookingController extends Controller
             'tong_tien_thanh_toan' => $tong_tien,
         ]);
 
-        // // Sau khi tạo booking thành công
+        // Sau khi tạo booking thành công
         // foreach ($selectedSeats as $seatId) {
         //     DB::table('seat_showtime_status')->updateOrInsert(
         //         [
