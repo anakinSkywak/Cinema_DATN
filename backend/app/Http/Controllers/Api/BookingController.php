@@ -147,6 +147,16 @@ class BookingController extends Controller
             ], 401);
         }
 
+        // lấy ổ đồ ăn khi đến trang chọn đồ ăn rồi mới ấn thanh toán
+        //  vội quá tối về check sau
+        $getFoodall = Food::all();
+        if (!$getFoodall) {
+            return response()->json([
+                'message' => 'Ko có đồ ăn nào'
+            ], 404);
+        }
+
+
         $request->validate([
             'doan_id' => 'nullable|exists:foods,id',
             'so_luong_do_an' => 'nullable|numeric|min:1',

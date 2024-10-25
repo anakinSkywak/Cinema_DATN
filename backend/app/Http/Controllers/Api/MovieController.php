@@ -66,10 +66,6 @@ class MovieController extends Controller
             'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
             'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
             'thoi_gian_phim' => 'required|numeric',
-        ], [
-            'ten_phim.required' => 'Tên phim không được để trống !',
-            'ten_phim.string' => 'Tên phim phải là chuỗi!',
-            'ten_phim.max' => 'Tên phim tối đa 250 ký tự !'
         ]);
 
         // check ko chấp nhận kiểu ảnh webp : check sau
@@ -138,7 +134,7 @@ class MovieController extends Controller
     // cập nhật phim với các thông tin thay đổi đang lỗi fix sau
     public function update(Request $request, string $id)
     {
-        $movie = Movie::findOrFail($id);
+        $movie = Movie::find($id);
 
         $validated = $request->validate([
             'ten_phim' => 'required|string|max:255',
