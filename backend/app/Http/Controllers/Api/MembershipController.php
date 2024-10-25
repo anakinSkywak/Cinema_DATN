@@ -53,13 +53,11 @@ class MembershipController extends Controller
     {
         // Hiển thị Membership theo ID
         $dataID = Membership::with('registerMember')->find($id);
-
         if (!$dataID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Membership theo id'
             ], 404);
         }
-
         return response()->json([
             'message' => 'Dữ liệu show theo ID thành công',
             'data' => $dataID,

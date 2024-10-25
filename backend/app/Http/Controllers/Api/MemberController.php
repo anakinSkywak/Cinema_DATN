@@ -95,7 +95,6 @@ class MemberController extends Controller
         // Lấy các loại hội viên từ bảng Member
         $members = Member::select('id', 'loai_hoi_vien', 'gia')->get();
 
-        // Kiểm tra nếu không có dữ liệu
         if ($members->isEmpty()) {
             return response()->json(['message' => 'Không có loại hội viên nào'], 200);
         }
