@@ -18,7 +18,7 @@ class RegisterMemberController extends Controller
         if ($data->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu RegisterMember nào'
-            ], 200);
+            ], 404);
         }
 
         return response()->json([
