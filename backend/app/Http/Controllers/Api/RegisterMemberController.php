@@ -115,7 +115,6 @@ class RegisterMemberController extends Controller
 
     public function destroy($id)
     {
-        // Xóa RegisterMember theo ID
         $dataID = RegisterMember::find($id);
 
         if (!$dataID) {

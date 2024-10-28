@@ -18,6 +18,7 @@ class RotationsController extends Controller
             return response()->json(['message' => 'Bạn cần đăng nhập để quay thưởng'], 401);
         }
 
+        //comment
         // Lấy các vòng quay có thể quay (trạng thái = 1)
         $rotations = Rotation::where('trang_thai', 1)->get();
 
