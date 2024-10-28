@@ -10,6 +10,7 @@ class FoodController extends Controller
 {
 
 
+    // xuất all đồ ăn
     public function index()
     {
         // xuat all 
@@ -18,7 +19,7 @@ class FoodController extends Controller
         if ($foodall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu Foods !'
-            ], 200);
+            ], 404);
         }
 
         return response()->json([
@@ -28,6 +29,7 @@ class FoodController extends Controller
     }
 
 
+    // thêm mới đồ ăn
     public function store(Request $request)
     {
 
@@ -50,6 +52,7 @@ class FoodController extends Controller
     }
 
 
+    // show đồ ăn theo id
     public function show(string $id)
     {
         // show theo id
@@ -69,9 +72,10 @@ class FoodController extends Controller
         ], 200);  // 200 có dữ liệu trả về
     }
 
+
+    // đưa đến trang edit đổ all dữ liệu theo id
     public function edit(string $id)
     {
-        // show theo id
         // show food theo id
         $foodID = Food::find($id);
 
@@ -87,10 +91,10 @@ class FoodController extends Controller
         ], 200);  // 200 có dữ liệu trả về
     }
 
+
+    // cập nhật
     public function update(Request $request, string $id)
     {
-        //
-
         // cap nhat food theo id 
         $foodID = Food::find($id);
 
@@ -118,18 +122,19 @@ class FoodController extends Controller
     }
 
 
+    // xóa theo id
     public function delete(string $id)
     {
         // xoa theo id
-        $dataID = Food::find($id);
+        $foodID = Food::find($id);
 
-        if (!$dataID) {
+        if (!$foodID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Food theo id này !',
             ], 404);
         }
 
-        $dataID->delete();
+        $foodID->delete();
 
         return response()->json([
             'message' => 'Xóa Booking theo id thành công'

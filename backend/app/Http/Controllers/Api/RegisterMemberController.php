@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 
 class RegisterMemberController extends Controller
 {
+
     public function index()
     {
         // Lấy tất cả dữ liệu từ bảng RegisterMember
@@ -26,9 +27,10 @@ class RegisterMemberController extends Controller
         ]);
     }
 
+
     public function store(Request $request)
     {
-        // Xác thực dữ liệu khi tạo RegisterMember mới
+        // Xác thực dữ liệu skhi tạo RegisterMember mới
         $validated = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'hoivien_id' => 'required|integer|exists:members,id',
@@ -73,6 +75,8 @@ class RegisterMemberController extends Controller
             'data' => $registerMember
         ], 201);
     }
+
+
 
     public function update(Request $request, $id)
     {

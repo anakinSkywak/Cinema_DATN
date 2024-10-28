@@ -9,16 +9,16 @@ use App\Models\Theater;
 class TheaterController extends Controller
 {
 
+    // xuat all rap
     public function index()
     {
         // call api xuat all theatrs 
         $theaterall  = Theater::all();
 
-        // check rỗng nếu ko co dữ liệu trả về thông báo
         if ($theaterall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu nào của rạp phim ! .',
-            ], 200);
+            ], 404);
         }
 
         // trả về dữ liệu
@@ -28,6 +28,8 @@ class TheaterController extends Controller
         ], 200);
     }
 
+    
+    // thêm mới rạp phim
     public function store(Request $request)
     {
 
@@ -49,7 +51,9 @@ class TheaterController extends Controller
 
     }
 
+    
 
+    // show theo id
     public function show(string $id)
     {
         // lấy thông tin rạp theo id
@@ -68,15 +72,24 @@ class TheaterController extends Controller
     }
 
 
+    // đưa đến trang edit với thông tin theo id
     public function editTheaterID(Request $request, string $id)
     {
         // đổ dữ liệu theo id ra khi ấn nút edit theo id
         $dataID = Theater::find($id);
 
+        if (!$dataID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu rạp phim theo id này' .$id,
+            ], 404); // 404 ko có dữ liệu 
+        }
+
         // trả về 
         return response()->json($dataID);
     }
 
+
+    // cập nhật theo id
     public function update(Request $request, string $id)
     {
         // cap nhat rap phim theo id
@@ -85,7 +98,7 @@ class TheaterController extends Controller
         // kiểm tra xem có dữ liêụ theo id đó ko
         if (!$dataID) {
             return response()->json([
-                'message' => 'Không có dữ liệu rạp phim theo id này',
+                'message' => 'Không có dữ liệu rạp phim theo id này'.$id,
             ], 404);
         }
         //check khi sửa dữ liệu
@@ -106,6 +119,7 @@ class TheaterController extends Controller
     }
 
 
+    // xóa theo id
     public function delete(string $id)
     {
         // xoa theo id
@@ -114,7 +128,7 @@ class TheaterController extends Controller
         // check xem co du lieu hay ko
         if (!$dataID) {
             return response()->json([
-                'message' => 'Không có dữ liệu rạp phim theo id này',
+                'message' => 'Không có dữ liệu rạp phim theo id này' .$id,
             ], 404);
         }
 

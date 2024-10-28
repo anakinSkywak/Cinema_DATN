@@ -9,22 +9,24 @@ use Illuminate\Http\Request;
 
 class SeatController extends Controller
 {
+
+
     public function index()
     {
         // call api xuất all seats 
-        $data = Seat::all();
+        $seatall = Seat::all();
 
         // check rỗng nếu không có dữ liệu trả về thông báo
-        if ($data->isEmpty()) {
+        if ($seatall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu nào của ghế!',
-            ], 200);
+            ], 404);
         }
 
         // trả về dữ liệu
         return response()->json([
             'message' => 'Lấy All dữ liệu rạp phim thành công',
-            'data' => $data,
+            'data' => $seatall,
         ], 200);
     }
 
@@ -37,7 +39,7 @@ class SeatController extends Controller
         if ($roomall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phòng, hãy thêm phòng'
-            ], 200);
+            ], 404);
         }
 
         return response()->json([
@@ -81,6 +83,7 @@ class SeatController extends Controller
         ], 201);
     }
 
+
     // Hàm để tạo phạm vi ghế ngồi
     public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id)
     {
@@ -107,6 +110,7 @@ class SeatController extends Controller
         return $seats;
     }
 
+
     public function show(string $id)
     {
         // Show seat theo id
@@ -124,13 +128,33 @@ class SeatController extends Controller
         ], 200);
     }
 
+
+    public function editSeat(string $id)
+    {
+        // show seat theo id
+        $seatID = Seat::find($id);
+
+        if (!$seatID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Seat theo id này',
+            ], 404); // 404 ko có dữ liệu 
+        }
+
+        return response()->json([
+            'message' => 'Lấy thông tin Seat theo ID thành công',
+            'data' => $seatID,
+        ], 200);  // 200 có dữ liệu trả về
+    }
+
+
+
     public function update(Request $request, string $id)
     {
         // Cập nhật seat theo id 
-        $dataID = Seat::find($id);
+        $seatID = Seat::find($id);
 
         // Kiểm tra nếu không tìm thấy dữ liệu
-        if (!$dataID) {
+        if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này!',
             ], 404);
@@ -144,31 +168,32 @@ class SeatController extends Controller
         ]);
 
         // Cập nhật dữ liệu
-        $dataID->update($validated);
+        $seatID->update($validated);
 
         // Trả về kết quả
         return response()->json([
             'message' => 'Cập nhật dữ liệu Seat theo id thành công',
-            'data' => $dataID
+            'data' => $seatID
         ], 200);
     }
 
     public function delete(string $id)
     {
         // Xóa seat theo id
-        $dataID = Seat::find($id);
+        $seatID = Seat::find($id);
 
         // Kiểm tra xem có dữ liệu không
-        if (!$dataID) {
+        if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu seat theo id này!',
             ], 404);
         }
 
-        $dataID->delete();
+        $seatID->delete();
 
         return response()->json([
             'message' => 'Xóa seat theo id thành công'
         ], 200);
     }
+
 }

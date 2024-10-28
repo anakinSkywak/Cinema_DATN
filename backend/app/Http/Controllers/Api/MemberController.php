@@ -43,11 +43,11 @@ class MemberController extends Controller
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
-            'uu_dai' => 'required|numeric',
-            'thoi_gian' => 'required|numeric',
-            'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric',
-            'trang_thai' => 'required|integer',
+            'uu_dai' => 'required|numeric', // uu dai % bao nhieu phan tram
+            'thoi_gian' => 'required|numeric',  // defaut 1 tháng user có the thay doi thang khi dk : chỉnh cột default sau 
+            'ghi_chu' => 'nullable|string|max:255', 
+            'gia' => 'required|numeric', // gia moi lan khi them hoi vien
+            //'trang_thai' => 'required|integer', // de default k can them
         ]);
 
         // Tạo mới Member
@@ -101,6 +101,7 @@ class MemberController extends Controller
             'ghi_chu' => 'nullable|string|max:255',
             'gia' => 'required|numeric',
             'trang_thai' => 'required|integer',
+
         ]);
 
         // Cập nhật Member

@@ -20,7 +20,8 @@ class Movie extends Model
         'noi_dung',
         'trailer',
         'gia_ve',
-        'hinh_thuc_phim'
+        'hinh_thuc_phim',
+        'thoi_gian_phim'
     ];
 
     protected $dates = ['deleted_at'];
