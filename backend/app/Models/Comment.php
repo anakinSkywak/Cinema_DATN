@@ -40,13 +40,13 @@ class Comment extends Model
         return $this->belongsTo(Movie::class, 'phim_id');
     }
 
-    // /**
-    //  * Get the user that owns the Comment
-    //  *
-    //  * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-    //  */
-    // public function user(): BelongsTo
-    // {
-    //     return $this->belongsTo(User::class, 'foreign_key', 'other_key');
-    // }
+    /**
+     * Get the user that owns the Comment
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function moment(): BelongsTo
+    {
+        return $this->belongsTo(Moment::class, 'khoangkhac_id');
+    }
 }

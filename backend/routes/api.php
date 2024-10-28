@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\MomentController;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use PHPUnit\Framework\Attributes\Group;
 
@@ -271,3 +272,11 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+
+
+//call api moment
+Route::get('moments/', [MomentController::class, 'index']);
+Route::post('moments', [MomentController::class, 'store']);
+Route::get('moments/{id}', [MomentController::class, 'show']);
+Route::put('moments/{id}', [MomentController::class, 'update']);
+Route::delete('moments/{id}', [MomentController::class, 'destroy']);
