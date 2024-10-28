@@ -12,7 +12,7 @@ class HistoryRotationsController extends Controller
     // Lấy lịch sử quay thưởng của người dùng hiện tại
     public function index()
     {
-        // Lấy lịch sử quay thưởng của user đang đăng nhập
+        // Lấy tất cả lịch sử quay thưởng của user đang đăng nhập
         $history = HistoryRotation::where('user_id', Auth::id())->get();
         return response()->json($history);
     }
