@@ -275,7 +275,7 @@ Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'de
 
 
 //call api moment
-Route::get('moments/', [MomentController::class, 'index']);
+Route::get('moments', [MomentController::class, 'index']);
 Route::post('moments', [MomentController::class, 'store']);
 Route::get('moments/{id}', [MomentController::class, 'show']);
 Route::put('moments/{id}', [MomentController::class, 'update']);

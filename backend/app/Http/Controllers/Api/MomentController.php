@@ -17,20 +17,22 @@ class MomentController extends Controller
      */
     public function index()
     {
-        //
-        $data = Moment::all();
+        // Lấy tất cả dữ liệu từ model Moment
+        $data = Moment::all(); // Sử dụng all() để lấy tất cả bản ghi
 
-        if (isEmpty($data)) {
+        // Kiểm tra xem dữ liệu có rỗng hay không
+        if ($data->isEmpty()) { // Sử dụng isEmpty() của Collection
             return response()->json([
-                "message" => "không có dữ liệu"
+                "message" => "Không có dữ liệu."
             ], 404);
         }
 
         return response()->json([
-            "message" => "lấy khoảnh khác thành công",
+            "message" => "Lấy khoảnh khắc thành công.",
             "data" => $data
         ], 200);
     }
+
 
     public function store(Request $request)
     {
@@ -90,5 +92,11 @@ class MomentController extends Controller
     public function destroy(string $id)
     {
         //
+        $data = Moment::find($id);
+        $data->delete();
+
+        return response()->json([
+            'message' => 'đã xóa Moment thành công',
+        ], 200);
     }
 }
