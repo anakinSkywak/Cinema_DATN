@@ -280,3 +280,4 @@ Route::post('moments', [MomentController::class, 'store']);
 Route::get('moments/{id}', [MomentController::class, 'show']);
 Route::put('moments/{id}', [MomentController::class, 'update']);
 Route::delete('moments/{id}', [MomentController::class, 'destroy']);
+

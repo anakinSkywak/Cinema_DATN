@@ -20,7 +20,7 @@ class MomentController extends Controller
         //
         $data = Moment::all();
 
-        if(isEmpty($data)){
+        if (isEmpty($data)) {
             return response()->json([
                 "message" => "không có dữ liệu"
             ], 404);
@@ -34,32 +34,38 @@ class MomentController extends Controller
 
     public function store(Request $request)
     {
-        // Lấy ID người dùng đã đăng nhập
-        $idUser = Auth::user()->id;
-    
-        // Lấy ID phim từ request
-        $idMovie = $request->input('phim_id'); // Giả sử bạn truyền 'phim_id' trong request
-    
-        // Xác thực dữ liệu đầu vào
+        // Lấy ID người dùng đang đăng nhập
+        // $idUser = Auth::user()->id;
+
+        // Xác thực dữ liệu từ yêu cầu
         $validated = $request->validate([
-            'user_id' => $idUser,
-            'phim_id' => 'required|integer|exists:movies,id', // Đảm bảo phim tồn tại trong bảng movies
-            'anh_khoang_khac' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
-            'noi_dung' => 'required|string|max:255'
+            'user_id' => 'required|integer|exists:users,id',
+            'phim_id' => 'required|integer|exists:movies,id',
+            'anh_khoang_khac' => 'required|string|max:255',
+            'noi_dung' => 'required|string|max:255',
+            'like' => 'sometimes|integer',  // Tùy chọn
+            'dislike' => 'sometimes|integer' // Tùy chọn
         ]);
-    
-        // Tạo mới bản ghi Moment
-        Moment::create([
+
+        // Lưu ảnh vào thư mục 'images' và lấy tên file
+        // $filePath = $request->file('anh_khoang_khac')->store('images');
+
+        // Tạo mới Moment
+        $moment = Moment::create([
             'user_id' => $validated['user_id'],
             'phim_id' => $validated['phim_id'],
-            'anh_khoang_khac' => $request->file('anh_khoang_khac')->store('images'), // Lưu hình ảnh vào thư mục images
-            'noi_dung' => $validated['noi_dung']
+            'anh_khoang_khac' => $validated['anh_khoang_khac'],
+            'noi_dung' => $validated['noi_dung'],
+            'like' => $validated['like'] ?? 0,    // Mặc định là 0 nếu không có
+            'dislike' => $validated['dislike'] ?? 0 // Mặc định là 0 nếu không có
         ]);
-    
+
         return response()->json([
-            'message' => 'Tạo mới Moment thành công!'
+            'message' => 'Thêm mới Moment thành công',
+            'data' => $moment
         ], 201);
     }
+
 
 
     /**
