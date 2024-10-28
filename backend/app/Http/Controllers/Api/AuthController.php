@@ -50,7 +50,7 @@ class AuthController extends Controller
             'ho_ten' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'so_dien_thoai' => 'required|string|max:10|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
             'gioi_tinh' => 'required|in:nam,nu,khac',
             'vai_tro' => 'required|in:user,admin,nhan_vien',
         ]);
@@ -60,13 +60,13 @@ class AuthController extends Controller
         }
 
         //$user = 
-        User::create(array_merge(
+        $user = User::create(array_merge(
             $validator->validated(),
             ['password' => bcrypt($request->password)]
         ));
 
         // khi nào cần xác nhận bằng mail thì dùng 
-        //$user->sendEmailVerificationNotification();
+        $user->sendEmailVerificationNotification();
 
         return response()->json([
             'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'

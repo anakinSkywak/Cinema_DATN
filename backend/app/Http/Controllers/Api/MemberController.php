@@ -19,7 +19,7 @@ class MemberController extends Controller
         if ($data->isEmpty()) {
             return response()->json([
                 'message' => 'Không có hội viên',
-            ], 204);
+            ], 404);
         }
 
         return response()->json([
