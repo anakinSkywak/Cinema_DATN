@@ -76,6 +76,18 @@ class MomentController extends Controller
     public function show(string $id)
     {
         //
+
+        $data = Moment::find($id);
+
+        if(isEmpty($data)){
+            return response()->json([
+                'message' => 'không có moment này',
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'lấy Moment thành công',
+            'data' => $data
+        ], 200);
     }
 
     /**
@@ -84,6 +96,37 @@ class MomentController extends Controller
     public function update(Request $request, string $id)
     {
         //
+        $data = Moment::find($id);
+          // Lấy ID người dùng đang đăng nhập
+        // $idUser = Auth::user()->id;
+
+        // Xác thực dữ liệu từ yêu cầu
+        $validated = $request->validate([
+            'user_id' => 'required|integer|exists:users,id',
+            'phim_id' => 'required|integer|exists:movies,id',
+            'anh_khoang_khac' => 'required|string|max:255',
+            'noi_dung' => 'required|string|max:255',
+            'like' => 'sometimes|integer',  // Tùy chọn
+            'dislike' => 'sometimes|integer' // Tùy chọn
+        ]);
+
+        // Lưu ảnh vào thư mục 'images' và lấy tên file
+        // $filePath = $request->file('anh_khoang_khac')->store('images');
+
+        // Tạo mới Moment
+        $data->update([
+            'user_id' => $validated['user_id'],
+            'phim_id' => $validated['phim_id'],
+            'anh_khoang_khac' => $validated['anh_khoang_khac'],
+            'noi_dung' => $validated['noi_dung'],
+            'like' => $validated['like'] ?? 0,    // Mặc định là 0 nếu không có
+            'dislike' => $validated['dislike'] ?? 0 // Mặc định là 0 nếu không có
+        ]);
+
+        return response()->json([
+            'message' => 'đã update Moment thành công',
+            'data' => $data
+        ], 201);
     }
 
     /**
