@@ -43,20 +43,27 @@ class MomentController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'phim_id' => 'required|integer|exists:movies,id',
-            'anh_khoang_khac' => 'required|string|max:255',
+            'anh_khoang_khac' => 'required|mimes:jpg,png,jpeg|max:2048',
             'noi_dung' => 'required|string|max:255',
             'like' => 'sometimes|integer',  // Tùy chọn
             'dislike' => 'sometimes|integer' // Tùy chọn
         ]);
 
-        // Lưu ảnh vào thư mục 'images' và lấy tên file
-        // $filePath = $request->file('anh_khoang_khac')->store('images');
+        if ($request->hasFile('anh_khoang_khac')) {
+            $file = $request->file('anh_khoang_khac');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_khoang_khac', $filename, 'public');
+            // Lưu ảnh vào thư mục 'images' và lấy tên file
+            $validated['anh_khoang_khac'] = '/storage/' . $filePath;
+        }
+
+
 
         // Tạo mới Moment
         $moment = Moment::create([
             'user_id' => $validated['user_id'],
             'phim_id' => $validated['phim_id'],
-            'anh_khoang_khac' => $validated['anh_khoang_khac'],
+            'anh_khoang_khac' => $filePath,
             'noi_dung' => $validated['noi_dung'],
             'like' => $validated['like'] ?? 0,    // Mặc định là 0 nếu không có
             'dislike' => $validated['dislike'] ?? 0 // Mặc định là 0 nếu không có
