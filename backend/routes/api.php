@@ -71,10 +71,10 @@ Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);  // ch
 
 Route::middleware('auth:api')->group(function () {
 
-    Route::post('booking', [BookingController::class, 'storeBooking']);
-    // chọn đồ ăn và sử dụng voucher tính tiền 
-    Route::post('booking/{booking}/selectService', [BookingController::class, 'selectService']);
+    //Route::post('booking', [BookingController::class, 'storeBooking']);
+    //Route::post('booking/{booking}/selectService', [BookingController::class, 'selectService']);
 
+    Route::post('booking', [BookingController::class, 'Booking']);
     // đưa đến trang thanh toán với theo boooking id
     Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking']); 
     Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking']);
