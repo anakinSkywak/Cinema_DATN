@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
@@ -25,7 +26,7 @@ class CommentController extends Controller
         }
 
         return response()->json([
-            "message" => "Lấy khoảnh khắc thành công.",
+            "message" => "Lấy comment thành công.",
             "data" => $data
         ], 200);
     }
@@ -35,8 +36,27 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'noi_dung' => 'required',
+            'phim_id' => 'required|integer|exists:movies,id',
+            'khoangkhac_id' => 'required|integer|exists:moments,id',
+        ]);
+
+        $user_id = auth()->id();
+
+        $data = Comment::create([
+            "user_id" => $user_id,
+            "noi_dung" => $validated['noi_dung'],
+            "phim_id" => $validated['phim_id'],
+            "khoangkhac_id" => $validated['khoangkhac_id'],
+        ]);
+
+        return response()->json([
+            "message" => "đã tạo bình luận thành công",
+            "data" => $data,
+        ], 201);
     }
+
 
     /**
      * Display the specified resource.

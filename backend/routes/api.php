@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\MomentController;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use PHPUnit\Framework\Attributes\Group;
@@ -281,3 +282,11 @@ Route::get('moments/{id}', [MomentController::class, 'show']);
 Route::put('moments/{id}', [MomentController::class, 'update']);
 Route::delete('moments/{id}', [MomentController::class, 'destroy']);
 
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('comments', [CommentController::class, 'index']);
+    Route::post('comments', [CommentController::class, 'store']);
+    Route::get('comments/{id}', [CommentController::class, 'show']);
+    Route::put('comments/{id}', [CommentController::class, 'update']);
+    Route::delete('comments/{id}', [CommentController::class, 'destroy']);
+});
