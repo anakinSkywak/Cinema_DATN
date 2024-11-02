@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+
+use function PHPUnit\Framework\isEmpty;
 
 class CommentController extends Controller
 {
@@ -37,7 +38,7 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'noi_dung' => 'required',
+            'noi_dung' => 'required|string|max:255',
             'phim_id' => 'required|integer|exists:movies,id',
             'khoangkhac_id' => 'required|integer|exists:moments,id',
         ]);
@@ -61,18 +62,61 @@ class CommentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $data = Comment::where('id', $id)->first();
+
+        // Kiểm tra xem dữ liệu có tồn tại hay không
+        if (!$data) {
+            return response()->json([
+                "message" => "Không có dữ liệu theo id này."
+            ], 404);
+        }
+
+        return response()->json([
+            "message" => "Lấy comment thành công.",
+            "data" => $data
+        ], 200);
     }
+
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Tìm comment theo ID
+        $comment = Comment::find($id);
+
+        // Kiểm tra comment có tồn tại không
+        if (!$comment) {
+            return response()->json([
+                "message" => "Không tìm thấy comment này!"
+            ], 404);
+        }
+
+        // Kiểm tra quyền sở hữu comment
+        if ($comment->user_id !== auth()->id()) {
+            return response()->json([
+                "message" => "Bạn không có quyền thay đổi comment này."
+            ], 403);
+        }
+
+        // Xác thực nội dung bình luận
+        $validated = $request->validate([
+            'noi_dung' => 'required|string|max:255',
+        ]);
+
+        // Cập nhật comment
+        $comment->update($validated);
+
+        // Trả về dữ liệu comment đã cập nhật
+        return response()->json([
+            "message" => "Đã update bình luận thành công.",
+            "data" => $comment->refresh(),
+        ], 200);
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -80,5 +124,7 @@ class CommentController extends Controller
     public function destroy(string $id)
     {
         //
+
+        
     }
 }

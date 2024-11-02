@@ -35,6 +35,9 @@ use PHPUnit\Framework\Attributes\Group;
 // để yên
 
 
+
+
+
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill(); // xác minh email thành công
@@ -62,6 +65,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('logout', [AuthController::class, 'logout']);
     // update tài khoản phía user
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+
+    // route này để xác thực các route liên quan đến đăng nhập tài khoản
+    Route::get('authenticationRoute', function () {
+        return response()->json(['error' => 'hãy đăng nhập hoạc đăng ký để sử dụng dịhj vụ này']);
+    })->name('unauthenticated');
 });
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
