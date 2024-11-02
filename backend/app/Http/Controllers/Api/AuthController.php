@@ -11,6 +11,7 @@ use App\Models\RegisterMember;
 use App\Models\PasswordResetToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
+use App\Models\Comment;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -91,6 +92,7 @@ class AuthController extends Controller
         // dữ liệu booking user đã đặt
         $dataBooking = Booking::where('user_id', auth()->id())->orderBy('id', 'DESC')->get();
         $dataRegisterMember = RegisterMember::where('user_id', auth()->id())->get();
+        $dataComment= Comment::where('user_id', auth()->id())->get();
 
         if (!auth()->check()) {
             return response()->json(['error' => 'Bạn hiện chưa có tài khoản'], 401);
@@ -101,6 +103,7 @@ class AuthController extends Controller
                 // trả về dữ liệu booking
                 'Booking' => $dataBooking,
                 'RegisterMember' => $dataRegisterMember,
+                'Comment' => $dataComment,
             ],
         ]);
     }
