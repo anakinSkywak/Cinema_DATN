@@ -68,7 +68,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
     // route này để xác thực các route liên quan đến đăng nhập tài khoản
     Route::get('authenticationRoute', function () {
-        return response()->json(['error' => 'hãy đăng nhập hoạc đăng ký để sử dụng dịhj vụ này']);
+        return response()->json(['error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này']);
     })->name('unauthenticated');
 });
 

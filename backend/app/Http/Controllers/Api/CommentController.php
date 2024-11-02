@@ -123,8 +123,22 @@ class CommentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
 
-        
+        // Tìm comment theo ID
+        $comment = Comment::find($id);
+
+        // Kiểm tra comment có tồn tại không
+        if (!$comment) {
+            return response()->json([
+                "message" => "Không tìm thấy comment này!"
+            ], 404);
+        }
+
+        $comment->delete();
+
+        return response()->json([
+            'message' => "bạn đã xóa comment thành công"
+        ], 200);
+
     }
 }
