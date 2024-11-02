@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Auth\Events\Validated;
 use function PHPUnit\Framework\isEmpty;
+use Illuminate\Support\Facades\Storage;
 
 class MomentController extends Controller
 {
@@ -86,7 +87,7 @@ class MomentController extends Controller
 
         $data = Moment::find($id);
 
-        if(isEmpty($data)){
+        if (isEmpty($data)) {
             return response()->json([
                 'message' => 'không có moment này',
             ], 404);
@@ -102,39 +103,47 @@ class MomentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Tìm Moment bằng ID
         $data = Moment::find($id);
-          // Lấy ID người dùng đang đăng nhập
-        // $idUser = Auth::user()->id;
+        if (!$data) {
+            return response()->json(['message' => 'không có moment này'], 404);
+        }
 
         // Xác thực dữ liệu từ yêu cầu
         $validated = $request->validate([
             'user_id' => 'required|integer|exists:users,id',
             'phim_id' => 'required|integer|exists:movies,id',
-            'anh_khoang_khac' => 'required|string|max:255',
+            'anh_khoang_khac' => 'nullable|mimes:jpg,png,jpeg|max:2048', // Chỉnh lại để ảnh có thể là tùy chọn
             'noi_dung' => 'required|string|max:255',
             'like' => 'sometimes|integer',  // Tùy chọn
             'dislike' => 'sometimes|integer' // Tùy chọn
         ]);
 
-        // Lưu ảnh vào thư mục 'images' và lấy tên file
-        // $filePath = $request->file('anh_khoang_khac')->store('images');
+        // Xử lý ảnh mới (nếu có)
+        if ($request->hasFile('anh_khoang_khac')) {
+            // Xóa ảnh cũ nếu tồn tại
+            if ($data->anh_khoang_khac) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $data->anh_khoang_khac));
+            }
 
-        // Tạo mới Moment
-        $data->update([
-            'user_id' => $validated['user_id'],
-            'phim_id' => $validated['phim_id'],
-            'anh_khoang_khac' => $validated['anh_khoang_khac'],
-            'noi_dung' => $validated['noi_dung'],
-            'like' => $validated['like'] ?? 0,    // Mặc định là 0 nếu không có
-            'dislike' => $validated['dislike'] ?? 0 // Mặc định là 0 nếu không có
-        ]);
+            // Lưu ảnh mới
+            $file = $request->file('anh_khoang_khac');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_khoang_khac', $filename, 'public');
+            $validated['anh_khoang_khac'] = '/storage/' . $filePath;
+        } else {
+            $validated['anh_khoang_khac'] = $data->anh_khoang_khac;
+        }
+
+        // Cập nhật Moment với dữ liệu đã xác thực
+        $data->update($validated);
 
         return response()->json([
             'message' => 'đã update Moment thành công',
             'data' => $data
         ], 201);
     }
+
 
     /**
      * Remove the specified resource from storage.
