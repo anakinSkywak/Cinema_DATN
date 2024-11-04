@@ -27,10 +27,15 @@ use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\MomentController;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use PHPUnit\Framework\Attributes\Group;
 
 // để yên
+
+
+
 
 
 // route xu li , nhan xac thuc email ve email
@@ -60,6 +65,11 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('logout', [AuthController::class, 'logout']);
     // update tài khoản phía user
     Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+
+    // route này để xác thực các route liên quan đến đăng nhập tài khoản
+    Route::get('authenticationRoute', function () {
+        return response()->json(['error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này']);
+    })->name('unauthenticated');
 });
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
@@ -271,3 +281,20 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+
+
+//call api moment
+Route::get('moments', [MomentController::class, 'index']);
+Route::post('moments', [MomentController::class, 'store']);
+Route::get('moments/{id}', [MomentController::class, 'show']);
+Route::put('moments/{id}', [MomentController::class, 'update']);
+Route::delete('moments/{id}', [MomentController::class, 'destroy']);
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('comments', [CommentController::class, 'index']);
+    Route::post('comments', [CommentController::class, 'store']);
+    Route::get('comments/{id}', [CommentController::class, 'show']);
+    Route::put('comments/{id}', [CommentController::class, 'update']);
+    Route::delete('comments/{id}', [CommentController::class, 'destroy']);
+});
