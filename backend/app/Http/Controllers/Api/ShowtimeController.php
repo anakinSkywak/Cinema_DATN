@@ -211,7 +211,12 @@ class ShowtimeController extends Controller
         // đổ all phim rạp phòng nếu có chọn sẽ chọn để thay đổi
         $movies = Movie::select('id', 'ten_phim')->get();
         $theaters = Theater::select('id', 'ten_rap')->get();
-        $rooms = Room::select('id', 'ten_phong_chieu')->get();
+        //$rooms = Room::select('id', 'ten_phong_chieu')->get();
+        //
+        $rooms = Room::where('rapphim_id', $showtimeID->rapphim_id)
+            ->select('id', 'ten_phong_chieu')
+            ->get();
+
         //$movies = Movie::all();
         //$theaters = Theater::all();
         //$rooms = Room::all();
@@ -224,7 +229,7 @@ class ShowtimeController extends Controller
                 'theaters' => $theaters,
                 'rooms' => $rooms,
             ],
-        ], 200);  // 200 có dữ liệu trả về
+        ], 200);
     }
 
 
