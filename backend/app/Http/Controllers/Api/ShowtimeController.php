@@ -52,21 +52,46 @@ class ShowtimeController extends Controller
         }
 
         //$rooms = Room::all();
-        $rooms = Room::select('id', 'ten_phong_chieu')->get();
-        if ($rooms->isEmpty()) {
-            return response()->json([
-                'message' => 'Không có phòng hãy thêm phòng'
-            ], 404);
-        }
+        // $rooms = Room::select('id', 'ten_phong_chieu')->get();
+        // if ($rooms->isEmpty()) {
+        //     return response()->json([
+        //         'message' => 'Không có phòng hãy thêm phòng'
+        //     ], 404);
+        // }
 
         return response()->json([
             'message' => 'Lấy các thông tin đổ ra để thêm ok',
             'data' => [
                 'movies' => $movies,
                 'theaters' => $theaters,
-                'rooms' => $rooms,
+                //'rooms' => $rooms,
             ],
         ], 200);  // 200 có dữ liệu trả về
+    }
+
+    // khi ấn rạp phim chọn theo id để thêm
+    // sẽ gọi route thứ 2 với hàm này lấy room all theo rạp phim đã chọn trước đó hiện ra khi chọn rạp phim
+    // vì đổ all room theo rạp phim đã chọn trước đó để thêm
+    public function getRoomByTheater(Request $request)
+    {
+
+        $request->validate([
+            'rapphim_id' => 'required|exists:theaters,id',
+        ]);
+
+        $roombytheaters = Room::where('rapphim_id', $request->rapphim_id)->select('id', 'ten_phong_chieu')->get();
+
+        
+        if ($roombytheaters->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phòng nào trong rạp này.',
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Danh sách phòng chiếu theo rạp phim đã chọn ',
+            'data' => $roombytheaters,
+        ], 200);
     }
 
     public function store(Request $request)
@@ -162,9 +187,9 @@ class ShowtimeController extends Controller
         }
 
         // đổ all phim rạp phòng nếu có chọn sẽ chọn để thay đổi
-        $movies = Movie::select('id' , 'ten_phim')->get();
-        $theaters = Theater::select('id' , 'ten_rap')->get();
-        $rooms = Room::select('id' , 'ten_phong_chieu')->get();
+        $movies = Movie::select('id', 'ten_phim')->get();
+        $theaters = Theater::select('id', 'ten_rap')->get();
+        $rooms = Room::select('id', 'ten_phong_chieu')->get();
         //$movies = Movie::all();
         //$theaters = Theater::all();
         //$rooms = Room::all();

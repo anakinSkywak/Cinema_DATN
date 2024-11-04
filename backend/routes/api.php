@@ -159,6 +159,7 @@ Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);  // xoa the
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // xuat all
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']); // đưa đến from add thêm showtime đổ rạp + phòng + phim để thêm
+Route::post('getRoomByTheater', [ShowtimeController::class, 'getRoomByTheater']);
 Route::post('storeShowtime', [ShowtimeController::class, 'store']); // them ban ghi moi
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);  // show theo id
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);  // dua den trang edit
