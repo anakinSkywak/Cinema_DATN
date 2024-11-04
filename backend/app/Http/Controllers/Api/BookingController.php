@@ -187,7 +187,7 @@ class BookingController extends Controller
         // kiểm tra tính tổng tiền khi có mã giảm giá nếu có
         if ($request->ma_giam_gia) {
             $result = $this->tinhTienVoucher($request->ma_giam_gia, $tong_tien);
-            $tong_tien = $result['tong_tien_sau_giam']; // Cập nhật tổng tiền
+            $tong_tien = $result['tong_tien_sau_giam']; 
         }
 
         // tạo bản ghi tạm thời
@@ -207,7 +207,20 @@ class BookingController extends Controller
             'tong_tien_thanh_toan' => $tong_tien,
         ]);
 
-        // update chặn ghế ngồi theo các giờ 
+        // update chặn ghế ngồi theo các giờ
+
+        //Sau khi tạo booking thành công
+        // foreach ($selectedSeats as $seatId) {
+        //     DB::table('seat_showtime_status')->updateOrInsert(
+        //         [
+        //             'ghengoi_id' => $seatId,
+        //             'thongtinchieu_id' => $request->thongtinchieu_id
+        //         ],
+        //         [
+        //             'trang_thai' => 1 // 1 = booked
+        //         ]
+        //     );
+        // }
 
         return response()->json([
             'message' => 'Tạo Booking ok đến trang thanh toán',
