@@ -163,6 +163,7 @@ Route::post('getRoomByTheater', [ShowtimeController::class, 'getRoomByTheater'])
 Route::post('storeShowtime', [ShowtimeController::class, 'store']); // them ban ghi moi
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);  // show theo id
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);  // dua den trang edit
+Route::post('getRoomByTheaterEdit', [ShowtimeController::class, 'getRoomByTheaterEdit']); // hàm khi ấn rạp phim mới để thay đổi sẽ đổ all room theo rạp phim đó để chọn
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);  // cap nhat theo id
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);  // xoa theo id
 

@@ -251,6 +251,28 @@ class ShowtimeController extends Controller
         ], 200);
     }
 
+    // khi thay đổi rạp phim sẽ nếu thay đổi khi edit sẽ đổ all rạp phim có theo rạp phim thay đổi đó theo id để chọn
+    public function getRoomByTheaterEdit(Request $request)
+    {
+        $request->validate([
+            'rapphim_id' => 'required|exists:theaters,id',
+        ]);
+
+        $roombytheatersEdit = Room::where('rapphim_id', $request->rapphim_id)->select('id', 'ten_phong_chieu')->get();
+
+        if ($roombytheatersEdit->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phòng nào trong rạp này.',
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Danh sách phòng chiếu theo rạp phim đã chọn ',
+            'data' => $roombytheatersEdit,
+        ], 200);
+    }
+
+
 
     public function update(Request $request, string $id)
     {
