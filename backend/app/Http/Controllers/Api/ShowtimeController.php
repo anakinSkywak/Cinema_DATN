@@ -200,7 +200,7 @@ class ShowtimeController extends Controller
     {
 
         // Lấy suất chiếu theo id cùng với thông tin phim, rạp và phòng chiếu
-        $showtimeID = Showtime::with(['movie', 'theater', 'room'])->find($id);
+        $showtimeID = Showtime::with(['movie:id,ten_phim', 'theater:id,ten_rap', 'room:id,ten_phong_chieu'])->find($id);
 
         if (!$showtimeID) {
             return response()->json([
@@ -210,19 +210,38 @@ class ShowtimeController extends Controller
 
         // đổ all phim rạp phòng nếu có chọn sẽ chọn để thay đổi
         $movies = Movie::select('id', 'ten_phim')->get();
+        if ($movies->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phim nào thêm phim',
+            ], 404);
+        }
+
         $theaters = Theater::select('id', 'ten_rap')->get();
+        if ($theaters->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có rạp phim nào thêm rạp phim',
+            ], 404);
+        }
+
         //$rooms = Room::select('id', 'ten_phong_chieu')->get();
-        //
+
+        // đổ all room theo id rạp phim trước đó để chọn thay đôi room theo rap phim đó có
         $rooms = Room::where('rapphim_id', $showtimeID->rapphim_id)
             ->select('id', 'ten_phong_chieu')
             ->get();
+
+        if ($rooms->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có room nào của rạp phim này thêm room với rạp đó',
+            ], 404);
+        }
 
         //$movies = Movie::all();
         //$theaters = Theater::all();
         //$rooms = Room::all();
 
         return response()->json([
-            'message' => 'Lấy thông tin suất chiếu theo id thành công',
+            'message' => 'Lấy thông tin suất chiếu theo id thành công , đổ all movie , theater , room để chọn nếu thay đổi',
             'data' => [
                 'showtime' => $showtimeID,
                 'movies' => $movies,

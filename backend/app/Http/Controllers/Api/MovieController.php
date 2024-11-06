@@ -113,22 +113,22 @@ class MovieController extends Controller
         $movieID = Movie::find($id);
         if (!$movieID) {
             return response()->json([
-                'message' => 'Không có phim theo id ' .$id
-            ],404);
+                'message' => 'Không có phim theo id ' . $id
+            ], 404);
         }
 
         $allGenres = MovieGenre::all();
         if (!$allGenres) {
             return response()->json([
-                'message' =>  'Không có thể loại phim nào' 
-            ],404);
+                'message' =>  'Không có thể loại phim nào'
+            ], 404);
         }
 
         return response()->json([
             'message' => 'Hiển thị phim và thể loại',
             'movie' => $movieID->load('movie_genres'),
             'all_genre' => $allGenres,
-        ],200);
+        ], 200);
     }
 
     // cập nhật phim với các thông tin thay đổi đang lỗi fix sau
@@ -136,9 +136,15 @@ class MovieController extends Controller
     {
         $movie = Movie::find($id);
 
+        if (!$movie) {
+            return response()->json([
+                'message' => 'Không có phim theo id ' . $id
+            ], 404);
+        }
+
         $validated = $request->validate([
             'ten_phim' => 'required|string|max:255',
-            'anh_phim' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:255',
@@ -147,19 +153,25 @@ class MovieController extends Controller
             'hinh_thuc_phim' => 'required|string|max:255',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
+            'thoi_gian_phim' => 'required|numeric',
         ]);
 
+
         if ($request->hasFile('anh_phim')) {
+            // Xóa file cũ nếu cần
             if ($movie->anh_phim) {
                 unlink(public_path($movie->anh_phim));
             }
-
+        
             $file = $request->file('anh_phim');
             $filename = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
+    
             $validated['anh_phim'] = '/storage/' . $filePath;
+            
+
         } else {
-            $validated['anh_phim'] = $movie->anh_phim;
+            $validated['anh_phim'] = $movie->anh_phim; 
         }
 
         $movie->update($validated);
@@ -180,7 +192,7 @@ class MovieController extends Controller
 
         if (!$movieID) {
             return response()->json([
-                'message' => 'Không tìm thấy phim theo id ' .$id
+                'message' => 'Không tìm thấy phim theo id ' . $id
             ], 404);
         }
 
@@ -191,7 +203,7 @@ class MovieController extends Controller
         ]);
     }
 
-    
+
     public function movieFilter(string $id)
     {
         $movies = Movie::with('movie_genres')->whereHas('movie_genres', function ($query) use ($id) {
