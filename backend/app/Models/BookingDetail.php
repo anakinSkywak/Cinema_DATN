@@ -13,7 +13,7 @@ class BookingDetail extends Model
 
     protected $fillable = [
         'booking_id',
-        'thanhtoan_id',
+        'payment_id',
         'trang_thai'
     ];
 
