@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 24, 2024 at 07:48 PM
+-- Generation Time: Nov 06, 2024 at 10:08 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,8 +52,8 @@ CREATE TABLE `bookings` (
   `ghi_chu` varchar(255) DEFAULT NULL,
   `ma_giam_gia` varchar(255) DEFAULT NULL,
   `doan_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `tong_tien` decimal(12,3) NOT NULL,
-  `tong_tien_thanh_toan` decimal(12,3) NOT NULL,
+  `tong_tien` decimal(12,3) DEFAULT NULL,
+  `tong_tien_thanh_toan` decimal(12,3) DEFAULT NULL,
   `ngay_mua` date NOT NULL,
   `trang_thai` tinyint(4) DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -78,7 +78,14 @@ INSERT INTO `bookings` (`id`, `user_id`, `so_luong`, `ghi_chu`, `ma_giam_gia`, `
 (65, 13, 1, NULL, 'Giam', 2, 123.500, 123.500, '2024-10-23', 0, '2024-10-23 08:34:19', '2024-10-23 08:34:19', NULL, 20, 'A5', 1, '2 Coca', NULL),
 (66, 13, 3, NULL, 'Giam', 2, 332.500, 332.500, '2024-10-23', 0, '2024-10-23 08:38:25', '2024-10-23 08:38:25', NULL, 20, 'A5, A6, A7', 1, '2 Coca', NULL),
 (67, 13, 3, NULL, 'Giam', 15, 323.000, 323.000, '2024-10-24', 0, '2024-10-24 09:53:08', '2024-10-24 09:53:08', NULL, 25, 'A5, A6, A7', 1, 'Sting Đỏ', NULL),
-(68, 13, 3, NULL, 'Giam', 15, 323.000, 323.000, '2024-10-24', 1, '2024-10-24 10:08:00', '2024-10-24 10:23:52', NULL, 25, 'A5, A6, A7', 1, 'Sting Đỏ', NULL);
+(68, 13, 3, NULL, 'Giam', 15, 323.000, 323.000, '2024-10-24', 1, '2024-10-24 10:08:00', '2024-10-24 10:23:52', NULL, 25, 'A5, A6, A7', 1, 'Sting Đỏ', NULL),
+(69, 13, 3, NULL, NULL, NULL, NULL, NULL, '2024-10-25', 0, '2024-10-24 20:14:30', '2024-10-24 20:14:30', NULL, 25, 'A5, A6, A7', NULL, NULL, NULL),
+(70, 13, 1, NULL, 'Giam', 15, 104.500, 104.500, '2024-10-25', 1, '2024-10-24 20:15:58', '2024-10-24 20:48:57', NULL, 25, 'A5', 1, 'Sting Đỏ', NULL),
+(72, 13, 4, NULL, 'Giam', 15, 389.500, 389.500, '2024-10-28', 0, '2024-10-28 08:46:53', '2024-10-28 08:49:18', NULL, 25, 'A5, A6, A7, A8', 1, 'Sting Đỏ', NULL),
+(73, 13, 4, NULL, 'Giam', 15, 389.500, 389.500, '2024-10-28', 0, '2024-10-28 08:50:21', '2024-10-28 08:52:12', NULL, 25, 'A5, A6, A7, A8', 1, 'Sting Đỏ', NULL),
+(74, 13, 2, NULL, 'Giam', 15, 199.500, 199.500, '2024-10-28', 0, '2024-10-28 09:25:16', '2024-10-28 09:25:56', NULL, 25, 'A5, A6', 1, 'Sting Đỏ', NULL),
+(75, 13, 3, NULL, 'Giam', 15, 323.000, 323.000, '2024-11-01', 0, '2024-11-01 07:00:47', '2024-11-01 07:00:47', NULL, 25, 'A5, A6, A7', 1, 'Sting Đỏ', NULL),
+(82, 13, 3, 'hhh', 'Giam', 15, 323.000, 323.000, '2024-11-01', 0, '2024-11-01 07:11:02', '2024-11-01 07:11:02', NULL, 25, 'A5, A6, A7', 1, 'Sting Đỏ', NULL);
 
 -- --------------------------------------------------------
 
@@ -89,22 +96,11 @@ INSERT INTO `bookings` (`id`, `user_id`, `so_luong`, `ghi_chu`, `ma_giam_gia`, `
 CREATE TABLE `booking_details` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `booking_id` bigint(20) UNSIGNED NOT NULL,
+  `payment_id` bigint(20) UNSIGNED NOT NULL,
   `trang_thai` tinyint(4) DEFAULT 0,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  `thanhtoan_id` bigint(20) UNSIGNED DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `booking_details`
---
-
-INSERT INTO `booking_details` (`id`, `booking_id`, `trang_thai`, `created_at`, `updated_at`, `deleted_at`, `thanhtoan_id`) VALUES
-(2, 60, 1, '2024-10-22 09:18:20', '2024-10-22 09:18:20', NULL, 2),
-(3, 61, 1, '2024-10-22 09:21:53', '2024-10-22 09:21:53', NULL, 3),
-(4, 62, 1, '2024-10-22 20:41:43', '2024-10-22 20:41:43', NULL, 4),
-(5, 68, 1, '2024-10-24 10:23:52', '2024-10-24 10:23:52', NULL, 5);
 
 -- --------------------------------------------------------
 
@@ -365,7 +361,11 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (94, '2024_10_23_055237_add_thoi_gian_phim_to_movies_table', 75),
 (95, '2024_10_23_105639_create_seat_showtimes_table', 76),
 (96, '2024_10_23_113009_rename_seat_showtimes_to_seat_showtime_status', 77),
-(97, '2024_10_23_113156_rename_seat_showtimes_to_seat_showtime_status', 78);
+(97, '2024_10_23_113156_rename_seat_showtimes_to_seat_showtime_status', 78),
+(98, '2024_11_06_084002_drop_booking_details_table', 79),
+(99, '2024_11_06_084123_drop_payments_table', 80),
+(100, '2024_11_06_084239_create_payments_table', 81),
+(101, '2024_11_06_090249_create_booking_details_table', 82);
 
 -- --------------------------------------------------------
 
@@ -441,7 +441,11 @@ CREATE TABLE `movies` (
 --
 
 INSERT INTO `movies` (`id`, `ten_phim`, `anh_phim`, `dao_dien`, `dien_vien`, `noi_dung`, `trailer`, `gia_ve`, `danh_gia`, `created_at`, `updated_at`, `deleted_at`, `hinh_thuc_phim`, `thoi_gian_phim`) VALUES
-(24, 'Chuyện Tình Tôi', '/storage/uploads/anh_phim/1729662996_anh8.jpg', 'Ko sung he , Park', 'Ko sung he , Rore', 'Phim tình cảm', 'https://youtu.be/Dc8-rujjVxM?si=qIIrql5deMSBWyae', 100.000, 0.0, '2024-10-22 22:56:37', '2024-10-22 22:56:37', NULL, 'Đang chiếu', 120);
+(24, 'Chuyện Tình Tôi', '/storage/uploads/anh_phim/1729662996_anh8.jpg', 'Ko sung he , Park', 'Ko sung he , Rore', 'Phim tình cảm', 'https://youtu.be/Dc8-rujjVxM?si=qIIrql5deMSBWyae', 100.000, 0.0, '2024-10-22 22:56:37', '2024-10-22 22:56:37', NULL, 'Đang chiếu', 120),
+(26, 'iiiii', '/storage/uploads/anh_phim/1730294996_anhphim.jpg', 'test', 'test', 'test', 'https://youtu.be/x408FDXVBag?si=rQH6rvo4dgOMpsM_', 100.000, 0.0, '2024-10-30 06:29:56', '2024-10-30 06:29:56', NULL, 'test', 120),
+(27, 'iiiii', '/storage/uploads/anh_phim/1730660788_Screenshot_31-10-2024_202439_tryhackme.com.jpeg', 'test', 'test', 'test', 'https://youtu.be/x408FDXVBag?si=rQH6rvo4dgOMpsM_', 100.000, 0.0, '2024-11-03 12:06:29', '2024-11-03 12:06:29', NULL, 'test', 120),
+(28, 'iiiii', '/storage/uploads/anh_phim/1730735466_Screenshot_31-10-2024_202439_tryhackme.com.jpeg', 'test', 'test', 'test', 'https://youtu.be/x408FDXVBag?si=rQH6rvo4dgOMpsM_', 100.000, 0.0, '2024-11-04 08:51:07', '2024-11-04 08:51:07', NULL, 'test', 120),
+(29, 'iiiii', '/storage/uploads/anh_phim/1730735686_Screenshot_31-10-2024_202439_tryhackme.com.jpeg', 'test', 'test', 'test', 'https://youtu.be/x408FDXVBag?si=rQH6rvo4dgOMpsM_', 100.000, 0.0, '2024-11-04 08:54:46', '2024-11-04 08:54:46', NULL, 'test', 120);
 
 -- --------------------------------------------------------
 
@@ -463,7 +467,11 @@ CREATE TABLE `movie_movie_genre` (
 
 INSERT INTO `movie_movie_genre` (`id`, `movie_id`, `movie_genre_id`, `created_at`, `updated_at`) VALUES
 (54, 24, 9, NULL, NULL),
-(55, 24, 13, NULL, NULL);
+(55, 24, 13, NULL, NULL),
+(57, 26, 13, NULL, NULL),
+(58, 27, 13, NULL, NULL),
+(59, 28, 13, NULL, NULL),
+(60, 29, 13, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -487,25 +495,18 @@ CREATE TABLE `payments` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `booking_id` bigint(20) UNSIGNED DEFAULT NULL,
   `tong_tien` decimal(12,3) NOT NULL,
-  `phuong_thuc_thanh_toan` enum('credit_card','paypal','cash','bank_transfer') NOT NULL,
+  `tien_te` varchar(10) NOT NULL DEFAULT 'VND',
+  `phuong_thuc_thanh_toan` enum('vietqr','vnpay','viettel_money','payoo') NOT NULL,
   `ma_thanh_toan` varchar(255) NOT NULL,
+  `ma_tham_chieu` varchar(255) DEFAULT NULL,
   `ngay_thanh_toan` datetime NOT NULL,
-  `trang_thai` tinyint(4) DEFAULT 0,
+  `trang_thai` enum('Đang chờ xử lý','Đã hoàn thành','Không thành công','Đã hoàn lại','Đã hủy') NOT NULL DEFAULT 'Đang chờ xử lý',
+  `chi_tiet_giao_dich` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`chi_tiet_giao_dich`)),
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `registermember_id` bigint(20) UNSIGNED DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `registermember_id` bigint(20) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `payments`
---
-
-INSERT INTO `payments` (`id`, `booking_id`, `tong_tien`, `phuong_thuc_thanh_toan`, `ma_thanh_toan`, `ngay_thanh_toan`, `trang_thai`, `created_at`, `updated_at`, `registermember_id`, `deleted_at`) VALUES
-(2, 60, 123.500, 'cash', 'PAY_6717D04CC9A4E', '2024-10-22 16:18:20', 1, '2024-10-22 09:18:20', '2024-10-22 09:18:20', NULL, NULL),
-(3, 61, 123.500, 'cash', 'PAY_6717D1216D5A7', '2024-10-22 16:21:53', 1, '2024-10-22 09:21:53', '2024-10-22 09:21:53', NULL, NULL),
-(4, 62, 370.500, 'cash', 'PAY_67187077BE9E2', '2024-10-23 03:41:43', 1, '2024-10-22 20:41:43', '2024-10-22 20:41:43', NULL, NULL),
-(5, 68, 323.000, 'bank_transfer', 'PAY_671A82A8AF58D', '2024-10-24 17:23:52', 1, '2024-10-24 10:23:52', '2024-10-24 10:23:52', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -582,9 +583,7 @@ CREATE TABLE `rooms` (
 
 INSERT INTO `rooms` (`id`, `ten_phong_chieu`, `tong_ghe_phong`, `rapphim_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (8, 'Phòng số 1', 150, 8, '2024-10-14 06:22:37', '2024-10-14 06:22:37', NULL),
-(9, 'Phòng 898989', 140, 9, '2024-10-17 06:12:45', '2024-10-17 06:19:41', NULL),
-(10, 'Phòng 88', 150, 12, '2024-10-17 06:20:32', '2024-10-17 06:20:57', '2024-10-17 06:20:57'),
-(11, 'p fgg12', 110, 8, '2024-10-23 06:29:24', '2024-10-23 06:32:32', '2024-10-23 06:32:32');
+(9, 'Phòng 898989', 140, 9, '2024-10-17 06:12:45', '2024-10-17 06:19:41', NULL);
 
 -- --------------------------------------------------------
 
@@ -714,15 +713,6 @@ CREATE TABLE `seat_showtime_status` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Dumping data for table `seat_showtime_status`
---
-
-INSERT INTO `seat_showtime_status` (`id`, `ghengoi_id`, `thongtinchieu_id`, `trang_thai`, `created_at`, `updated_at`) VALUES
-(4, 525, 25, 1, NULL, NULL),
-(5, 526, 25, 1, NULL, NULL),
-(6, 527, 25, 1, NULL, NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -747,8 +737,10 @@ CREATE TABLE `showtimes` (
 --
 
 INSERT INTO `showtimes` (`id`, `ngay_chieu`, `thoi_luong_chieu`, `phim_id`, `rapphim_id`, `room_id`, `created_at`, `updated_at`, `deleted_at`, `gio_chieu`) VALUES
-(25, '2024-11-27', '120', 24, 8, 8, '2024-10-24 05:25:41', '2024-10-24 05:25:41', NULL, '23:00:00'),
-(26, '2024-11-28', '120', 24, 8, 8, '2024-10-24 05:26:49', '2024-10-24 05:26:49', NULL, '13:00:00');
+(29, '2024-11-11', '120', 24, 8, 8, '2024-11-04 07:56:18', '2024-11-04 07:56:18', NULL, '12:00:00'),
+(30, '2024-11-11', '120', 24, 8, 8, '2024-11-04 07:56:18', '2024-11-04 07:56:18', NULL, '13:00:00'),
+(31, '2024-11-11', '120', 24, 8, 8, '2024-11-04 07:56:18', '2024-11-04 07:56:18', NULL, '14:00:00'),
+(32, '2024-11-11', '120', 24, 8, 8, '2024-11-04 07:56:18', '2024-11-04 07:56:18', NULL, '15:00:00');
 
 -- --------------------------------------------------------
 
@@ -774,9 +766,7 @@ INSERT INTO `theaters` (`id`, `ten_rap`, `dia_diem`, `tong_ghe`, `created_at`, `
 (8, 'Lotte Ciname 1', 'Hà Đông', 1500, '2024-10-07 06:29:21', '2024-10-07 06:29:21', NULL),
 (9, 'Lotte Ciname cơ sở 2', 'Hà Đông', 1000, '2024-10-07 06:29:56', '2024-10-07 06:29:56', NULL),
 (12, 'Lotte Ciname cơ sở 4', 'Xuân Phương', 1200, '2024-10-07 06:31:18', '2024-10-07 06:31:18', NULL),
-(13, 'Rạp 8 test', 'HA HA', 300, '2024-10-07 06:32:36', '2024-10-17 06:06:45', '2024-10-17 06:06:45'),
-(14, 'Rạp phim 0099', 'Xuân Phương 999', 900, '2024-10-17 06:02:57', '2024-10-17 06:04:29', NULL),
-(15, 'rafffft', 'xuân ffffphương', 666, '2024-10-23 06:22:45', '2024-10-23 06:25:49', '2024-10-23 06:25:49');
+(14, 'Rạp phim 0099', 'Xuân Phương 999', 900, '2024-10-17 06:02:57', '2024-10-17 06:04:29', NULL);
 
 -- --------------------------------------------------------
 
@@ -850,7 +840,7 @@ CREATE TABLE `vouchers` (
 --
 
 INSERT INTO `vouchers` (`id`, `ma_giam_gia`, `muc_giam_gia`, `mota`, `ngay_het_han`, `so_luong`, `so_luong_da_su_dung`, `trang_thai`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(7, 'Giam', 5, 'Giảm 5% mỗi lần mua vé xem phim', '2024-12-12', 10000, 15, 0, '2024-10-21 07:09:41', '2024-10-24 10:08:00', NULL),
+(7, 'Giam', 5, 'Giảm 5% mỗi lần mua vé xem phim', '2024-12-12', 10000, 31, 0, '2024-10-21 07:09:41', '2024-11-01 07:11:02', NULL),
 (8, 'GiaGia', 10, 'giam 10 %%%', '2024-11-11', 10000, NULL, 0, '2024-10-24 00:28:07', '2024-10-24 00:30:25', NULL),
 (9, 'Gia', 10, 'giam 10 %', '2024-11-11', 10000, NULL, 0, '2024-10-24 00:30:56', '2024-10-24 00:31:28', '2024-10-24 00:31:28'),
 (10, 'vouche11', 15, 'giam gia 15%', '2024-11-11', 10000, NULL, 0, '2024-10-24 10:25:21', '2024-10-24 10:26:13', NULL);
@@ -881,7 +871,7 @@ ALTER TABLE `bookings`
 ALTER TABLE `booking_details`
   ADD PRIMARY KEY (`id`),
   ADD KEY `booking_details_booking_id_foreign` (`booking_id`),
-  ADD KEY `booking_details_thanhtoan_id_foreign` (`thanhtoan_id`);
+  ADD KEY `booking_details_payment_id_foreign` (`payment_id`);
 
 --
 -- Indexes for table `comments`
@@ -985,7 +975,6 @@ ALTER TABLE `password_reset_tokens`
 --
 ALTER TABLE `payments`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `payments_ma_thanh_toan_unique` (`ma_thanh_toan`),
   ADD KEY `payments_booking_id_foreign` (`booking_id`),
   ADD KEY `payments_registermember_id_foreign` (`registermember_id`);
 
@@ -1090,13 +1079,13 @@ ALTER TABLE `blogs`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=69;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT for table `booking_details`
 --
 ALTER TABLE `booking_details`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `comments`
@@ -1150,7 +1139,7 @@ ALTER TABLE `memberships`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT for table `moments`
@@ -1168,19 +1157,19 @@ ALTER TABLE `moviegenres`
 -- AUTO_INCREMENT for table `movies`
 --
 ALTER TABLE `movies`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `movie_movie_genre`
 --
 ALTER TABLE `movie_movie_genre`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT for table `payments`
 --
 ALTER TABLE `payments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -1222,13 +1211,13 @@ ALTER TABLE `seats`
 -- AUTO_INCREMENT for table `seat_showtime_status`
 --
 ALTER TABLE `seat_showtime_status`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `showtimes`
 --
 ALTER TABLE `showtimes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `theaters`
@@ -1276,8 +1265,8 @@ ALTER TABLE `bookings`
 -- Constraints for table `booking_details`
 --
 ALTER TABLE `booking_details`
-  ADD CONSTRAINT `booking_details_booking_id_foreign` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`),
-  ADD CONSTRAINT `booking_details_thanhtoan_id_foreign` FOREIGN KEY (`thanhtoan_id`) REFERENCES `payments` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `booking_details_booking_id_foreign` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `booking_details_payment_id_foreign` FOREIGN KEY (`payment_id`) REFERENCES `payments` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `comments`
@@ -1330,8 +1319,8 @@ ALTER TABLE `movie_movie_genre`
 -- Constraints for table `payments`
 --
 ALTER TABLE `payments`
-  ADD CONSTRAINT `payments_booking_id_foreign` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`),
-  ADD CONSTRAINT `payments_registermember_id_foreign` FOREIGN KEY (`registermember_id`) REFERENCES `register_members` (`id`);
+  ADD CONSTRAINT `payments_booking_id_foreign` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `payments_registermember_id_foreign` FOREIGN KEY (`registermember_id`) REFERENCES `register_members` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `playlist_movies`
