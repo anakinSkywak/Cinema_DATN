@@ -189,28 +189,6 @@ Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
 
 
-Route::apiResource('members', MemberController::class);
-Route::apiResource('registermembers', RegisterMemberController::class);
-Route::apiResource('memberships', MemberShipsController::class);
-
-Route::apiResource('members', MemberController::class);
-Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
-Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
-Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
-Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
-
-// call api RegisterMemberController
-Route::apiResource('registerMembers', RegisterMemberController::class);
-Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-
-Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
-
-Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
-Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
-Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
-
-
 // call api MembershipController
 Route::apiResource('memberships', MembershipController::class);
 Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
@@ -228,31 +206,6 @@ Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị t
 Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
-// call api RegisterMemberController
-Route::apiResource('registerMembers', RegisterMemberController::class);
-Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
-Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
-Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
-Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
-
-
-// call api MembershipController
-Route::apiResource('memberships', MembershipController::class);
-Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
-Route::post('memberships', [MembershipController::class, 'store']); // thêm bản ghi mới
-Route::get('memberships/{id}', [MembershipController::class, 'show']); // hiển thị theo id
-Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
-Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
-
-
-// call api MemberController
-Route::apiResource('members', MemberController::class);
-Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
-Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
-Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
-Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
@@ -262,14 +215,6 @@ Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); /
 Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
 
-
-// call api MembershipController
-Route::apiResource('memberships', MembershipController::class);
-Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
-Route::post('memberships', [MembershipController::class, 'store']); // thêm bản ghi mới
-Route::get('memberships/{id}', [MembershipController::class, 'show']); // hiển thị theo id
-Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
-Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
 
 
 //vòng quoay
