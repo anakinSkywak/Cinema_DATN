@@ -29,27 +29,12 @@ class RoomController extends Controller
     }
 
 
-    // hàm đến from add thêm mới đổ rạp phim để thêm khi thêm mới
-
-    public function addRoom()
-    {
-        $theaters = Theater::all();
-
-        if ($theaters->isEmpty()) {
-            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 404);
-        }
-
-        return response()->json($theaters);
-
-    }
-
     // Store new room
     public function store(Request $request)
     {
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
             'tong_ghe_phong' => 'required|integer',
-            'rapphim_id' => 'required|exists:theaters,id',
         ]);
 
         $room = Room::create($validated);
@@ -86,17 +71,10 @@ class RoomController extends Controller
             return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
 
-        $theaters = Theater::all();
-        if (!$theaters) {
-            return response()->json(['message' => 'Không có dữ liệu Rạp nào'], 404);
-        }
-
         return response()->json([
             'message' => 'Lấy thông tin Room theo ID thành công',
             'data' => [
                 'room' => $roomID, // phong theo id
-                'theaters' => $theaters,  // all rap phim
-
             ],
         ], 200);
     }
@@ -114,7 +92,6 @@ class RoomController extends Controller
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
             'tong_ghe_phong' => 'required|integer',
-            'rapphim_id' => 'required|exists:theaters,id',
         ]);
 
         $room->update($validated);

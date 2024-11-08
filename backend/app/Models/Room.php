@@ -15,16 +15,11 @@ class Room extends Model
     protected $fillable = [
         'ten_phong_chieu',
         'tong_ghe_phong',
-        'rapphim_id',
         'trang_thai'
     ];
      
-    // đĩnh nghĩa mỗi phòng chiếu một rạp phim 
-    public function theater(){
-        // xác định mối quan hệ giữa 2 bảng với nhau nhiều room có ở một theater
-        return $this->belongsTo(Theater::class , 'rapphim_id');
-    }
-
+  
+   
     //quan hệ 1-n một phòng chiếu có nhiều ghế ngồi
     public function seat(){
         return  $this->hasMany(Seat::class , 'room_id');

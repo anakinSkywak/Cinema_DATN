@@ -15,7 +15,6 @@ use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PaymentController;
-use App\Http\Controllers\Api\TheaterController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
@@ -91,19 +90,8 @@ Route::middleware('auth:api')->group(function () {
 
 
 
-
-//Ánh call api theaters
-Route::get('theaters', [TheaterController::class, 'index']); // xuất all
-Route::post('storeTheater', [TheaterController::class, 'store']); // them ban ghi moi
-Route::get('showTheater/{id}', [TheaterController::class, 'show']);  // show theo id
-Route::get('editTheater/{id}', [TheaterController::class, 'editTheaterID']); // đưa đến trang edit ổ thông tin edit ra
-Route::put('updateTheater/{id}', [TheaterController::class, 'update']);  // cap nhat theo id
-Route::delete('deleteTheater/{id}', [TheaterController::class, 'delete']);  // xoa theo id
-
-
 //Ánh call api rooms
 Route::get('rooms', [RoomController::class, 'index']); // xuat all
-Route::get('addRoom', [RoomController::class, 'addroom']); // đưa đến trang from add đổ all rạp phim để khi thêm room chọn rạp phim
 Route::post('storeRoom', [RoomController::class, 'store']); // them ban ghi moi
 Route::get('showRoom/{id}', [RoomController::class, 'show']);  // show theo id
 Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);  // đưa đến from edit room theo id , đổ all rạp phim để chọn nếu thay đổi
@@ -156,12 +144,10 @@ Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);  // xoa the
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // xuat all
-Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']); // đưa đến from add thêm showtime đổ rạp + phòng + phim để thêm
-Route::post('getRoomByTheater', [ShowtimeController::class, 'getRoomByTheater']);
+Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']); // đưa đến from add thêm showtime đổ phòng + phim để thêm
 Route::post('storeShowtime', [ShowtimeController::class, 'store']); // them ban ghi moi
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);  // show theo id
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);  // dua den trang edit
-Route::post('getRoomByTheaterEdit', [ShowtimeController::class, 'getRoomByTheaterEdit']); // hàm khi ấn rạp phim mới để thay đổi sẽ đổ all room theo rạp phim đó để chọn
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);  // cap nhat theo id
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);  // xoa theo id
 
