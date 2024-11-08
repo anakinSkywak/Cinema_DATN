@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\BillController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\MomentController;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -76,6 +77,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
+
+    // in bill  
+    Route::get('/bill/{id}', [BillController::class, 'exportBill']);
 });
 
 Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);

@@ -67,8 +67,6 @@ class Booking extends Model
         return $this->belongsTo(Voucher::class, 'magiamgia_id');
     }
 
-    
-
     public function seat()
     {
         return $this->belongsTo(Seat::class, 'ghengoi_id');
