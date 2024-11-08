@@ -30,6 +30,6 @@ class BookingDetail extends Model
     // thiet lap moi quan he voi seats qua ngengoi_id de lay ghe ngoi khi booking
     public function payment()
     {
-        return $this->belongsTo(Seat::class, 'thanhtoan_id');
+        return $this->belongsTo(Seat::class, 'payment_id');
     }
 }
