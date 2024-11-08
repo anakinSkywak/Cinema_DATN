@@ -24,7 +24,8 @@ class BillController extends Controller
 
         // Tạo PDF với view và đặt font mặc định hỗ trợ UTF-8
         $pdf = Pdf::loadView('bills.bill', compact('data'))
-            ->setPaper([0, 0, 226.77, 9999], 'portrait')
+            // ->setPaper([0, 0, 226.77, 9999], 'portrait')
+            ->setPaper('a4')
             ->setOptions([
                 'defaultFont' => 'DejaVu Sans'
             ]);
