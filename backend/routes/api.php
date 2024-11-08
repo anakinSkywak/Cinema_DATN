@@ -35,9 +35,6 @@ use PHPUnit\Framework\Attributes\Group;
 // để yên
 
 
-
-
-
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill(); // xác minh email thành công
@@ -81,17 +78,20 @@ Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);  // ch
 
 Route::middleware('auth:api')->group(function () {
 
-    //Route::post('booking', [BookingController::class, 'storeBooking']);
-    //Route::post('booking/{booking}/selectService', [BookingController::class, 'selectService']);
-
     Route::post('booking', [BookingController::class, 'Booking']);
     // đưa đến trang thanh toán với theo boooking id
-    Route::get('booking/{booking}/payment', [PaymentController::class, 'PaymentBooking']); 
-    Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking']);
+    Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
+
+    Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+    //Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking']);
 
     // show all booking đã book cho user
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 });
+
+
+
+
 
 
 //Ánh call api theaters

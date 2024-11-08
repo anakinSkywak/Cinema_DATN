@@ -13,33 +13,191 @@ use App\Models\RegisterMember;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+
 class PaymentController extends Controller
 {
 
 
     // đưa đến from chọn phương thức thanh toán
-    public function PaymentBooking($bookingId)
+    public function createPayment($bookingId, $method)
     {
 
-        $bookingId = Booking::find($bookingId);
-        if (!$bookingId) {
-            return response()->json([
-                'message' => 'No booking id'
-
-            ], 404);
+        $booking = Booking::find($bookingId);
+        if (!$booking) {
+            return response()->json(['message' => 'No booking id'], 404);
         }
 
-        // Các phương thức thanh toán có sẵn
-        $paymentMethods = ['credit_card', 'paypal', 'cash', 'bank_transfer'];
+        //enum('Đang chờ xử lý','Đã hoàn thành','Không thành công','Đã hoàn lại','Đã hủy')
+        if ($booking->trang_thai !== 0) {
+            return response()->json(['error' => 'Booking đã được thanh toán'], 400);
+        }
 
-        // Trả về danh sách các phương thức thanh toán và thông tin booking
-        return response()->json([
-            'message' => 'Thông tin booking và danh sách phương thức thanh toán',
-            'booking' => $bookingId,
-            'paymentMethods' => $paymentMethods
-        ], 200);
+        $money = $booking->tong_tien_thanh_toan;
+
+        $payment = new Payment();
+        $payment->booking_id = $booking->id;
+        $payment->tong_tien = $money;
+        //$payment->tien_te = 'VND'; 
+        $payment->phuong_thuc_thanh_toan = $method;
+        $payment->trang_thai = 'Đang chờ xử lý';
+        $payment->ngay_thanh_toan = Carbon::now();
+        $payment->save();
+
+        // $validMethods = ['vnpay', 'vietqr', 'viettel_monney', 'payoo'];
+
+        // if (!in_array($method, $validMethods)) {
+        //     return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
+        // }
+
+        switch ($method) {
+            case 'vnpay':
+                return $this->paymentVNPAY($booking, $money, $payment);
+            case 'vietqr':
+                return $this->paymentVIETQR($booking, $money, $payment);
+            case 'viettel_monney':
+                return $this->paymentVIETTELMONEY($booking, $money, $payment);
+            case 'payoo':
+                return $this->paymentPAYOO($booking, $money, $payment);
+            default:
+                return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
+        }
     }
 
+
+    public function paymentVNPAY($booking, $money, $payment)
+    {
+
+        // Cấu hình của VNPAY
+        $vnp_TmnCode = "ZGLC6HIB";
+        $vnp_HashSecret = "OS9ZZLFY31UDMY5AFETJNY73VPW8MPYN";
+        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        $vnp_ReturnUrl="http://localhost:8000/api/payment/vnpay-return";
+
+        $vnp_TxnRef = $booking->id;
+        $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
+        $vnp_OrderType = "Booking";
+        $vnp_Amount = intval($money * 100);
+        $vnp_Locale = "VN";
+        $vnp_BankCode = "VNBANK";
+        $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+        // Dữ liệu cần gửi cho VNPAY
+        $inputData = array(
+            "vnp_Version" => "2.1.0",
+            "vnp_TmnCode" => $vnp_TmnCode,
+            "vnp_Amount" => $vnp_Amount,
+            "vnp_Command" => "pay",
+            "vnp_CreateDate" => date('YmdHis'),
+            "vnp_CurrCode" => "VND",
+            "vnp_IpAddr" => $vnp_IpAddr,
+            "vnp_Locale" => $vnp_Locale,
+            "vnp_OrderInfo" => $vnp_OrderInfo,
+            "vnp_OrderType" => $vnp_OrderType,
+            "vnp_ReturnUrl" => $vnp_ReturnUrl,
+            "vnp_TxnRef" => $vnp_TxnRef,
+        );
+
+        if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+            $inputData['vnp_BankCode'] = $vnp_BankCode;
+        }
+
+        // Sắp xếp các tham số và tạo chuỗi query
+        ksort($inputData);
+        $query = "";
+        $i = 0;
+        $hashdata = "";
+        foreach ($inputData as $key => $value) {
+            if ($i == 1) {
+                $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+            } else {
+                $hashdata .= urlencode($key) . "=" . urlencode($value);
+                $i = 1;
+            }
+            $query .= urlencode($key) . "=" . urlencode($value) . '&';
+        }
+
+        // Tạo hash và thêm vào URL
+        $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);
+        $vnp_Url = $vnp_Url . "?" . $query . 'vnp_SecureHash=' . $vnpSecureHash;
+
+        // Lưu thông tin thanh toán vào cơ sở dữ liệu
+        $payment->ma_thanh_toan = $vnp_TxnRef;
+        $payment->booking_id = $booking->id;
+        $payment->chi_tiet_giao_dich = json_encode($inputData);
+        $payment->save();
+
+
+        return response()->json([
+            'message' => 'Chuyển hướng đến trang thanh toán VNPAY',
+            //'payment' => $payment,
+            'url' => $vnp_Url,
+        ]);
+    }
+    public function paymentVIETQR($booking, $money, $payment) {}
+    public function paymentVIETTELMONEY($booking, $money, $payment) {}
+    public function paymentPAYOO($booking, $money, $payment) {}
+
+    // Xử lý callback từ VNPAYs
+    public function vnpayReturn(Request $request)
+    {
+        // Khóa bí mật từ VNPAY
+        $vnp_HashSecret = "OS9ZZLFY31UDMY5AFETJNY73VPW8MPYN";
+        //$vnp_HashSecret = env('VNPAY_HASH_SECRET');  // Hoặc sử dụng biến môi trường nếu cần
+
+        // Lấy tất cả dữ liệu từ request
+        $inputData = $request->all();
+        $vnp_SecureHash = $inputData['vnp_SecureHash'];  // Lấy từ request
+
+        // Xóa khóa vnp_SecureHash khỏi input để tính toán hash
+        unset($inputData['vnp_SecureHash']);
+
+        // Sắp xếp lại mảng dữ liệu theo thứ tự tăng dần của khóa
+        ksort($inputData);
+
+        // Tạo chuỗi dữ liệu để hash
+        $hashData = urldecode(http_build_query($inputData, '', '&'));
+
+        // Tính toán SecureHash từ chuỗi dữ liệu và khóa bí mật
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+        // Kiểm tra SecureHash và mã phản hồi từ VNPAY
+        if ($secureHash === $vnp_SecureHash && $inputData['vnp_ResponseCode'] == '00') {
+            // Cập nhật trạng thái thanh toán thành công
+
+            // Tìm giao dịch thanh toán dựa trên mã thanh toán
+            $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
+
+            if ($payment) {
+                // Cập nhật trạng thái thanh toán thành công
+                $payment->trang_thai = 'Đã hoàn thành';
+                $payment->save();
+            }
+
+            // Tìm booking dựa trên mã giao dịch
+            $booking = Booking::find($inputData['vnp_TxnRef']);
+
+            if ($booking) {
+                // Cập nhật trạng thái booking thành công
+                $booking->trang_thai = 2; // 2 có thể là trạng thái "Đã thanh toán" hoặc trạng thái thành công của bạn
+                $booking->save();
+            }
+
+            // Trả về phản hồi thành công
+            return response()->json(['message' => 'Thanh toán thành công']);
+        } else {
+            // Trả về phản hồi thất bại nếu không khớp SecureHash hoặc mã phản hồi không phải '00'
+            return response()->json(['message' => 'Thanh toán thất bại'], 400);
+        }
+    }
+    public function vietqrReturn(Request $request) {}
+    public function viettelmoneyReturn(Request $request) {}
+    public function payooReturn(Request $request) {}
+
+
+
+    // bỏ
     public function processPaymentBooking(Request $request, $bookingId)
     {
 
@@ -85,7 +243,6 @@ class PaymentController extends Controller
             'payment' => $payment
         ], 201);
     }
-
 
 
     public function processPaymentForRegister(Request $request, RegisterMember $registerMember)
@@ -142,34 +299,5 @@ class PaymentController extends Controller
                 'tong_tien_thanh_toan' => $tong_tien,
             ], 500); // Trả về mã lỗi 500 cho trường hợp lỗi hệ thống
         }
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }
