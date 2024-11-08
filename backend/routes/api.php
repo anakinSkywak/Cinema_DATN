@@ -92,8 +92,6 @@ Route::middleware('auth:api')->group(function () {
 
 
 
-
-
 //Ánh call api theaters
 Route::get('theaters', [TheaterController::class, 'index']); // xuất all
 Route::post('storeTheater', [TheaterController::class, 'store']); // them ban ghi moi
