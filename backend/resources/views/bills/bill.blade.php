@@ -78,7 +78,7 @@
             </tr>
             <tr>
                 <th>Tên Phim</th>
-                <td>{{ $data->showtime->phim_id }}</td>
+                <td>{{ $tenPhim->ten_phim }}</td>
             </tr>
             <tr>
                 <th>Phòng Chiếu</th>
