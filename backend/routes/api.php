@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\Api\MemberShipsController;
 use App\Models\Movie;
 use Illuminate\Http\Request;
@@ -78,7 +79,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 });
 
-Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
+Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
+Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
 
