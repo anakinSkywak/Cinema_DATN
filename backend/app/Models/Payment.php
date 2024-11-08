@@ -15,6 +15,7 @@ class Payment extends Model
         'phuong_thuc_thanh_toan',
         'ma_thanh_toan',
         'ngay_thanh_toan',
+        'registermember_id',
         'trang_thai'
     ];
 

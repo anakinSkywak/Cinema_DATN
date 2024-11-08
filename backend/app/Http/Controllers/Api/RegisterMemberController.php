@@ -1,10 +1,14 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\RegisterMember;
-use App\Models\Member; 
+use Carbon\Carbon;
+use App\Models\Member;
 use Illuminate\Http\Request;
+use App\Models\RegisterMember;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class RegisterMemberController extends Controller
 {
@@ -32,46 +36,61 @@ class RegisterMemberController extends Controller
             'user_id' => 'required|integer|exists:users,id',
             'hoivien_id' => 'required|integer|exists:members,id',
             'trang_thai' => 'required|integer',
-            'phuong_thuc_thanh_toan' => 'required|in:credit_card,paypal,cash,bank_transfer', // Thêm phần phương thức thanh toán
+            'phuong_thuc_thanh_toan' => 'required|in:credit_card,paypal,cash,bank_transfer',
         ]);
 
-        // Lấy giá hội viên và thời gian
+        // Lấy thông tin hội viên
         $member = Member::find($validated['hoivien_id']);
         if (!$member) {
             return response()->json(['message' => 'Hội viên không tồn tại!'], 404);
         }
 
-        // Tính toán tổng tiền
+        // Tính toán tổng tiền và ngày hết hạn
         $tong_tien = $member->gia * $member->thoi_gian;
-
-        // Tính toán ngày hết hạn
-        $ngay_dang_ky = now();
+        $ngay_dang_ky = Carbon::now();
         $ngay_het_han = $ngay_dang_ky->copy()->addMonths($member->thoi_gian);
 
-        // Tạo mới RegisterMember
-        $registerMember = RegisterMember::create([
-            'user_id' => $validated['user_id'],
-            'hoivien_id' => $validated['hoivien_id'],
-            'tong_tien' => $tong_tien,
-            'ngay_dang_ky' => $ngay_dang_ky,
-            'ngay_het_han' => $ngay_het_han,
-            'trang_thai' => 0, // Đăng ký chưa thanh toán
-        ]);
+        DB::beginTransaction();
+        try {
+            // Tạo mới RegisterMember
+            $registerMember = RegisterMember::create([
+                'user_id' => $validated['user_id'],
+                'hoivien_id' => $validated['hoivien_id'],
+                'tong_tien' => $tong_tien,
+                'ngay_dang_ky' => $ngay_dang_ky,
+                'ngay_het_han' => $ngay_het_han,
+                'trang_thai' => 0, // Đăng ký chưa thanh toán
+            ]);
 
-        // Gọi phương thức thanh toán
-        $paymentResponse = app('App\Http\Controllers\Api\PaymentController')->processPaymentForRegister($request, $registerMember);
+            // Gọi phương thức thanh toán
+            $paymentController = new PaymentController();
+            $paymentResponse = $paymentController->processPaymentForRegister($request, $registerMember);
 
-        // Nếu thanh toán không thành công, xóa bản ghi RegisterMember đã tạo
-        if ($paymentResponse->getStatusCode() !== 200) {
-            $registerMember->delete();
-            return $paymentResponse;
+            // Nếu thanh toán không thành công, rollback
+            if ($paymentResponse->getStatusCode() !== 200) {
+                DB::rollBack();
+                return $paymentResponse;
+            }
+
+            // Commit khi cả RegisterMember và Payment thành công
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Thêm mới RegisterMember và thanh toán thành công',
+                'data' => $registerMember
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Lỗi khi tạo RegisterMember hoặc thanh toán', ['error' => $e->getMessage()]);
+
+            return response()->json([
+                'message' => 'Có lỗi xảy ra khi tạo RegisterMember',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'Thêm mới RegisterMember và thanh toán thành công',
-            'data' => $registerMember
-        ], 201); 
     }
+
 
     public function update(Request $request, $id)
     {
