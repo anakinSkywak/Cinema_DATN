@@ -8,6 +8,7 @@ use App\Models\Room;
 use App\Models\Showtime;
 use App\Models\Theater;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShowtimeController extends Controller
 {
@@ -16,7 +17,7 @@ class ShowtimeController extends Controller
     public function index()
     {
         // xuat all
-        $showtimeall = Showtime::with(['movie', 'theater', 'room'])->get();
+        $showtimeall = Showtime::with(['movie', 'room'])->get();
 
         if (!$showtimeall) {
             return response()->json([
@@ -31,27 +32,19 @@ class ShowtimeController extends Controller
     }
 
 
+    // đưa đến from add đổ all phim rạp phòng để chọn thêm
     public function addShowtime()
     {
 
-        $movies = Movie::all();
-
+        $movies = Movie::select('id', 'ten_phim')->get();
         if ($movies->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phim hãy thêm phim'
             ], 404);
         }
 
-        $theaters = Theater::all();
-
-        if ($theaters->isEmpty()) {
-            return response()->json([
-                'message' => 'Không có rạp hãy thêm rạp'
-            ], 404);
-        }
-
-        $rooms = Room::all();
-
+        //$rooms = Room::all();
+        $rooms = Room::select('id', 'ten_phong_chieu')->get();
         if ($rooms->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phòng hãy thêm phòng'
@@ -62,39 +55,76 @@ class ShowtimeController extends Controller
             'message' => 'Lấy các thông tin đổ ra để thêm ok',
             'data' => [
                 'movies' => $movies,
-                'theaters' => $theaters,
                 'rooms' => $rooms,
             ],
         ], 200);  // 200 có dữ liệu trả về
     }
 
+
     public function store(Request $request)
     {
         // them moi show tham , nhieu show tham cho phim de user booking
         // check khi them
-        $validated = $request->validate([
+        $request->validate([
             'ngay_chieu' => 'required|date',
-            'thoi_luong_chieu' => 'required|string|max:250',
+            'thoi_luong_chieu' => 'string|max:250',
             'phim_id' => 'required|exists:movies,id',
-            'rapphim_id' => 'required|exists:theaters,id',
             'room_id' => 'required|exists:rooms,id',
-            'gio_chieu' => 'required|date_format:H:i'
+            'gio_chieu' => 'required|array',
+            'gio_chieu.*' => 'required|date_format:H:i'
         ]);
 
-        // check chieu trung lap khi them moi
-        // $checkTimes = Showtime::where('ngay_chieu', $request->ngay_chieu)
-        //     ->where('gio_chieu', $request->gio_chieu)
-        //     ->where('room_id', $request->room_id)
-        //     ->exists();
+        // check date
+        // $checkDate = Showtime::where('ngay_chieu', $request->ngay_chieu)->where('room_id', $request->room_id)->exists();
 
-        // if ($checkTimes) {
+        // if ($checkDate) {
+        //     return response()->json([
+        //         'error' => 'Ngày chiếu này đã được thêm mới trong phòng này.',
+        //     ], 400);
+        // }
+
+        // // check time
+        // $checkTime = Showtime::where('gio_chieu', $request->gio_chieu)->where('room_id', $request->room_id)->exists();
+
+        // if ($checkTime) {
         //     return response()->json([
         //         'error' => 'Giờ chiếu này đã được thêm mới trong phòng này.',
         //     ], 400);
         // }
 
+
+        // truy vấn thêm thời lượng chiếu theo thời lượng của phim đó k cần thêm bằng tay
+        $thoi_luong_chieu = DB::table('movies')
+            ->where('id', $request->phim_id)
+            ->value('thoi_gian_phim');
         // truy van them xuat chieu moi 
-        $showtimes = Showtime::create($validated);
+
+        $showtimes = [];
+        // thêm gio_chieu thành 1 mảng nhập ko cần thêm từng lần một với giờ chiếu khác nhau với cùng 1 thông tin
+        foreach ($request->gio_chieu as $gio) {
+
+            // kiểm tra xem ngày chiếu và giờ chiếu đã tồn tại chưa trong cùng một phòng
+            $exists = Showtime::where('ngay_chieu', $request->ngay_chieu)
+                ->where('room_id', $request->room_id)
+                ->where('gio_chieu', $gio)
+                ->exists();
+
+            if ($exists) {
+                return response()->json([
+                    'error' => "Giờ chiếu $gio vào ngày {$request->ngay_chieu} đã tồn tại trong phòng này.",
+                ], 400);
+            }
+
+            $showtime = Showtime::create([
+                'ngay_chieu' => $request->ngay_chieu,
+                'thoi_luong_chieu' => $thoi_luong_chieu,
+                'phim_id' => $request->phim_id,
+                'room_id' => $request->room_id,
+                'gio_chieu' => $gio,
+            ]);
+
+            $showtimes[] = $showtime;
+        }
 
         // tra ve neu them ok
         return response()->json([
@@ -104,13 +134,13 @@ class ShowtimeController extends Controller
     }
 
 
-
     public function show(string $id)
     {
-        // show du lieu theo id
 
         // Lấy suất chiếu theo id cùng với thông tin phim, rạp và phòng chiếu
-        $showtimeID = Showtime::with(['movie', 'theater', 'room'])->find($id);
+        $showtimeID = Showtime::with(['movie:id,ten_phim', 'room:id,ten_phong_chieu'])
+            ->select('id', 'ngay_chieu', 'gio_chieu', 'phim_id', 'room_id')
+            ->find($id);
 
         if (!$showtimeID) {
             return response()->json([
@@ -120,16 +150,19 @@ class ShowtimeController extends Controller
 
         return response()->json([
             'message' => 'Lấy thông tin suất chiếu theo id thành công',
-            'data' => $showtimeID,
-        ], 200);  // 200 có dữ liệu trả về
+            'ngay_chieu' => $showtimeID->ngay_chieu,
+            'gio_chieu' => $showtimeID->gio_chieu,
+            'movie' => $showtimeID->movie->ten_phim,
+            'room' => $showtimeID->room->ten_phong_chieu,
+        ], 200);
     }
 
 
     public function editShowtime(string $id)
     {
 
-        // Lấy suất chiếu theo id cùng với thông tin phim, rạp và phòng chiếu
-        $showtimeID = Showtime::with(['movie', 'theater', 'room'])->find($id);
+        // Lấy suất chiếu theo id cùng với thông tin phim, phòng chiếu
+        $showtimeID = Showtime::with(['movie:id,ten_phim', 'room:id,ten_phong_chieu'])->find($id);
 
         if (!$showtimeID) {
             return response()->json([
@@ -137,22 +170,34 @@ class ShowtimeController extends Controller
             ], 404);
         }
 
-        // đổ all phim rạp phòng nếu có chọn sẽ chọn để thay đổi
-        $movies = Movie::all();
-        $theaters = Theater::all();
-        $rooms = Room::all();
+        // đổ all phim chọn để thay đổi
+        $movies = Movie::select('id', 'ten_phim')->get();
+        if ($movies->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phim nào thêm phim',
+            ], 404);
+        }
+
+        $rooms = Room::select('id', 'ten_phong_chieu')->get();
+        if ($rooms->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có room nào của rạp phim này thêm room với rạp đó',
+            ], 404);
+        }
+
+        //$movies = Movie::all();
+        //$theaters = Theater::all();
+        //$rooms = Room::all();
 
         return response()->json([
-            'message' => 'Lấy thông tin suất chiếu theo id thành công',
+            'message' => 'Lấy thông tin suất chiếu theo id thành công , đổ all movie , theater , room để chọn nếu thay đổi',
             'data' => [
                 'showtime' => $showtimeID,
                 'movies' => $movies,
-                'theaters' => $theaters,
                 'rooms' => $rooms,
             ],
-        ], 200);  // 200 có dữ liệu trả về
+        ], 200);
     }
-
 
 
     public function update(Request $request, string $id)
@@ -171,9 +216,7 @@ class ShowtimeController extends Controller
         // Xác thực dữ liệu đầu vào
         $validated = $request->validate([
             'ngay_chieu' => 'required|date',
-            'thoi_luong_chieu' => 'required|integer',
             'phim_id' => 'required|exists:movies,id',
-            'rapphim_id' => 'required|exists:theaters,id',
             'room_id' => 'required|exists:rooms,id',
         ]);
 
@@ -186,7 +229,6 @@ class ShowtimeController extends Controller
             'data' => $showtimeID
         ], 200);
     }
-
 
 
     public function delete(string $id)

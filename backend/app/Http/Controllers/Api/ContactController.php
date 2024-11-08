@@ -26,6 +26,19 @@ class ContactController extends Controller
         }
     }
 
+    // Lấy danh sách contact theo user_id
+    public function getByUserId($user_id)
+    {
+        $contacts = Contact::where('user_id', $user_id)->get();
+
+        if ($contacts->isEmpty()) {
+            return response()->json(['message' => 'Không tìm thấy contact cho user này'], 404);
+        }
+
+        return response()->json($contacts);
+    }
+
+
     // Tạo một contact mới
     public function store(Request $request)
     {

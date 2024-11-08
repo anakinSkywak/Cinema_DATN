@@ -16,7 +16,6 @@ class Showtime extends Model
         'ngay_chieu',
         'thoi_luong_chieu',
         'phim_id',
-        'rapphim_id',
         'room_id',
         'gio_chieu',
     ];
@@ -32,15 +31,12 @@ class Showtime extends Model
         
     }
 
-    public function theater(){
-
-        return $this->belongsTo(Theater::class , 'rapphim_id');
-
-    }
-
+    
     public function room(){
 
         return $this->belongsTo(Room::class , 'room_id');
 
     }
+
+    
 }

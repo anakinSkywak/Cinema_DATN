@@ -13,7 +13,7 @@ class BookingDetail extends Model
 
     protected $fillable = [
         'booking_id',
-        'ghengoi_id',
+        'payment_id',
         'trang_thai'
     ];
 
@@ -24,14 +24,12 @@ class BookingDetail extends Model
 
     public function booking()
     {
-        return $this->belongsTo(Booking::class); // moi quan hej nguoc lai tro den booking
+        return $this->belongsTo(Booking::class, 'booking_id'); // moi quan hej nguoc lai tro den booking
     }
 
     // thiet lap moi quan he voi seats qua ngengoi_id de lay ghe ngoi khi booking
-    public function seat()
+    public function payment()
     {
-        return $this->belongsTo(Seat::class, 'ghengoi_id');
+        return $this->belongsTo(Seat::class, 'thanhtoan_id');
     }
-
-    
 }

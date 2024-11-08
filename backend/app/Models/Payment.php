@@ -12,11 +12,14 @@ class Payment extends Model
     protected $fillable = [
         'booking_id',
         'tong_tien',
+        'tien_te',
         'phuong_thuc_thanh_toan',
         'ma_thanh_toan',
+        'ma_tham_chieu',
         'ngay_thanh_toan',
-        'registermember_id',
-        'trang_thai'
+        'trang_thai',
+        'chi_tiet_giao_dich',
+        'registermember_id'
     ];
 
     protected $dates = ['deleted_at'];

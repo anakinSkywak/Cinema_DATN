@@ -23,7 +23,12 @@ class Booking extends Model
         'tong_tien',
         'tong_tien_thanh_toan',
         'ngay_mua',
-        'trang_thai'
+        'trang_thai',
+        'so_luong_do_an',
+        'do_an',
+        'ghe_ngoi',
+        'magiamgia_id'
+
     ];
 
     protected $dates = ['deleted_at'];
@@ -55,5 +60,17 @@ class Booking extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class, 'magiamgia_id');
+    }
+
+    
+
+    public function seat()
+    {
+        return $this->belongsTo(Seat::class, 'ghengoi_id');
     }
 }
