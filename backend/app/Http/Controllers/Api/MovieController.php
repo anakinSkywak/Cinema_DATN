@@ -180,8 +180,8 @@ class MovieController extends Controller
         return response()->json([
             'message' => 'Cập nhật thành công',
             'data' => $movie->load('movie_genres'),
-            'image_url' => asset($movie->anh_phim),
-        ]);
+            //'image_url' => asset($movie->anh_phim),
+        ],200);
     }
 
 
