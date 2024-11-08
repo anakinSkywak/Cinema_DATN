@@ -135,7 +135,6 @@ class PaymentController extends Controller
 
         ]);
     }
-
     public function vnpayReturn(Request $request)
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
@@ -188,7 +187,15 @@ class PaymentController extends Controller
                     $booking->save();
                 }
 
+                BookingDetail::insert([
+                    'booking_id' => $booking->id,
+                    'payment_id' => $payment->id,
+                ]);
+
+
                 return response()->json(['message' => 'Thanh toán thành công']);
+
+
             } else {
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
                 return response()->json([
@@ -202,6 +209,7 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Xác thực chữ ký thất bại'], 400);
         }
     }
+
 
     private function getVnpayErrorMessage($code)
     {
