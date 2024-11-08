@@ -83,7 +83,7 @@ class PaymentController extends Controller
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
         $vnp_OrderType = "billpayment";
-        $vnp_Amount = intval($money * 100000); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
+        $vnp_Amount = intval($money * 100); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
         $vnp_Locale = "vn";
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
         $vnp_BankCode = "NCB"; // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
@@ -222,7 +222,7 @@ class PaymentController extends Controller
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
         $vnp_OrderType = "billpayment";
-        $vnp_Amount = intval($money * 100000); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
+        $vnp_Amount = intval($money * 100); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
         $vnp_Locale = "vn";
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
         $vnp_BankCode = "VISA"; // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
@@ -361,7 +361,7 @@ class PaymentController extends Controller
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
         $vnp_OrderType = "billpayment";
-        $vnp_Amount = intval($money * 100000); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
+        $vnp_Amount = intval($money * 100); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
         $vnp_Locale = "vn";
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
         $vnp_BankCode = "MasterCard"; // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
