@@ -1,7 +1,4 @@
 <?php
-
-// để yên
-// để yên
 use App\Http\Controllers\Api\MemberShipsController;
 use App\Models\Movie;
 use Illuminate\Http\Request;
@@ -30,9 +27,6 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\MomentController;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use PHPUnit\Framework\Attributes\Group;
-
-// để yên
-
 
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
@@ -67,7 +61,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         return response()->json(['error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này']);
     })->name('unauthenticated');
 });
-
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
@@ -78,15 +71,14 @@ Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);  // ch
 Route::middleware('auth:api')->group(function () {
 
     Route::post('booking', [BookingController::class, 'Booking']);
+
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
-    Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
-    //Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking']);
-
-    // show all booking đã book cho user
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 });
+
+Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
 
 
 
@@ -133,15 +125,6 @@ Route::post('movieFilter/{id}', [MovieController::class, 'movieFilter']); // l�
 Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo từ khóa
 
 
-// Ánh : call api Foods
-Route::get('foods', [FoodController::class, 'index']); // xuat all
-Route::post('storeFood', [FoodController::class, 'store']); // them ban ghi moi
-Route::get('showFood/{id}', [FoodController::class, 'show']);  // show theo id
-Route::get('editFood/{id}', [FoodController::class, 'edit']);  // đến from edit do du lieu theo id do
-Route::put('updateFood/{id}', [FoodController::class, 'update']);  // cap nhat theo id
-Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);  // xoa theo id
-
-
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // xuat all
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']); // đưa đến from add thêm showtime đổ phòng + phim để thêm
@@ -150,6 +133,15 @@ Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);  // show t
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);  // dua den trang edit
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);  // cap nhat theo id
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);  // xoa theo id
+
+
+// Ánh : call api Foods
+Route::get('foods', [FoodController::class, 'index']); // xuat all
+Route::post('storeFood', [FoodController::class, 'store']); // them ban ghi moi
+Route::get('showFood/{id}', [FoodController::class, 'show']);  // show theo id
+Route::get('editFood/{id}', [FoodController::class, 'edit']);  // đến from edit do du lieu theo id do
+Route::put('updateFood/{id}', [FoodController::class, 'update']);  // cap nhat theo id
+Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);  // xoa theo id
 
 
 // Ánh : call api vouchers 
@@ -161,11 +153,7 @@ Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);  // cap 
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
 
 
-// // Ánh : call api Booking_details
-Route::get('bookingdetails', [BookingDetailController::class, 'index']); // xuat all
 
-// Ánh : call api Payments
-// Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
 
 
 

@@ -13,9 +13,6 @@ use App\Models\RegisterMember;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
-use Endroid\QrCode\QrCode;
-use Endroid\QrCode\Writer\PngWriter;
-
 class PaymentController extends Controller
 {
 
@@ -23,6 +20,13 @@ class PaymentController extends Controller
     // đưa đến from chọn phương thức thanh toán
     public function createPayment($bookingId, $method)
     {
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Chưa đăng nhập phải đăng nhập'
+            ], 401);
+        }
 
         $booking = Booking::find($bookingId);
         if (!$booking) {
@@ -70,18 +74,18 @@ class PaymentController extends Controller
     {
 
         // Cấu hình của VNPAY
-        $vnp_TmnCode = "ZGLC6HIB";
-        $vnp_HashSecret = "OS9ZZLFY31UDMY5AFETJNY73VPW8MPYN";
+        $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
+        $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_ReturnUrl="http://localhost:8000/api/payment/vnpay-return";
+        $vnp_ReturnUrl = "http://localhost:8000/api/payment/vnpay-return"; // URL xử lý sau khi thanh toán
 
-        $vnp_TxnRef = $booking->id;
+        $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
-        $vnp_OrderType = "Booking";
-        $vnp_Amount = intval($money * 100);
-        $vnp_Locale = "VN";
-        $vnp_BankCode = "VNBANK";
+        $vnp_OrderType = "billpayment";
+        $vnp_Amount = intval($money * 100000); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
+        $vnp_Locale = "vn";
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+        $vnp_BankCode = "NCB"; // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
 
         // Dữ liệu cần gửi cho VNPAY
         $inputData = array(
@@ -97,11 +101,8 @@ class PaymentController extends Controller
             "vnp_OrderType" => $vnp_OrderType,
             "vnp_ReturnUrl" => $vnp_ReturnUrl,
             "vnp_TxnRef" => $vnp_TxnRef,
+            "vnp_BankCode" => $vnp_BankCode // Truyền mã ngân hàng vào đây
         );
-
-        if (isset($vnp_BankCode) && $vnp_BankCode != "") {
-            $inputData['vnp_BankCode'] = $vnp_BankCode;
-        }
 
         // Sắp xếp các tham số và tạo chuỗi query
         ksort($inputData);
@@ -128,123 +129,106 @@ class PaymentController extends Controller
         $payment->chi_tiet_giao_dich = json_encode($inputData);
         $payment->save();
 
-
         return response()->json([
             'message' => 'Chuyển hướng đến trang thanh toán VNPAY',
-            //'payment' => $payment,
             'url' => $vnp_Url,
+
         ]);
     }
-    public function paymentVIETQR($booking, $money, $payment) {}
-    public function paymentVIETTELMONEY($booking, $money, $payment) {}
-    public function paymentPAYOO($booking, $money, $payment) {}
 
-    // Xử lý callback từ VNPAYs
     public function vnpayReturn(Request $request)
     {
-        // Khóa bí mật từ VNPAY
-        $vnp_HashSecret = "OS9ZZLFY31UDMY5AFETJNY73VPW8MPYN";
-        //$vnp_HashSecret = env('VNPAY_HASH_SECRET');  // Hoặc sử dụng biến môi trường nếu cần
+        $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
         // Lấy tất cả dữ liệu từ request
         $inputData = $request->all();
-        $vnp_SecureHash = $inputData['vnp_SecureHash'];  // Lấy từ request
+        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
 
-        // Xóa khóa vnp_SecureHash khỏi input để tính toán hash
+        // Kiểm tra nếu `vnp_SecureHash` không có trong request
+        if (!$vnp_SecureHash) {
+            return response()->json(['message' => 'Thiếu dữ liệu vnp_SecureHash'], 400);
+        }
+
+        // Xóa khóa `vnp_SecureHash` khỏi dữ liệu để tính toán hash
         unset($inputData['vnp_SecureHash']);
 
         // Sắp xếp lại mảng dữ liệu theo thứ tự tăng dần của khóa
         ksort($inputData);
 
         // Tạo chuỗi dữ liệu để hash
-        $hashData = urldecode(http_build_query($inputData, '', '&'));
+        $hashData = http_build_query($inputData, '', '&');
+
 
         // Tính toán SecureHash từ chuỗi dữ liệu và khóa bí mật
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
 
-        // Kiểm tra SecureHash và mã phản hồi từ VNPAY
-        if ($secureHash === $vnp_SecureHash && $inputData['vnp_ResponseCode'] == '00') {
-            // Cập nhật trạng thái thanh toán thành công
+        // Kiểm tra SecureHash có khớp không và mã phản hồi từ VNPAY
+        if ($secureHash === $vnp_SecureHash) {
+            if ($inputData['vnp_ResponseCode'] == '00') {
 
-            // Tìm giao dịch thanh toán dựa trên mã thanh toán
-            $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
+                // Giao dịch thành công
 
-            if ($payment) {
-                // Cập nhật trạng thái thanh toán thành công
-                $payment->trang_thai = 'Đã hoàn thành';
-                $payment->save();
+                // Tìm giao dịch thanh toán dựa trên mã thanh toán
+                $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
+
+                if ($payment) {
+                    // trạng thái thanh toán thành công
+                    $payment->trang_thai = 'Đã hoàn thành';
+                    $payment->save();
+                } else {
+                    return response()->json(['message' => 'Không tìm thấy giao dịch thanh toán'], 404);
+                }
+
+                // Tìm booking dựa trên mã giao dịch
+                $booking = Booking::find($inputData['vnp_TxnRef']);
+
+                if ($booking) {
+
+                    $booking->trang_thai = 2; // Cập nhật trạng thái thành công ở booking
+                    $booking->save();
+                }
+
+                return response()->json(['message' => 'Thanh toán thành công']);
+            } else {
+                // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
+                return response()->json([
+                    'message' => 'Thanh toán thất bại',
+                    'error_code' => $inputData['vnp_ResponseCode'],
+                    'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
+                ], 400);
             }
-
-            // Tìm booking dựa trên mã giao dịch
-            $booking = Booking::find($inputData['vnp_TxnRef']);
-
-            if ($booking) {
-                // Cập nhật trạng thái booking thành công
-                $booking->trang_thai = 2; // 2 có thể là trạng thái "Đã thanh toán" hoặc trạng thái thành công của bạn
-                $booking->save();
-            }
-
-            // Trả về phản hồi thành công
-            return response()->json(['message' => 'Thanh toán thành công']);
         } else {
-            // Trả về phản hồi thất bại nếu không khớp SecureHash hoặc mã phản hồi không phải '00'
-            return response()->json(['message' => 'Thanh toán thất bại'], 400);
+            // Trả về phản hồi thất bại nếu không khớp SecureHash
+            return response()->json(['message' => 'Xác thực chữ ký thất bại'], 400);
         }
     }
+
+    private function getVnpayErrorMessage($code)
+    {
+        $errors = [
+            '01' => 'Giao dịch đã tồn tại',
+            '02' => 'Merchant không hợp lệ',
+            '03' => 'Dữ liệu gửi không đầy đủ',
+            '04' => 'Khóa bí mật không hợp lệ',
+
+        ];
+
+        return $errors[$code] ?? 'Lỗi không xác định';
+    }
+
+    public function paymentVIETQR($booking, $money, $payment) {}
     public function vietqrReturn(Request $request) {}
+
+
+    public function paymentVIETTELMONEY($booking, $money, $payment) {}
     public function viettelmoneyReturn(Request $request) {}
+
+
+    public function paymentPAYOO($booking, $money, $payment) {}
     public function payooReturn(Request $request) {}
 
 
-
-    // bỏ
-    public function processPaymentBooking(Request $request, $bookingId)
-    {
-
-        // Lấy thông tin booking theo id booking khi call go dung id cua bang booking
-        $bookingId = Booking::findOrFail($bookingId);
-        if (!$bookingId) {
-            return response()->json([
-                'message' => 'Booking id này không tồn tại !'
-            ], 404);
-        }
-
-        // validate check thanh toan
-        $request->validate([
-            'phuong_thuc_thanh_toan' => 'required|in:credit_card,paypal,cash,bank_transfer',
-        ]);
-
-
-        $tong_tien = $bookingId->tong_tien_thanh_toan;
-
-        // tao ban ghi thanh toan
-        $payment =  Payment::create([
-            'booking_id' => $bookingId->id,
-            'tong_tien' => $tong_tien,
-            'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
-            'ma_thanh_toan' => strtoupper(uniqid('PAY_')), // giả định thanh toán ok để test tích hơp sau 
-            'ngay_thanh_toan' => Carbon::now(),
-            'trang_thai' => 1, //  1 là đã thanh toán
-        ]);
-
-        // cập nhật trạng thái cho booking và booking_detail thanh toán thanhd công full 1 
-        $bookingId->update(['trang_thai' => 1]); // thanh toán ok
-
-        // Thêm thông tin vào booking_details
-        BookingDetail::create([
-            'booking_id' => $bookingId->id,
-            'trang_thai' => 1, // trạng thái đã thanh toán (1)
-            'thanhtoan_id' => $payment->id, // ID thanh toán vừa tạo
-        ]);
-
-        // Trả về phản hồi sau khi thanh toán thành công
-        return response()->json([
-            'message' => 'Thanh toán thành công',
-            'payment' => $payment
-        ], 201);
-    }
-
-
+    
     public function processPaymentForRegister(Request $request, RegisterMember $registerMember)
     {
         // Validate phương thức thanh toán
