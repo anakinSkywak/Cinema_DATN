@@ -189,4 +189,6 @@ return [
         'Pdf' => Barryvdh\DomPDF\Facade\Pdf::class,
     ])->toArray(),
 
+    'charset' => 'UTF-8',
+
 ];
