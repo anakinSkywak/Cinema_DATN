@@ -15,6 +15,7 @@ class CountdownVoucher extends Model
         'thoi_gian_bat_dau',
         'thoi_gian_ket_thuc',
         'so_luong',
+        'so_luong_con_lai',
         'trang_thai',
     ];
 
