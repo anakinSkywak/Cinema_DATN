@@ -168,8 +168,14 @@
             <tr>
                 <td>{{$tenPhim->ten_phim}}</td>
                 <td>1</td>
-                <td>{{ number_format($data->tong_tien, 3, ',', '.') }} VND</td>
-                <td>{{ number_format($data->tong_tien, 3, ',', '.') }} VND</td>
+                <td>{{ number_format($tenPhim->gia_ve, 3, ',', '.') }} VND</td>
+                <td>{{ number_format($tenPhim->gia_ve, 3, ',', '.') }} VND</td>
+            </tr>
+            <tr>
+                <td>{{$data->food->ten_do_an}}</td>
+                <td>{{$data->so_luong_do_an}}</td>
+                <td>{{ number_format($data->food->gia, 3, ',', '.') }} VND</td>
+                <td>{{ number_format($data->food->gia, 3, ',', '.') }} VND</td>
             </tr>
             
             <tr>
