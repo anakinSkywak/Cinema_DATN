@@ -14,7 +14,7 @@ class BillController extends Controller
     public function exportBill($id)
     {
         // Lấy dữ liệu từ bảng Booking với các quan hệ
-        $data = Booking::with(['showtime', 'seat', 'voucher'])->find($id); // dùng find thay cho findOrFail để dễ xử lý lỗi
+        $data = Booking::with(['showtime', 'seat', 'voucher', 'fo'])->find($id); // dùng find thay cho findOrFail để dễ xử lý lỗi
         if (!$data) {
             return response()->json([
                 "message" => "Không tìm thấy đơn này"
@@ -35,8 +35,7 @@ class BillController extends Controller
         
         // Kiểm tra nếu voucher không tồn tại, gán giá trị mặc định là 0
         // Lấy muc_giam_gia từ voucher
-        $giaTriVoucher = $data->voucher ? $data->voucher->muc_giam_gia : null;
-
+        $giaTriVoucher =  $data->voucher ? $data->voucher->muc_giam_gia : null;
 
         // Tạo PDF với view và đặt font mặc định hỗ trợ UTF-8
         $pdf = Pdf::loadView('bills.bill', compact([

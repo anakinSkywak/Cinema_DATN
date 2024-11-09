@@ -174,7 +174,7 @@
             
             <tr>
                 <td colspan="3" class="sum-up">vorcher</td>
-                <td>-{{ $giaTriVoucher->muc_giam_gia }}%</td>
+                <td>-{{ $giaTriVoucher}}%</td>
             </tr>
             <tr>
                 <th colspan="3" class="total text">Total</th>
