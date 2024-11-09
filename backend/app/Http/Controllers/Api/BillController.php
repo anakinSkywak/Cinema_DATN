@@ -20,6 +20,11 @@ class BillController extends Controller
             ->where('showtimes.id', $data->thongtinchieu_id)
             ->select('movies.ten_phim') // 'ten_phim' là cột tên phim trong bảng movies
             ->first();
+        $tenRoom = Showtime::join('rooms', 'showtimes.room_id', '=', 'rooms.id')
+            ->where('showtimes.id', $data->thongtinchieu_id)
+            ->select('rooms.ten_phong_chieu') // 'ten_phong_chieu' là cột tên phòng chiếu trong bảng rooms
+            ->first();
+        
 
         if (!$data) {
             return response()->json([
@@ -30,7 +35,8 @@ class BillController extends Controller
         // Tạo PDF với view và đặt font mặc định hỗ trợ UTF-8
         $pdf = Pdf::loadView('bills.bill', compact([
             'data',
-            'tenPhim'
+            'tenPhim',
+            'tenRoom',
         ]))
             // ->setPaper([0, 0, 226.77, 9999], 'portrait')
             ->setPaper('a4')

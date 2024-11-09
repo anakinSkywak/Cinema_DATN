@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
     <title>Hóa Đơn</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Open Sans', sans-serif;
             font-size: 14px;
             margin: 0;
             padding: 0;
@@ -26,6 +29,7 @@
             margin-bottom: 20px;
             color: #000;
             text-transform: uppercase;
+            font-weight: 800;
         }
 
         .info-table {
@@ -41,7 +45,7 @@
 
         .info-table th {
             background-color: #f2f2f2;
-            font-weight: bold;
+            font-weight: 600;
         }
 
         .info-table td {
@@ -50,7 +54,7 @@
 
         .total {
             font-size: 16px;
-            font-weight: bold;
+            font-weight: 600;
             color: #d9534f;
             text-align: right;
         }
@@ -63,7 +67,7 @@
         }
     </style>
 </head>
-<body>
+<body>  
     <div class="container">
         <h1>Thông Tin Hóa Đơn</h1>
 
@@ -82,11 +86,11 @@
             </tr>
             <tr>
                 <th>Phòng Chiếu</th>
-                <td>{{ $data->showtime->room_id }}</td>
+                <td>{{ $tenRoom->ten_phong_chieu }}</td>
             </tr>
         </table>
 
-        <p class="total">Tổng Tiền: {{ number_format($data->tong_tien, 0, ',', '.') }} VND</p>
+        <p class="total">Tổng Tiền: {{ number_format($data->tong_tien, 3, ',', '.') }} VND</p>
 
         <div class="footer">
             <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
@@ -95,4 +99,3 @@
     </div>
 </body>
 </html>
-
