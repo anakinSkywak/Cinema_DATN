@@ -125,8 +125,8 @@ Route::get('showMovie/{id}', [MovieController::class, 'show']);  // show theo id
 Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);  // show dữ liệu theo id để edit
 Route::put('updateMovie/{id}', [MovieController::class, 'update']);  // cap nhat theo id
 Route::delete('movies/{id}', [MovieController::class, 'delete']);  // xoa theo id
-Route::post('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
-Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo từ khóa
+Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
+Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo từ khóa
 
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
