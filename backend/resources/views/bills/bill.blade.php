@@ -1,101 +1,199 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <title>Hóa Đơn</title>
     <style>
         body {
-            font-family: 'Open Sans', sans-serif;
-            font-size: 14px;
             margin: 0;
             padding: 0;
-            line-height: 1.6;
-            color: #333;
+            font-family: 'PT Sans', sans-serif;
         }
 
-        .container {
-            width: 80mm; /* Khổ giấy 80mm */
-            margin: 0 auto;
-            padding: 10px;
+        @page {
+            /* size: 2.8in 11in; */
+            margin-top: 0cm;
+            margin-left: 0cm;
+            margin-right: 0cm;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        tr {
+            width: 100%;
+
         }
 
         h1 {
             text-align: center;
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #000;
-            text-transform: uppercase;
-            font-weight: 800;
+            vertical-align: middle;
         }
 
-        .info-table {
+        #logo {
+            width: 60%;
+            text-align: center;
+            -webkit-align-content: center;
+            align-content: center;
+            padding: 5px;
+            margin: 2px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        header {
             width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+            text-align: center;
+            -webkit-align-content: center;
+            align-content: center;
+            vertical-align: middle;
         }
 
-        .info-table th, .info-table td {
-            padding: 8px;
+        .items thead {
+            text-align: center;
+        }
+
+        .center-align {
+            text-align: center;
+        }
+
+        .bill-details td {
+            font-size: 12px;
+        }
+
+        .receipt {
+            font-size: medium;
+        }
+
+        .items .heading {
+            font-size: 12.5px;
+            text-transform: uppercase;
+            border-top:1px solid black;
+            margin-bottom: 4px;
+            border-bottom: 1px solid black;
+            vertical-align: middle;
+        }
+
+        .items thead tr th:first-child,
+        .items tbody tr td:first-child {
+            width: 47%;
+            min-width: 47%;
+            max-width: 47%;
+            word-break: break-all;
             text-align: left;
         }
 
-        .info-table th {
-            background-color: #f2f2f2;
-            font-weight: 600;
+        .items td {
+            font-size: 12px;
+            text-align: right;
+            vertical-align: bottom;
         }
 
-        .info-table td {
-            border-bottom: 1px solid #ddd;
-        }
-
-        .total {
-            font-size: 16px;
-            font-weight: 600;
-            color: #d9534f;
+        .price::before {
+             content: "\20B9";
+            font-family: Arial;
             text-align: right;
         }
 
-        .footer {
-            margin-top: 30px;
-            text-align: center;
+        .sum-up {
+            text-align: right !important;
+        }
+        .total {
+            font-size: 13px;
+            border-top:1px dashed black !important;
+            border-bottom:1px dashed black !important;
+        }
+        .total.text, .total.price {
+            text-align: right;
+        }
+        .total.price::before {
+            content: "\20B9"; 
+        }
+        .line {
+            border-top:1px solid black !important;
+        }
+        .heading.rate {
+            width: 20%;
+        }
+        .heading.amount {
+            width: 25%;
+        }
+        .heading.qty {
+            width: 5%
+        }
+        p {
+            padding: 1px;
+            margin: 0;
+        }
+        section, footer {
             font-size: 12px;
-            color: #888;
         }
     </style>
 </head>
-<body>  
-    <div class="container">
-        <h1>Thông Tin Hóa Đơn</h1>
 
-        <table class="info-table">
-            <tr>
-                <th>Thời Gian Chiếu</th>
-                <td>{{ $data->showtime->ngay_chieu }} lúc {{ $data->showtime->gio_chieu }}</td>
-            </tr>
-            <tr>
-                <th>Thời Lượng Phim</th>
-                <td>{{ $data->showtime->thoi_luong_chieu }} phút</td>
-            </tr>
-            <tr>
-                <th>Tên Phim</th>
-                <td>{{ $tenPhim->ten_phim }}</td>
-            </tr>
-            <tr>
-                <th>Phòng Chiếu</th>
-                <td>{{ $tenRoom->ten_phong_chieu }}</td>
-            </tr>
-        </table>
+<body>
+    <header>
+        <div id="logo" class="media" data-src="logo.png" src="./logo.png"></div>
 
-        <p class="total">Tổng Tiền: {{ number_format($data->tong_tien, 3, ',', '.') }} VND</p>
-
-        <div class="footer">
-            <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
-            <p>Hãy quay lại lần sau!</p>
-        </div>
-    </div>
+    </header>
+    <p>GST Number : 4910487129047124</p>
+    <table class="bill-details">
+        <tbody>
+            <tr>
+                <td>Date : <span>1</span></td>
+                <td>Time : <span>2</span></td>
+            </tr>
+            <tr>
+                <td>Table #: <span>3</span></td>
+                <td>Bill # : <span>4</span></td>
+            </tr>
+            <tr>
+                <th class="center-align" colspan="2"><h2 class="receipt">Original Receipt</h2></th>
+            </tr>
+        </tbody>
+    </table>
+    
+    <p>Hàng ghế: {{$data->ghe_ngoi}}</p>
+    <table class="items">
+        <thead>
+            <tr>
+                <th class="heading name">Item</th>
+                <th class="heading qty">Qty</th>
+                <th class="heading rate">Rate</th>
+                <th class="heading amount">Amount</th>
+            </tr>
+        </thead>
+       
+        <tbody>
+            <tr>
+                <td>{{$tenPhim->ten_phim}}</td>
+                <td>1</td>
+                <td>{{ number_format($data->tong_tien, 3, ',', '.') }} VND</td>
+                <td>{{ number_format($data->tong_tien, 3, ',', '.') }} VND</td>
+            </tr>
+            
+            <tr>
+                <td colspan="3" class="sum-up">vorcher</td>
+                <td>-{{ $giaTriVoucher->muc_giam_gia }}%</td>
+            </tr>
+            <tr>
+                <th colspan="3" class="total text">Total</th>
+                <th class="total">{{ number_format($data->tong_tien_thanh_toan, 3, ',', '.') }} VND</th>
+            </tr>
+        </tbody>    
+    </table>
+    <section>
+        <p>
+            Paid by : <span>CASH</span>
+        </p>
+        <p style="text-align:center">
+            Thank you for your visit!
+        </p>
+    </section>
+    <footer style="text-align:center">
+        <p>Technology Partner Dotworld Technologies</p>
+        <p>www.dotworld.in</p>
+    </footer>
 </body>
+
 </html>
