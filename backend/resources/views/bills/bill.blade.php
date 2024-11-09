@@ -133,27 +133,36 @@
 
 <body>
     <header>
-        <div id="logo" class="media" data-src="logo.png" src="./logo.png"></div>
-
+        <img id="logo" class="media" src="{{ asset('logo/logo.jpg') }}" alt="Logo">
     </header>
     <p>GST Number : 4910487129047124</p>
     <table class="bill-details">
         <tbody>
+            <!-- Thông tin khách hàng -->
             <tr>
-                <td>Date : <span>1</span></td>
-                <td>Time : <span>2</span></td>
+                <td>Customer Name: <span>{{ $data->user->ho_ten }}</span></td>
+                <td>Phone: <span>{{ $data->user->so_dien_thoai  }}</span></td>
             </tr>
             <tr>
-                <td>Table #: <span>3</span></td>
-                <td>Bill # : <span>4</span></td>
+                <td>Email: <span>{{ $data->user->email  }}</span></td>
+            </tr>
+
+            <!-- Thông tin hóa đơn -->
+            <tr>
+                <td>Date : <span>{{ $data->ngay_mua  }}</span></td>
+                <td>Time : <span>{{ $data->payment->ngay_thanh_toan }}</span></td>
             </tr>
             <tr>
-                <th class="center-align" colspan="2"><h2 class="receipt">Original Receipt</h2></th>
+                <td>Bill # : <span>{{ $data->id }}</span></td>
+            </tr>
+            <tr>
+                <th class="center-align" colspan="2"><h2 class="receipt">{{env('APP_NAME')}}</h2></th>
             </tr>
         </tbody>
     </table>
-    
-    <p>Hàng ghế: {{$data->ghe_ngoi}}</p>
+
+    <p>Hàng ghế: {{ $data->ghe_ngoi }}</p>
+    <p>Room: {{ $tenRoom->ten_phong_chieu }}</p>
     <table class="items">
         <thead>
             <tr>
@@ -163,24 +172,24 @@
                 <th class="heading amount">Amount</th>
             </tr>
         </thead>
-       
+
         <tbody>
             <tr>
-                <td>{{$tenPhim->ten_phim}}</td>
+                <td>{{ $tenPhim->ten_phim }}</td>
                 <td>1</td>
                 <td>{{ number_format($tenPhim->gia_ve, 3, ',', '.') }} VND</td>
                 <td>{{ number_format($tenPhim->gia_ve, 3, ',', '.') }} VND</td>
             </tr>
             <tr>
-                <td>{{$data->food->ten_do_an}}</td>
-                <td>{{$data->so_luong_do_an}}</td>
+                <td>{{ $data->food->ten_do_an }}</td>
+                <td>{{ $data->so_luong_do_an }}</td>
                 <td>{{ number_format($data->food->gia, 3, ',', '.') }} VND</td>
-                <td>{{ number_format($data->food->gia, 3, ',', '.') }} VND</td>
+                <td>{{ number_format($data->food->gia * $data->so_luong_do_an, 3, ',', '.') }} VND</td>
             </tr>
             
             <tr>
-                <td colspan="3" class="sum-up">vorcher</td>
-                <td>-{{ $giaTriVoucher}}%</td>
+                <td colspan="3" class="sum-up">Voucher Discount</td>
+                <td>-{{ $giaTriVoucher }}%</td>
             </tr>
             <tr>
                 <th colspan="3" class="total text">Total</th>
@@ -190,7 +199,7 @@
     </table>
     <section>
         <p>
-            Paid by : <span>CASH</span>
+            Paid by : <span>{{ $data->payment->phuong_thuc_thanh_toan }}</span>
         </p>
         <p style="text-align:center">
             Thank you for your visit!

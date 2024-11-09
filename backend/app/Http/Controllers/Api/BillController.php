@@ -14,7 +14,14 @@ class BillController extends Controller
     public function exportBill($id)
     {
         // Lấy dữ liệu từ bảng Booking với các quan hệ
-        $data = Booking::with(['showtime', 'seat', 'voucher', 'food'])->find($id); // dùng find thay cho findOrFail để dễ xử lý lỗi
+        $data = Booking::with([
+            'showtime',
+            'seat',
+            'voucher',
+            'food',
+            'user',
+            'payment',
+            ])->find($id); // dùng find thay cho findOrFail để dễ xử lý lỗi
         if (!$data) {
             return response()->json([
                 "message" => "Không tìm thấy đơn này"
