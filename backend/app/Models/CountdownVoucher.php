@@ -23,4 +23,8 @@ class CountdownVoucher extends Model
     {
         return $this->belongsTo(Voucher::class, 'magiamgia_id');
     }
+    public function couponCodeTakens()
+    {
+        return $this->hasMany(CouponCodeTaken::class);
+    }
 }
