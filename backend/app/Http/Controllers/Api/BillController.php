@@ -21,39 +21,49 @@ class BillController extends Controller
             'food',
             'user',
             'payment',
-            ])->find($id); // dùng find thay cho findOrFail để dễ xử lý lỗi
+        ])->find($id);
+
         if (!$data) {
             return response()->json([
                 "message" => "Không tìm thấy đơn này"
             ], 404);
         }
 
-        // Lấy tên phim từ bảng movies
+        // Lấy thông tin phim và giá vé từ bảng movies
         $tenPhim = Showtime::join('movies', 'showtimes.phim_id', '=', 'movies.id')
             ->where('showtimes.id', $data->thongtinchieu_id)
             ->select('movies.ten_phim', 'movies.gia_ve')
-            // ->select('movies.gia_ve')
             ->first();
 
-        // Lấy tên phòng chiếu từ bảng rooms
+        if (!$tenPhim) {
+            return response()->json([
+                "message" => "Không tìm thấy thông tin phim"
+            ], 404);
+        }
+
+        // Lấy thông tin phòng chiếu từ bảng rooms
         $tenRoom = Showtime::join('rooms', 'showtimes.room_id', '=', 'rooms.id')
             ->where('showtimes.id', $data->thongtinchieu_id)
             ->select('rooms.ten_phong_chieu')
             ->first();
-        
-        // Kiểm tra nếu voucher không tồn tại, gán giá trị mặc định là 0
-        // Lấy muc_giam_gia từ voucher
-        $giaTriVoucher =  $data->voucher ? $data->voucher->muc_giam_gia : null;
 
+        if (!$tenRoom) {
+            return response()->json([
+                "message" => "Không tìm thấy thông tin phòng chiếu"
+            ], 404);
+        }
+
+        // Lấy giá trị voucher nếu có
+        $giaTriVoucher = $data->voucher ? $data->voucher->muc_giam_gia : 0;
 
         // Tạo PDF với view và đặt font mặc định hỗ trợ UTF-8
-        $pdf = Pdf::loadView('bills.bill', compact([
+        $pdf = Pdf::loadView('bills.bill', compact(
             'data',
-            'tenPhim',
+            'tenPhim', 
             'tenRoom',
-            'giaTriVoucher',
-        ]))
-        ->setPaper([0, 0, 226.77, 9999], 'portrait') // Thiết lập kích thước giấy nếu cần
+            'giaTriVoucher'
+        ))
+        ->setPaper([0, 0, 226.77, 9999], 'portrait')
         ->setOptions([
             'defaultFont' => 'DejaVu Sans'
         ]);
