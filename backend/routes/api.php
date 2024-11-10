@@ -32,19 +32,32 @@ use App\Http\Controllers\Api\AuthController; //  auth api
 
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill(); // xác minh email thành công
-
-    return response()->json([
-        'message' => 'Email đã được xác minh thành công.'
-    ], 200);
+    try {
+        $request->fulfill();
+        
+        // Redirect to frontend
+        $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
+        return redirect($frontendUrl . '/login?verified=true');
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Email verification failed',
+            'error' => $e->getMessage()
+        ], 400);
+    }
 })
-// ->middleware(['signed'])
+->middleware(['signed', 'throttle:6,1'])   
 ->name('verification.verify');
-// xac minh an vao neu hien web foud loigin la ok se den de login
-// Auth::routes(['verify' => true]);
+
 Route::get('/email/verify', function () {
-    return view('auth.verify-email');
-})->name('verification.notice');    
+    try {
+        return view('auth.verify-email');
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Could not load verification page',
+            'error' => $e->getMessage() 
+        ], 400);
+    }
+})->middleware('auth')->name('verification.notice');
 
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
@@ -53,19 +66,25 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
     // Đăng nhập và trả về token cho frontend
     Route::post('login', [AuthController::class, 'login'])->name('login');
-    // Route::get('login', [AuthController::class, 'login'])->name('login');
 
-    // Lấy thông tin chi tiết của người dùng (yêu cầu phải có token hợp lệ)
-    Route::get('profile', [AuthController::class, 'userProfile']);
+    // Các route yêu cầu xác thực token
+    Route::middleware('auth:api')->group(function() {
+        // Lấy thông tin chi tiết của người dùng
+        Route::get('profile', [AuthController::class, 'userProfile']);
+        
+        // Đăng xuất - vô hiệu hóa token
+        Route::post('logout', [AuthController::class, 'logout']);
+        
+        // Cập nhật thông tin tài khoản
+        Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+    });
 
-    // Đăng xuất (invalidate token để người dùng không thể tiếp tục sử dụng token cũ)
-    Route::post('logout', [AuthController::class, 'logout']);
-    // update tài khoản phía user
-    Route::post('updateProfile', [AuthController::class, 'updateProfile']);
-
-    // route này để xác thực các route liên quan đến đăng nhập tài khoản
+    // Route xử lý khi chưa xác thực
     Route::get('authenticationRoute', function () {
-        return response()->json(['error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này']);
+        return response()->json([
+            'error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này',
+            'status' => 401
+        ]);
     })->name('unauthenticated');
 });
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);

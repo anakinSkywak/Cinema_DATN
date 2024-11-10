@@ -177,7 +177,7 @@
           <!-- Logo -->
           <tr>
             <td class="email-masthead">
-              <a class="email-masthead_name">Canvas</a>
+              <a class="email-masthead_name">Cinema</a>
             </td>
           </tr>
           <!-- Email Body -->
@@ -188,30 +188,30 @@
                 <tr>
                   <td class="content-cell">
                     <h1>Verify your email address</h1>
-                    <p>Thanks for signing up for Canvas! We're excited to have you as an early user.</p>
+                    <p>Thanks for signing up! We're excited to have you as a new user.</p>
                     <!-- Action -->
                     <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td align="center">
                           <div>
-                            <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{action_url}}" style="height:45px;v-text-anchor:middle;width:200px;" arcsize="7%" stroke="f" fill="t">
+                            <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $url }}" style="height:45px;v-text-anchor:middle;width:200px;" arcsize="7%" stroke="f" fill="t">
                             <v:fill type="tile" color="#414EF9" />
                             <w:anchorlock/>
                             <center style="color:#ffffff;font-family:sans-serif;font-size:15px;">Verify Email</center>
                           </v:roundrect><![endif]-->
-                            <a href="{{action_url}}" class="button button--blue">Verify Email</a>
+                            <a href="{{ $url }}" class="button button--blue">Verify Email</a>
                           </div>
                         </td>
                       </tr>
                     </table>
-                    <p>Thanks,<br>The Canvas Team</p>
+                    <p>Thanks,<br>The Cinema Team</p>
                     <!-- Sub copy -->
                     <table class="body-sub">
                       <tr>
                         <td>
-                          <p class="sub">If you’re having trouble clicking the button, copy and paste the URL below into your web browser.
+                          <p class="sub">If you're having trouble clicking the button, copy and paste the URL below into your web browser.
                           </p>
-                          <p class="sub"><a href="{{action_url}}">{{action_url}}</a></p>
+                          <p class="sub"><a href="{{ $url }}">{{ $url }}</a></p>
                         </td>
                       </tr>
                     </table>
@@ -226,8 +226,8 @@
                 <tr>
                   <td class="content-cell">
                     <p class="sub center">
-                      Canvas Labs, Inc.
-                      <br>325 9th St, San Francisco, CA 94103
+                      Cinema
+                      <br>123 Cinema Street, Ho Chi Minh City, Vietnam
                     </p>
                   </td>
                 </tr>

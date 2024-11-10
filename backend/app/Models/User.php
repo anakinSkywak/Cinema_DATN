@@ -10,10 +10,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, MustVerifyEmailTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -82,19 +83,19 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password' => 'hashed', // bam mk
     ];
 
-// <<<<<<< HEAD
-//     /**
-//      * Mark the given user's email as verified.
-//      *
-//      * @return bool
-//      */
-//     public function markEmailAsVerified()
-//     {
-//         return $this->forceFill([
-//             'emailVerifiedAt' => $this->freshTimestamp(),
-//         ])->save();
-//     }
-// =======
+
+    /**
+     * Mark the given user's email as verified.
+     *
+     * @return bool
+     */
+    public function markEmailAsVerified()
+    {
+        return $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp(),
+        ])->save();
+    }
+
 
 //     //Đăng kí thẻ hội viên
 //     public function registerMembers()
@@ -104,4 +105,24 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
     
 // >>>>>>> ac678e8f7713bddcc0f66477665f144b031bc56e
+
+    /**
+     * Determine if the user has verified their email address.
+     *
+     * @return bool
+     */
+    public function hasVerifiedEmail()
+    {
+        return ! is_null($this->email_verified_at);
+    }
+
+    /**
+     * Get the email address that should be used for verification.
+     *
+     * @return string
+     */
+    public function getEmailForVerification()
+    {
+        return $this->email;
+    }
 }
