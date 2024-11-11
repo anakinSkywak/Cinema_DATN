@@ -161,11 +161,14 @@ class BookingController extends Controller
         ]);
 
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
+       
         if (!$showtime) {
             return response()->json([
                 'message' => 'Suất chiếu không tồn tại.'
             ], 404);
         }
+
+        //dd($showtime);
 
         // Lấy và kiểm tra các ghế ngồi
         $selectedSeats = $request->ghe_ngoi;
@@ -190,7 +193,6 @@ class BookingController extends Controller
             $tong_tien = $result['tong_tien_sau_giam']; 
         }
 
-        // tạo bản ghi tạm thời
         $booking =  Booking::create([
             'user_id' => $user->id,
             'thongtinchieu_id' => $request->thongtinchieu_id,
@@ -207,20 +209,21 @@ class BookingController extends Controller
             'tong_tien_thanh_toan' => $tong_tien,
         ]);
 
-        // update chặn ghế ngồi theo các giờ
 
-        //Sau khi tạo booking thành công
-        // foreach ($selectedSeats as $seatId) {
-        //     DB::table('seat_showtime_status')->updateOrInsert(
-        //         [
-        //             'ghengoi_id' => $seatId,
-        //             'thongtinchieu_id' => $request->thongtinchieu_id
-        //         ],
-        //         [
-        //             'trang_thai' => 1 // 1 = booked
-        //         ]
-        //     );
-        // }
+        // update chặn ghế ngồi theo các giờ
+        // Sau khi tạo booking thành công
+        foreach ($selectedSeats as $seatId) {
+            DB::table('seat_showtime_status')->updateOrInsert(
+                [
+                    'ghengoi_id' => $seatId,
+                    'thongtinchieu_id' => $request->thongtinchieu_id,
+                   'gio_chieu' => $showtime->gio_chieu
+                ],
+                [
+                    'trang_thai' => 1 // 1 = booked
+                ]
+            );
+        }
 
         return response()->json([
             'message' => 'Tạo Booking ok đến trang thanh toán',

@@ -69,6 +69,7 @@ Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])-
 
 
 // xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
+
 Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);  // chi tiết theo id phim khi ấn vào phim ở home
 
 Route::middleware('auth:api')->group(function () {
@@ -87,7 +88,6 @@ Route::middleware('auth:api')->group(function () {
 Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
 Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
 Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
-
 
 
 //Ánh call api rooms
