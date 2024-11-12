@@ -1,35 +1,35 @@
 <?php
 
+use App\Http\Controllers\Api\MemberShipsController;
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use PHPUnit\Framework\Attributes\Group;
-use App\Http\Controllers\Api\BillController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\MemberController;
-use App\Http\Controllers\Api\MomentController;
 use App\Http\Controllers\Api\BookingController;
-use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
-use App\Http\Controllers\Api\RotationsController;
-use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Http\Controllers\Api\MembershipController;
+use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MoviegenreController;
-use App\Http\Controllers\Api\MemberShipsController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
-use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\BillController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\MomentController;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use PHPUnit\Framework\Attributes\Group;
+use App\Http\Controllers\Api\CouponCodeTakenController;
 
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
@@ -263,11 +263,6 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
-Route::post('countdown_vouchers/{id}/quay', [CountdownVoucherController::class, 'quay']);
-
-//call api coupon_code_taken T
-Route::get('user/{userId}/countdown-vouchers', [CouponCodeTakenController::class, 'getUserCountdownVouchers']);
-
 
 
 //call api moment
