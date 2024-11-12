@@ -65,10 +65,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::get('authenticationRoute', function () {
         return response()->json([
             'error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này',
-            'status' => 401
-        ]);
+        ], 401);
     })->name('unauthenticated');
 });
+
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
