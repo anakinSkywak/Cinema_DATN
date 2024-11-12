@@ -60,18 +60,27 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        $user = User::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)]
-        ));
+        try {
+            $user = User::create(array_merge(
+                $validator->validated(),
+                ['password' => bcrypt($request->password)]
+            ));
 
-        // khi nào cần xác nhận bằng mail thì dùng 
-        $user->sendEmailVerificationNotification();
+            // Send verification email
+            $user->sendEmailVerificationNotification();
 
-        return response()->json([
-            'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'
-        ], 201);
+            return response()->json([
+                'message' => 'Đăng ký tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                'user' => $user
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi đăng ký tài khoản.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
     // Tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
     {

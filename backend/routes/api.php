@@ -32,32 +32,14 @@ use App\Http\Controllers\Api\AuthController; //  auth api
 
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    try {
-        $request->fulfill();
-        
-        // Redirect to frontend
-        $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
-        return redirect($frontendUrl . '/login?verified=true');
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Email verification failed',
-            'error' => $e->getMessage()
-        ], 400);
-    }
-})
-->middleware(['signed', 'throttle:6,1'])   
-->name('verification.verify');
-
-Route::get('/email/verify', function () {
-    try {
-        return view('auth.verify-email');
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Could not load verification page',
-            'error' => $e->getMessage() 
-        ], 400);
-    }
-})->middleware('auth')->name('verification.notice');
+    $request->fulfill();
+    
+    // You can add logging here to debug
+    \Illuminate\Support\Facades\Log::info('Email verified for user: ' . $request->user()->id);
+    
+    $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
+    return redirect($frontendUrl); // Add a query param to indicate success
+})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');a
 
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
@@ -301,3 +283,10 @@ Route::middleware('auth:api')->group(function () {
     Route::put('comments/{id}', [CommentController::class, 'update']);
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
+
+// Route::middleware('auth:api')->get('/email/verification-status', function (Request $request) {
+//     return response()->json([
+//         'is_verified' => !is_null($request->user()->email_verified_at),
+//         'verified_at' => $request->user()->email_verified_at
+//     ]);
+// });

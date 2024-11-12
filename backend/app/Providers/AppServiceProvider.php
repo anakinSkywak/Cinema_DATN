@@ -24,14 +24,17 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
+            $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
+            $verificationUrl = str_replace(url('/'), $frontendUrl, $url);
+            
             return (new MailMessage)
                 ->subject('Xác minh địa chỉ email của bạn')
                 ->greeting('Chào bạn!')
                 ->line('Cảm ơn bạn đã đăng ký tài khoản với chúng tôi. Vui lòng xác minh địa chỉ email của bạn để hoàn tất quá trình đăng ký.')
-                ->action('Xác minh địa chỉ email', $url)
+                ->action('Xác minh địa chỉ email', $verificationUrl)
                 ->line('Nếu bạn không đăng ký tài khoản này, bạn có thể bỏ qua email này.')
                 ->line('Trân trọng,')
-                ->line(env('APP_NAME'));
+                ->line(config('app.name'));
         });
         
 
