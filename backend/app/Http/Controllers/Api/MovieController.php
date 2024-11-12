@@ -16,7 +16,7 @@ class MovieController extends Controller
     public function index()
     {
         // call show all du lieu ra 
-        $movieall = Movie::with('movie_genres')->get();
+        $movieall = Movie::with('movie_genres')->orderBy('id', 'DESC')->get();
         //dd($data);
         if ($movieall->isEmpty()) {
 

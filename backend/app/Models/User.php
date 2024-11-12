@@ -83,7 +83,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     ];
     //T thêm khoá
 
-<<<<<<< HEAD
 
     /**
      * Mark the given user's email as verified.
@@ -97,8 +96,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         ])->save();
     }
 
-=======
->>>>>>> 3aeb84245ed268729540a4578cc693ca7666d30e
 
     // <<<<<<< HEAD
     //     /**
@@ -114,7 +111,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     //     }
     // =======
 
-<<<<<<< HEAD
     
 // >>>>>>> ac678e8f7713bddcc0f66477665f144b031bc56e
 
@@ -137,14 +133,4 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return $this->email;
     }
-=======
-    //     //Đăng kí thẻ hội viên
-    //     public function registerMembers()
-    //     {
-    //         return $this->hasMany(RegisterMember::class, 'user_id');
-    //     }
-
-
-    // >>>>>>> ac678e8f7713bddcc0f66477665f144b031bc56e
->>>>>>> 3aeb84245ed268729540a4578cc693ca7666d30e
 }
