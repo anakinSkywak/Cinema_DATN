@@ -39,7 +39,7 @@ Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $requ
     
     $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
     return redirect($frontendUrl); // Add a query param to indicate success
-})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');a
+})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
