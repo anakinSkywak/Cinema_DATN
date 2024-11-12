@@ -1,4 +1,6 @@
 <?php
+
+
 use App\Models\Movie;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Auth;
@@ -29,6 +31,12 @@ use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+
+
+
+
+
+use App\Http\Controllers\Api\CouponCodeTakenController;
 
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
@@ -89,7 +97,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/bill/{id}', [BillController::class, 'exportBill']);
 });
 
-Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
+Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
+Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
 
@@ -169,14 +179,14 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa th
 
 
 
-// call api type_blogs
+// call api type_blogs T
 // Route::apiResource('type_blogs', TypeBlogController::class);
 Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
 Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
 Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
 Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
 Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
-// call api BlogController
+// call api BlogController T
 Route::apiResource('blogs', BlogController::class);
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
 Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
@@ -245,14 +255,14 @@ Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // 
 
 
 
-//cal api contacts
+//cal api contacts T
 Route::get('contacts', [ContactController::class, 'index']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
 Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
-//call api rotations
+//call api rotations T
 Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
 Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
 Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
@@ -260,7 +270,7 @@ Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
 
-//call api countdown_vouchers
+//call api countdown_vouchers T
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
 Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);

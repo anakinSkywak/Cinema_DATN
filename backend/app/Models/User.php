@@ -66,12 +66,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
         //return ['role' => $this->role];
 
-        return ['vai_tro' => $this->vai_tro]; 
-
+        return ['vai_tro' => $this->vai_tro];
     }
 
 
-    
+
 
     /**
      * The attributes that should be cast.
@@ -82,7 +81,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'email_verified_at' => 'datetime',
         'password' => 'hashed', // bam mk
     ];
+    //T thêm khoá
 
+<<<<<<< HEAD
 
     /**
      * Mark the given user's email as verified.
@@ -96,13 +97,24 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         ])->save();
     }
 
+=======
+>>>>>>> 3aeb84245ed268729540a4578cc693ca7666d30e
 
-//     //Đăng kí thẻ hội viên
-//     public function registerMembers()
-//     {
-//         return $this->hasMany(RegisterMember::class, 'user_id');
-//     }
+    // <<<<<<< HEAD
+    //     /**
+    //      * Mark the given user's email as verified.
+    //      *
+    //      * @return bool
+    //      */
+    //     public function markEmailAsVerified()
+    //     {
+    //         return $this->forceFill([
+    //             'emailVerifiedAt' => $this->freshTimestamp(),
+    //         ])->save();
+    //     }
+    // =======
 
+<<<<<<< HEAD
     
 // >>>>>>> ac678e8f7713bddcc0f66477665f144b031bc56e
 
@@ -125,4 +137,14 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return $this->email;
     }
+=======
+    //     //Đăng kí thẻ hội viên
+    //     public function registerMembers()
+    //     {
+    //         return $this->hasMany(RegisterMember::class, 'user_id');
+    //     }
+
+
+    // >>>>>>> ac678e8f7713bddcc0f66477665f144b031bc56e
+>>>>>>> 3aeb84245ed268729540a4578cc693ca7666d30e
 }
