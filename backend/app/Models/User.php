@@ -81,10 +81,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password' => 'hashed', // bam mk
     ];
     //T thêm khoá
-    public function couponCodeTakens()
-    {
-        return $this->hasMany(CouponCodeTaken::class);
-    }
 
 
     // <<<<<<< HEAD
