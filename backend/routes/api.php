@@ -68,9 +68,17 @@ Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 
-// xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
 
-Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);  // chi tiết theo id phim khi ấn vào phim ở home
+
+// chi tiết theo id phim khi ấn vào phim ở home
+
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); 
+
+Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
+
+Route::get('movie-detail/{movieID}/showtime/{showtimeID}/seats', [MovieController::class, 'getSeatsByShowtime']);
+
+
 
 Route::middleware('auth:api')->group(function () {
 
@@ -83,7 +91,10 @@ Route::middleware('auth:api')->group(function () {
 
     // in bill  
     Route::get('/bill/{id}', [BillController::class, 'exportBill']);
+
 });
+
+
 
 Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
 Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
