@@ -177,14 +177,14 @@
             <tr>
                 <td>{{ $tenPhim->ten_phim }}</td>
                 <td>1</td>
-                <td>{{ number_format($tenPhim->gia_ve, 3, ',', '.') }} VND</td>
-                <td>{{ number_format($tenPhim->gia_ve, 3, ',', '.') }} VND</td>
+                <td>{{ number_format($tenPhim->gia_ve, 0, ',', '.') }} VND</td>
+                <td>{{ number_format($tenPhim->gia_ve, 0, ',', '.') }} VND</td>
             </tr>
             <tr>
                 <td>{{ $data->food->ten_do_an }}</td>
                 <td>{{ $data->so_luong_do_an }}</td>
-                <td>{{ number_format($data->food->gia, 3, ',', '.') }} VND</td>
-                <td>{{ number_format($data->food->gia * $data->so_luong_do_an, 3, ',', '.') }} VND</td>
+                <td>{{ number_format($data->food->gia, 0, ',', '.') }} VND</td>
+                <td>{{ number_format($data->food->gia * $data->so_luong_do_an, 0, ',', '.') }} VND</td>
             </tr>
             
             <tr>
@@ -193,7 +193,7 @@
             </tr>
             <tr>
                 <th colspan="3" class="total text">Total</th>
-                <th class="total">{{ number_format($data->tong_tien_thanh_toan, 3, ',', '.') }} VND</th>
+                <th class="total">{{ number_format($data->tong_tien_thanh_toan, 0, ',', '.') }} VND</th>
             </tr>
         </tbody>    
     </table>
