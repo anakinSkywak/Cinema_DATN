@@ -83,7 +83,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     ];
     //T thêm khoá
 
-
+    // không dc sửa cái này
     /**
      * Mark the given user's email as verified.
      *
@@ -97,23 +97,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     }
 
 
-    // <<<<<<< HEAD
-    //     /**
-    //      * Mark the given user's email as verified.
-    //      *
-    //      * @return bool
-    //      */
-    //     public function markEmailAsVerified()
-    //     {
-    //         return $this->forceFill([
-    //             'emailVerifiedAt' => $this->freshTimestamp(),
-    //         ])->save();
-    //     }
-    // =======
 
-    
-// >>>>>>> ac678e8f7713bddcc0f66477665f144b031bc56e
-
+        // không dc sửa cái này
     /**
      * Determine if the user has verified their email address.
      *
@@ -124,6 +109,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return ! is_null($this->email_verified_at);
     }
 
+        // không dc sửa cái này
     /**
      * Get the email address that should be used for verification.
      *
