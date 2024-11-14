@@ -128,6 +128,11 @@
         section, footer {
             font-size: 12px;
         }
+        .qr-code {
+            width: 100px;  /* or your desired size */
+            display: block;
+            margin: 0 auto; /* for center alignment */
+        }
     </style>
 </head>
 
@@ -207,7 +212,7 @@
     </section>
 
     <div>
-        <img src="" alt="">
+        <img class="qr-code" src="data:image/png;base64,{{ $qrcode }}" alt="QR Code">
     </div>
     <footer style="text-align:center">
         <p>Technology Partner Dotworld Technologies</p>
