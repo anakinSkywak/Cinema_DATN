@@ -190,12 +190,12 @@ Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
 
 // call api MembershipController
-Route::apiResource('memberships', MembershipController::class);
-Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
-Route::post('memberships', [MembershipController::class, 'store']); // thêm bản ghi mới
-Route::get('memberships/{id}', [MembershipController::class, 'show']); // hiển thị theo id
-Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
-Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
+Route::apiResource('memberships', MembershipsController::class);
+Route::get('memberships', [MembershipsController::class, 'index']); // xuất all dữ liệu
+Route::post('memberships', [MembershipsController::class, 'store']); // thêm bản ghi mới
+Route::get('memberships/{id}', [MembershipsController::class, 'show']); // hiển thị theo id
+Route::put('memberships/{id}', [MembershipsController::class, 'update']); // cập nhật theo id
+Route::delete('memberships/{id}', [MembershipsController::class, 'destroy']); // xóa theo id
 
 
 // call api MemberController
@@ -280,3 +280,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('comments/{id}', [CommentController::class, 'update']);
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
+
+
+Route::post('process-payment/{register_member_id}/{payment_method}', [PaymentController::class, 'processPaymentForRegister']);

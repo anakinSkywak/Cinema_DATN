@@ -15,43 +15,19 @@ class MemberShipsController extends Controller
      */
     public function index()
     {
-        $memberships = MemberShips::with('registerMember')->orderBy('id', 'DESC')->paginate(10);
+        // Lấy tất cả dữ liệu từ bảng Membership
+        $data = memberships::with('registerMember')->get();
+
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Membership nào'
+            ], 200);
+        }
 
         return response()->json([
-            'data' => $memberships,
-            'pagination' => [
-                'current_page' => $memberships->currentPage(),
-                'total_pages' => $memberships->lastPage(),
-                'total_items' => $memberships->total(),
-                'per_page' => $memberships->perPage(),
-                'next_page_url' => $memberships->nextPageUrl(),
-                'prev_page_url' => $memberships->previousPageUrl(),
-            ]
-        ], 200);
-    }
-
-    /**
-     * Tạo mới một thẻ hội viên.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function store(Request $request)
-    {
-        // Xác thực dữ liệu đầu vào
-        $validated = $request->validate([
-            'register_member_id' => 'required|exists:register_members,id',
-            'so_the' => 'required|string|max:255',
-            'ngay_cap' => 'required|date',
-            'ngay_het_han' => 'required|date|after:ngay_cap',
+            'message' => 'Hiển thị dữ liệu thành công',
+            'data' => $data
         ]);
-
-        $membership = MemberShips::create($validated);
-
-        return response()->json([
-            'data' => $membership,
-            'message' => 'Thêm thẻ hội viên thành công!'
-        ], 201); // Trả về 201 khi thêm thành công
     }
 
     /**
@@ -62,7 +38,7 @@ class MemberShipsController extends Controller
      */
     public function show($id)
     {
-        $membership = MemberShips::with('registerMember')->find($id);
+        $membership = memberships::with('registerMember')->find($id);
 
         if (!$membership) {
             return response()->json([
@@ -84,7 +60,7 @@ class MemberShipsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $membership = MemberShips::find($id);
+        $membership = memberships::find($id);
 
         if (!$membership) {
             return response()->json([
@@ -116,7 +92,7 @@ class MemberShipsController extends Controller
      */
     public function destroy($id)
     {
-        $membership = MemberShips::find($id);
+        $membership = memberships::find($id);
 
         if (!$membership) {
             return response()->json([

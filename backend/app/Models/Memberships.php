@@ -9,10 +9,12 @@ class MemberShips extends Model
 {
     use HasFactory;
 
+    protected $table = 'memberships';
+
     protected $fillable = [
         'dangkyhoivien_id',
         'so_the',
-        'ngay_cap',
+        'ngay_dang_ky',
         'ngay_het_han',
     ];
 

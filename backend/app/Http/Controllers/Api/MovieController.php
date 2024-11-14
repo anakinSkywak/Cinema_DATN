@@ -142,47 +142,55 @@ class MovieController extends Controller
             ], 404);
         }
 
+        // Xác thực dữ liệu cập nhật
         $validated = $request->validate([
             'ten_phim' => 'required|string|max:255',
-            'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'anh_phim' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048', // Cho phép ảnh có thể bỏ qua
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:255',
-            'trailer' => 'required|string|max:255',
+            'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
             'hinh_thuc_phim' => 'required|string|max:255',
-            'loaiphim_ids' => 'required|array',
+            'loaiphim_ids' => 'required|array', // mảng ID thể loại
             'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric',
         ]);
 
-
+        // Xử lý ảnh nếu có file ảnh mới được upload
         if ($request->hasFile('anh_phim')) {
-            // Xóa file cũ nếu cần
+            // Xóa ảnh cũ nếu có
             if ($movie->anh_phim) {
-                unlink(public_path($movie->anh_phim));
+                $oldImagePath = public_path($movie->anh_phim);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
-        
+
+            // Lưu ảnh mới
             $file = $request->file('anh_phim');
             $filename = time() . '_' . $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
-    
             $validated['anh_phim'] = '/storage/' . $filePath;
-            
-
         } else {
-            $validated['anh_phim'] = $movie->anh_phim; 
+            // Nếu không upload ảnh mới, giữ nguyên ảnh cũ
+            $validated['anh_phim'] = $movie->anh_phim;
         }
 
+        // Cập nhật thông tin phim
         $movie->update($validated);
+
+        // Cập nhật các thể loại phim
         $movie->movie_genres()->sync($request->loaiphim_ids);
 
         return response()->json([
             'message' => 'Cập nhật thành công',
             'data' => $movie->load('movie_genres'),
-            'image_url' => asset($movie->anh_phim),
+            'image_url' => asset($validated['anh_phim']), // Sử dụng ảnh đã cập nhật
         ]);
     }
+
+
 
 
     // xóa theo id
