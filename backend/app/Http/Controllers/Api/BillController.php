@@ -8,6 +8,7 @@ use App\Models\Showtime;
 use App\Models\Voucher;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use chillerlan\QRCode\{QRCode, QROptions};
 
 class BillController extends Controller
 {
@@ -56,12 +57,38 @@ class BillController extends Controller
         // Lấy giá trị voucher nếu có
         $giaTriVoucher = $data->voucher ? $data->voucher->muc_giam_gia : 0;
 
+        // Tạo chuỗi dữ liệu cho QR code
+        $qrData = json_encode([
+            'booking_id' => $data->id,
+            'showtime_id' => $data->thongtinchieu_id,
+            'movie_name' => $tenPhim->ten_phim,
+            'room_name' => $tenRoom->ten_phong_chieu,
+            'show_time' => $data->showtime->thoi_gian_chieu,
+            'seats' => $data->ghe_ngoi,
+            'total_amount' => $data->tong_tien,
+            'customer_name' => $data->user->name,
+            'booking_date' => $data->created_at->format('Y-m-d H:i:s'),
+            'status' => $data->trang_thai
+        ]);
+
+        // Cấu hình options cho QR code
+        $options = new QROptions([
+            'outputType' => QRCode::OUTPUT_IMAGE_PNG,
+            'eccLevel' => QRCode::ECC_L,
+            'scale' => 5,
+            'imageBase64' => true,
+        ]);
+
+        // Tạo QR code
+        $qrcode = (new QRCode($options))->render($qrData);
+
         // Tạo PDF với view và đặt font mặc định hỗ trợ UTF-8
         $pdf = Pdf::loadView('bills.bill', compact(
             'data',
             'tenPhim', 
             'tenRoom',
-            'giaTriVoucher'
+            'giaTriVoucher',
+            'qrcode',
         ))
         ->setPaper([0, 0, 226.77, 9999], 'portrait')
         ->setOptions([

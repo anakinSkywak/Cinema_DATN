@@ -205,6 +205,10 @@
             Thank you for your visit!
         </p>
     </section>
+
+    <div>
+        <img src="" alt="">
+    </div>
     <footer style="text-align:center">
         <p>Technology Partner Dotworld Technologies</p>
         <p>www.dotworld.in</p>
