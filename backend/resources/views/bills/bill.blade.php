@@ -211,8 +211,8 @@
         </p>
     </section>
 
-    <div>
-        <img class="qr-code" src="data:image/png;base64,{{ $qrcode }}" alt="QR Code">
+    <div style="text-align: center; margin: 10px auto;">
+        <img class="qr-code" src="{{ $qrcode }}" alt="QR Code">
     </div>
     <footer style="text-align:center">
         <p>Technology Partner Dotworld Technologies</p>
