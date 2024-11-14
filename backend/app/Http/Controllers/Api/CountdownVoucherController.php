@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use App\Models\CountdownVoucher;
 use Illuminate\Http\Request;
+use App\Models\CouponCodeTaken;
+use App\Models\CountdownVoucher;
+use App\Http\Controllers\Controller;
 use Carbon\Carbon; // Để làm việc với ngày tháng
 
 class CountdownVoucherController extends Controller
@@ -139,35 +140,4 @@ class CountdownVoucherController extends Controller
         return response()->json(['message' => 'Xóa mã giảm giá thành công.']);
     }
 
-    public function quay($id)
-    {
-        $countdownVoucher = CountdownVoucher::findOrFail($id);
-
-        // Kiểm tra xem trạng thái có phải là đã sử dụng hoặc đã hết hạn không
-        if ($countdownVoucher->trang_thai == 1 || Carbon::now()->gt($countdownVoucher->thoi_gian_ket_thuc)) {
-            return response()->json([
-                'message' => 'Mã giảm giá này đã hết hạn hoặc đã sử dụng.'
-            ], 400);
-        }
-
-        // Kiểm tra nếu so_luong_con_lai là 0 thì không thể quay được
-        if ($countdownVoucher->so_luong_con_lai <= 0) {
-            return response()->json([
-                'message' => 'Không còn vé để quay.'
-            ], 400);
-        }
-
-        // Giảm so_luong_con_lai đi 1 sau mỗi lần quay
-        $countdownVoucher->so_luong_con_lai -= 1;
-        if ($countdownVoucher->so_luong_con_lai == 0) {
-            $countdownVoucher->trang_thai = 1; // Cập nhật trạng thái thành đã sử dụng nếu hết vé
-        }
-
-        $countdownVoucher->save();
-
-        return response()->json([
-            'message' => 'Quay mã giảm giá thành công.',
-            'data' => $countdownVoucher
-        ]);
-    }
 }
