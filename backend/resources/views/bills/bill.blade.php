@@ -206,14 +206,15 @@
         <p>
             Paid by : <span>{{ $data->payment->phuong_thuc_thanh_toan }}</span>
         </p>
+        <div style="text-align: center; margin: 10px auto;">
+            <img width="300" class="qr-code" src="{{ $qrcode }}" alt="QR Code">
+        </div>
         <p style="text-align:center">
             Thank you for your visit!
         </p>
     </section>
 
-    <div style="text-align: center; margin: 10px auto;">
-        <img class="qr-code" src="{{ $qrcode }}" alt="QR Code">
-    </div>
+    
     <footer style="text-align:center">
         <p>Technology Partner Dotworld Technologies</p>
         <p>www.dotworld.in</p>

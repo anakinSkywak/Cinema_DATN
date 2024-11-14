@@ -75,8 +75,9 @@ class BillController extends Controller
         $options = new QROptions([
             'outputType' => QRCode::OUTPUT_IMAGE_PNG,
             'eccLevel' => QRCode::ECC_L,
-            'scale' => 5,
+            'scale' => 20,
             'imageBase64' => true,
+            'imageQuality' => 100,
         ]);
 
         // Tạo QR code
