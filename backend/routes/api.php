@@ -114,6 +114,13 @@ Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardRe
 Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
+// Ánh booking detail
+Route::get('booking-detail-all', [BookingDetailController::class, 'bookingDetailAll']);
+Route::get('search-booking-detail/{search}', [BookingDetailController::class, 'searchBookingDetail']);
+
+
+
+
 //Ánh call api rooms
 Route::get('rooms', [RoomController::class, 'index']); // xuat all
 Route::post('storeRoom', [RoomController::class, 'store']); // them ban ghi moi
