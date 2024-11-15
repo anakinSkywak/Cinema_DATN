@@ -94,4 +94,26 @@ class BookingDetailController extends Controller
             'data' => $results
         ], 200);
     }
+
+    // chưc năng check vé xác nhận khách đến theo id booking_detail
+    public function confirmArrival(Request $request, string $id)
+    {
+
+        $dataID = BookingDetail::find($id);
+
+        if (!$dataID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu  theo id này',
+            ], 404);
+        }
+
+     
+        $dataID->update(['trang_thai' => 1]);
+
+        // trả về 
+        return response()->json([
+            'message' => 'Check vé ok',
+            'data' => $dataID
+        ], 200);
+    }
 }
