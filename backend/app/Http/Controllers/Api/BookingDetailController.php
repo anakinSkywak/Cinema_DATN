@@ -63,13 +63,15 @@ class BookingDetailController extends Controller
 
         $results = DB::table('booking_details')->join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
             ->join('users', 'bookings.user_id', '=', 'users.id')->join('payments', 'booking_details.payment_id', '=', 'payments.id')->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id') // Thêm JOIN với bảng showtime
-            ->join('rooms', 'showtimes.room_id', '=', 'rooms.id')->select(
+            ->join('rooms', 'showtimes.room_id', '=', 'rooms.id')->join('movies', 'showtimes.phim_id', '=', 'movies.id')->select(
                 'booking_details.id',
                 'users.ho_ten',
                 'users.email',
                 'users.so_dien_thoai',
                 'bookings.so_luong',
+                'movies.ten_phim',
                 'showtimes.ngay_chieu',
+                'showtimes.gio_chieu',
                 'rooms.ten_phong_chieu',
                 'bookings.ghe_ngoi',
                 'bookings.do_an',
