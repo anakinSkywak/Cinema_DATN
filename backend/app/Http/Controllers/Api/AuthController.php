@@ -20,6 +20,7 @@ class AuthController extends Controller
 {
     public function __construct()
     {
+        // nếu route nào không cần đăng nhập thì viết vào đây
         $this->middleware('auth:api', ['except' => [
             'login',
             'register',
