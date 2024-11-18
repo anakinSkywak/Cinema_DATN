@@ -80,23 +80,22 @@ class RegisterMemberController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Tìm đăng ký hội viên
         $registerMember = RegisterMember::find($id);
 
         if (!$registerMember) {
             return response()->json(['message' => 'Không tìm thấy đăng ký hội viên'], 404);
         }
 
-        // Validate dữ liệu đầu vào
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'hoivien_id' => 'required|exists:members,id',
-            'trang_thai' => 'required|integer',
+            'trang_thai' => 'required|integer', // 0: chưa thanh toán, 1: đã thanh toán
         ]);
 
-        // Lấy thông tin loại hội viên mới
         $newMember = Member::find($validated['hoivien_id']);
-        $currentMember = $registerMember->member; // Lấy thông tin loại hội viên hiện tại
+        $newMember = $newMember->refresh();
+
+        $currentMember = $registerMember->member;
 
         if (!$newMember) {
             return response()->json(['message' => 'Loại hội viên không tồn tại'], 404);
@@ -107,23 +106,35 @@ class RegisterMemberController extends Controller
             // Tính tổng tiền mới
             $tong_tien_moi = $newMember->gia * $newMember->thoi_gian;
 
-            // Áp dụng giảm giá nếu nâng cấp từ "thường" lên "VIP"
+            // Áp dụng giảm giá nếu nâng cấp từ thường lên VIP
             if (
-                strtolower(trim($currentMember->loai_hoi_vien)) === 'hội viên thường' &&
-                strtolower(trim($newMember->loai_hoi_vien)) === 'vip'
+                strtolower($currentMember->loai_thanh_vien) === 'Hội viên thường' &&
+                strtolower($newMember->loai_thanh_vien) === 'vip'
             ) {
-                $tong_tien_moi *= 0.8; // Giảm giá 20%
+                $tong_tien_moi *= 0.8;
             }
 
-            // Ngày đăng ký và hết hạn
+            // Ngày đăng ký mới
             $ngayDangKy = Carbon::now();
 
+            // Kiểm tra nếu thẻ chưa hết hạn
+            $thoi_gian_con_lai = Carbon::parse($registerMember->ngay_het_han)->diffInDays($ngayDangKy);
+
+            if ($thoi_gian_con_lai > 0) {
+                // Thẻ chưa đến ngày hết hạn, không cập nhật
+                return response()->json([
+                    'message' => 'Thẻ chưa đến ngày hết hạn, không cần cập nhật.',
+                    'data' => $registerMember
+                ], 200);
+            }
+
+            // Xử lý gia hạn hoặc nâng cấp
             if ($currentMember->id == $newMember->id) {
-                // Gia hạn thẻ: Thêm thời gian vào ngày hết hạn hiện tại
+                // Gia hạn: Thêm thời gian vào ngày hết hạn hiện tại
                 $ngayHetHan = Carbon::parse($registerMember->ngay_het_han)
                     ->addMonths($newMember->thoi_gian);
             } else {
-                // Nâng cấp thẻ: Thiết lập ngày đăng ký và ngày hết hạn mới
+                // Nâng cấp: Thiết lập ngày đăng ký và hết hạn mới
                 $ngayHetHan = $ngayDangKy->copy()->addMonths($newMember->thoi_gian);
             }
 
@@ -132,18 +143,20 @@ class RegisterMemberController extends Controller
                 'user_id' => $validated['user_id'],
                 'hoivien_id' => $validated['hoivien_id'],
                 'tong_tien' => $tong_tien_moi,
-                'trang_thai' => $validated['trang_thai'],
+                'trang_thai' => 0, // Trạng thái 0: chưa thanh toán
                 'ngay_dang_ky' => $ngayDangKy,
                 'ngay_het_han' => $ngayHetHan,
             ]);
 
-            // Load lại quan hệ để trả về chính xác dữ liệu
-            $registerMember->load('member');
+            // Nếu trạng thái là chưa thanh toán, gọi hàm xử lý thanh toán
+            if ($validated['trang_thai'] == 0) {
+                app('App\Http\Controllers\Api\PaymentController')->processPaymentForRegister($request, $registerMember->id);
+            }
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Cập nhật thẻ thành công!',
+                'message' => 'Cập nhật thẻ thành công, trạng thái thẻ là chưa thanh toán!',
                 'data' => $registerMember,
             ], 200);
         } catch (\Exception $e) {
@@ -152,6 +165,7 @@ class RegisterMemberController extends Controller
             return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'], 500);
         }
     }
+
 
 
 
