@@ -542,7 +542,7 @@ class PaymentController extends Controller
                 'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
                 'ma_thanh_toan' => strtoupper(uniqid('PAY_')),
                 'ngay_thanh_toan' => Carbon::now(),
-                'trang_thai' => 'Đã hoàn thành', // Đã thanh toán
+                'trang_thai' => 'Đang chờ xử lý', 
             ]);
 
             Log::info('Payment created successfully', ['payment' => $payment]);
@@ -733,41 +733,5 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Dữ liệu trả về không hợp lệ.'], 400);
         }
     }
-    public function paymentCallback(Request $request)
-    {
-        // Lấy thông tin callback từ PayPal hoặc phương thức khác
-        $paymentStatus = $request->input('payment_status'); // Ví dụ: 'Completed', 'Pending', 'Failed'
-        $transactionId = $request->input('txn_id'); // Mã giao dịch từ PayPal hoặc dịch vụ khác
-        $registerMemberId = $request->input('register_id'); // ID RegisterMember
-
-        // Kiểm tra xem giao dịch có thành công không
-        if ($paymentStatus == 'Completed') {
-            // Cập nhật trạng thái thanh toán của RegisterMember
-            $registerMember = RegisterMember::find($registerMemberId);
-            if ($registerMember) {
-                // Đánh dấu trạng thái là đã thanh toán
-                $registerMember->trang_thai = 1;
-                $registerMember->save();
-
-                // Cập nhật bản ghi thanh toán
-                $payment = Payment::where('registermember_id', $registerMember->id)
-                    ->where('ma_thanh_toan', $transactionId)
-                    ->first();
-
-                if ($payment) {
-                    $payment->trang_thai = 1; // Thanh toán thành công
-                    $payment->save();
-                }
-
-                return response()->json([
-                    'message' => 'Thanh toán thành công qua PayPal!',
-                    'register_id' => $registerMember->id,
-                    'tong_tien' => $registerMember->tong_tien
-                ]);
-            }
-        } else {
-            // Nếu thanh toán không thành công
-            return response()->json(['message' => 'Thanh toán thất bại qua PayPal hoặc phương thức khác'], 500);
-        }
-    }
+    
 }
