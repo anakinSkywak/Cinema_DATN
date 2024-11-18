@@ -710,10 +710,19 @@ class PaymentController extends Controller
                         $payment->save();
                     }
 
+                    $membership = new MemberShips();
+                    $membership->dangkyhoivien_id = $registerMember->id; // Lấy ID từ RegisterMember
+                    $membership->so_the = 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT); // Tạo số thẻ, ví dụ: MEM000037
+                    $membership->ngay_dang_ky = $registerMember->ngay_dang_ky; // Lấy ngày đăng ký từ RegisterMember
+                    $membership->ngay_het_han = $registerMember->ngay_het_han; // Lấy ngày hết hạn từ RegisterMember
+                    $membership->save();
+    
                     return response()->json([
-                        'message' => 'Thanh toán thành công!',
+                        'message' => 'Thanh toán và đăng ký thành công!',
                         'register_id' => $registerMember->id,
-                        'tong_tien' => $registerMember->tong_tien
+                        'tong_tien' => $registerMember->tong_tien,
+                        'membership_id' => $membership->id, // ID của bản ghi Membership mới tạo
+                        'so_the' => $membership->so_the // Số thẻ người dùng
                     ]);
                 }
             } else { // Nếu thanh toán thất bại
