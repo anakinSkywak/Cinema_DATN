@@ -36,7 +36,6 @@ class MemberController extends Controller
 
         // Tạo mới Member
         $member = Member::create($validated);
-
         return response()->json(['message' => 'Thêm mới Member thành công', 'data' => $member], 200); 
     }
 
@@ -62,7 +61,7 @@ class MemberController extends Controller
 
         // Validate dữ liệu khi cập nhật Member
         $validated = $request->validate([
-            'loai_hoi_vien' => 'required|string|in:thường,vip',
+            'loai_hoi_vien' => 'required|string|in:thuong,vip',
             'uu_dai' => 'required|numeric',
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',

@@ -77,58 +77,86 @@ class RegisterMemberController extends Controller
         }
     }
 
+
     public function update(Request $request, $id)
     {
-        // Tìm RegisterMember theo ID
+        // Tìm đăng ký hội viên
         $registerMember = RegisterMember::find($id);
 
         if (!$registerMember) {
-            return response()->json(['message' => 'Không tìm thấy RegisterMember theo ID'], 404);
+            return response()->json(['message' => 'Không tìm thấy đăng ký hội viên'], 404);
         }
 
-        // Xác thực dữ liệu khi cập nhật RegisterMember
+        // Validate dữ liệu đầu vào
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'hoivien_id' => 'required|exists:members,id',
-            'ngay_dang_ky' => 'required|date',
             'trang_thai' => 'required|integer',
         ]);
 
-        // Lấy thông tin hội viên mới và cũ
+        // Lấy thông tin loại hội viên mới
         $newMember = Member::find($validated['hoivien_id']);
-        $currentMember = $registerMember->member;
+        $currentMember = $registerMember->member; // Lấy thông tin loại hội viên hiện tại
 
         if (!$newMember) {
-            return response()->json(['message' => 'Hội viên mới không tồn tại'], 404);
+            return response()->json(['message' => 'Loại hội viên không tồn tại'], 404);
         }
 
-        // Tính giá mới
-        $tong_tien_moi = $newMember->gia * $newMember->thoi_gian;
+        DB::beginTransaction();
+        try {
+            // Tính tổng tiền mới
+            $tong_tien_moi = $newMember->gia * $newMember->thoi_gian;
 
-        // Kiểm tra nếu người dùng đang nâng cấp từ thành viên thường lên VIP để áp dụng giảm giá 10%
-        if ($currentMember->loai_thanh_vien === 'thuong' && $newMember->loai_thanh_vien === 'vip') {
-            $tong_tien_moi *= 0.8; // Giảm giá 10%
+            // Áp dụng giảm giá nếu nâng cấp từ "thường" lên "VIP"
+            if (
+                strtolower(trim($currentMember->loai_hoi_vien)) === 'hội viên thường' &&
+                strtolower(trim($newMember->loai_hoi_vien)) === 'vip'
+            ) {
+                $tong_tien_moi *= 0.8; // Giảm giá 20%
+            }
+
+            // Ngày đăng ký và hết hạn
+            $ngayDangKy = Carbon::now();
+
+            if ($currentMember->id == $newMember->id) {
+                // Gia hạn thẻ: Thêm thời gian vào ngày hết hạn hiện tại
+                $ngayHetHan = Carbon::parse($registerMember->ngay_het_han)
+                    ->addMonths($newMember->thoi_gian);
+            } else {
+                // Nâng cấp thẻ: Thiết lập ngày đăng ký và ngày hết hạn mới
+                $ngayHetHan = $ngayDangKy->copy()->addMonths($newMember->thoi_gian);
+            }
+
+            // Cập nhật thông tin đăng ký
+            $registerMember->update([
+                'user_id' => $validated['user_id'],
+                'hoivien_id' => $validated['hoivien_id'],
+                'tong_tien' => $tong_tien_moi,
+                'trang_thai' => $validated['trang_thai'],
+                'ngay_dang_ky' => $ngayDangKy,
+                'ngay_het_han' => $ngayHetHan,
+            ]);
+
+            // Load lại quan hệ để trả về chính xác dữ liệu
+            $registerMember->load('member');
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Cập nhật thẻ thành công!',
+                'data' => $registerMember,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Lỗi khi cập nhật thẻ hội viên', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'], 500);
         }
-
-        // Cập nhật thông tin
-        $registerMember->update([
-            'user_id' => $validated['user_id'],
-            'hoivien_id' => $validated['hoivien_id'],
-            'ngay_dang_ky' => $validated['ngay_dang_ky'],
-            'tong_tien' => $tong_tien_moi,
-            'trang_thai' => $validated['trang_thai'],
-        ]);
-
-        // Xử lý thanh toán nếu trạng thái là chưa thanh toán
-        if ($validated['trang_thai'] == 0) {
-            app('App\Http\Controllers\Api\PaymentController')->processPaymentForRegister($request, $registerMember->id);
-        }
-
-        return response()->json([
-            'message' => 'Cập nhật thành công, đã áp dụng giảm giá nếu có',
-            'data' => $registerMember,
-        ], 200);
     }
+
+
+
+
+
 
 
     public function destroy($id)
