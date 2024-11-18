@@ -4,6 +4,7 @@
 use App\Models\Movie;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Auth;
+use App\Models\CouponCodeTaken;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
 use App\Http\Controllers\Api\BillController;
@@ -26,17 +27,14 @@ use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\MemberShipsController;
+use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
+
+
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
-
-
-
-
-
-use App\Http\Controllers\Api\CouponCodeTakenController;
 
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
@@ -294,8 +292,8 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
-
-
+//call api CouponCodeTaken T
+Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
 //call api moment
 Route::get('moments', [MomentController::class, 'index']);
 Route::post('moments', [MomentController::class, 'store']);
