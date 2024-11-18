@@ -35,16 +35,24 @@ class VoucherController extends Controller
     {
 
         // check cac truong khi them
-        $validated = $request->validate([
+        $request->validate([
             'ma_giam_gia' => 'required|string|max:255',
             'muc_giam_gia' => 'required|numeric',
             'mota' => 'required|string|max:255',
             'ngay_het_han' => 'required|date',
             'so_luong' => 'required|integer',
+            'so_luong_da_su_dung' => 'nullable|integer'
         ]);
 
         // them moi khi check ko co loi nao
-        $vouhchers = Voucher::create($validated);
+        $vouhchers = Voucher::create([
+            'ma_giam_gia' => $request->ma_giam_gia,
+            'muc_giam_gia' => $request->muc_giam_gia,
+            'mota' => $request->mota,
+            'ngay_het_han' => $request->ngay_het_han,
+            'so_luong' => $request->so_luong,
+            'so_luong_da_su_dung' => 0
+        ]);
 
         // tra về dữ liêụ 
         return response()->json([
@@ -134,7 +142,7 @@ class VoucherController extends Controller
         // check xem co du lieu hay ko
         if (!$voucherID) {
 
-  
+
             return response()->json([
                 'message' => 'Không có dữ liệu Voucher theo id này',
             ], 404);

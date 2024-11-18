@@ -1,50 +1,54 @@
 <?php
 
-// để yên
-// để yên
-use App\Http\Controllers\Api\MemberShipsController;
+
 use App\Models\Movie;
 use Illuminate\Http\Request;
+// use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use PHPUnit\Framework\Attributes\Group;
+use App\Http\Controllers\Api\BillController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\FoodController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\SeatController;
 use App\Http\Controllers\Api\MovieController;
 use App\Http\Controllers\Api\MemberController;
+use App\Http\Controllers\Api\MomentController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\RotationsController;
+use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\MemberShipsController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
-use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\MomentController;
-use Illuminate\Routing\Controllers\HasMiddleware;
-use PHPUnit\Framework\Attributes\Group;
 
-// để yên
 
+
+
+
+use App\Http\Controllers\Api\CouponCodeTakenController;
 
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill(); // xác minh email thành công
-
-    return response()->json([
-        'message' => 'Email đã được xác minh thành công.'
-    ], 200);
-})->middleware(['auth:api', 'signed'])->name('verification.verify');
-// xac minh an vao neu hien web foud loigin la ok se den de login
-
+    $request->fulfill();
+    
+    // You can add logging here to debug
+    \Illuminate\Support\Facades\Log::info('Email verified for user: ' . $request->user()->id);
+    
+    $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
+    return redirect($frontendUrl); // Add a query param to indicate success
+})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
@@ -53,19 +57,24 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
     // Đăng nhập và trả về token cho frontend
     Route::post('login', [AuthController::class, 'login'])->name('login');
-    // Route::get('login', [AuthController::class, 'login'])->name('login');
 
-    // Lấy thông tin chi tiết của người dùng (yêu cầu phải có token hợp lệ)
-    Route::get('profile', [AuthController::class, 'userProfile']);
+    // Các route yêu cầu xác thực token
+    Route::middleware('auth:api')->group(function() {
+        // Lấy thông tin chi tiết của người dùng
+        Route::get('profile', [AuthController::class, 'userProfile']);
+        
+        // Đăng xuất - vô hiệu hóa token
+        Route::post('logout', [AuthController::class, 'logout']);
+        
+        // Cập nhật thông tin tài khoản
+        Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+    });
 
-    // Đăng xuất (invalidate token để người dùng không thể tiếp tục sử dụng token cũ)
-    Route::post('logout', [AuthController::class, 'logout']);
-    // update tài khoản phía user
-    Route::post('updateProfile', [AuthController::class, 'updateProfile']);
-
-    // route này để xác thực các route liên quan đến đăng nhập tài khoản
+    // Route xử lý khi chưa xác thực
     Route::get('authenticationRoute', function () {
-        return response()->json(['error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này']);
+        return response()->json([
+            'error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này',
+        ], 401);
     })->name('unauthenticated');
 });
 
@@ -73,22 +82,37 @@ Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 
-// xuất all thông tin phim và các showtime của phim đó khi user ấn vào phim để chọn showtime để đặt
-Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);  // chi tiết theo id phim khi ấn vào phim ở home
+
+
+// chi tiết theo id phim khi ấn vào phim ở home
+
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); 
+
+Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
+
+Route::get('movie-detail/{movieID}/showtime/{showtimeID}/seats', [MovieController::class, 'getSeatsByShowtime']);
+
+
 
 Route::middleware('auth:api')->group(function () {
 
     Route::post('booking', [BookingController::class, 'Booking']);
+
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
-    Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
-    //Route::post('booking/{booking}/payment', [PaymentController::class, 'processPaymentBooking']);
-
-    // show all booking đã book cho user
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
+
+    // in bill  
+    Route::get('/bill/{id}', [BillController::class, 'exportBill']);
+
 });
 
+
+
+Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
+Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
+Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
 //Ánh call api rooms
@@ -130,17 +154,8 @@ Route::get('showMovie/{id}', [MovieController::class, 'show']);  // show theo id
 Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);  // show dữ liệu theo id để edit
 Route::put('updateMovie/{id}', [MovieController::class, 'update']);  // cap nhat theo id
 Route::delete('movies/{id}', [MovieController::class, 'delete']);  // xoa theo id
-Route::post('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
-Route::post('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo từ khóa
-
-
-// Ánh : call api Foods
-Route::get('foods', [FoodController::class, 'index']); // xuat all
-Route::post('storeFood', [FoodController::class, 'store']); // them ban ghi moi
-Route::get('showFood/{id}', [FoodController::class, 'show']);  // show theo id
-Route::get('editFood/{id}', [FoodController::class, 'edit']);  // đến from edit do du lieu theo id do
-Route::put('updateFood/{id}', [FoodController::class, 'update']);  // cap nhat theo id
-Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);  // xoa theo id
+Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']); // lọc phim theo thể loại
+Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']); // lọc phim theo từ khóa
 
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
@@ -153,6 +168,15 @@ Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);  // ca
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);  // xoa theo id
 
 
+// Ánh : call api Foods
+Route::get('foods', [FoodController::class, 'index']); // xuat all
+Route::post('storeFood', [FoodController::class, 'store']); // them ban ghi moi
+Route::get('showFood/{id}', [FoodController::class, 'show']);  // show theo id
+Route::get('editFood/{id}', [FoodController::class, 'edit']);  // đến from edit do du lieu theo id do
+Route::put('updateFood/{id}', [FoodController::class, 'update']);  // cap nhat theo id
+Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);  // xoa theo id
+
+
 // Ánh : call api vouchers 
 Route::get('vouchers', [VoucherController::class, 'index']); // xuat all
 Route::post('storeVoucher', [VoucherController::class, 'store']); // them ban ghi moi
@@ -162,23 +186,19 @@ Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);  // cap 
 Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);  // xoa theo id
 
 
-// // Ánh : call api Booking_details
-Route::get('bookingdetails', [BookingDetailController::class, 'index']); // xuat all
-
-// Ánh : call api Payments
-// Route::post('bookings/{booking}/payment', [PaymentController::class, 'processPayment']); //http://127.0.0.1:8000/api/bookings/9/payment
 
 
 
 
-// call api type_blogs
+
+// call api type_blogs T
 // Route::apiResource('type_blogs', TypeBlogController::class);
 Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
 Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
 Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
 Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
 Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
-// call api BlogController
+// call api BlogController T
 Route::apiResource('blogs', BlogController::class);
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
 Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
@@ -225,14 +245,14 @@ Route::put('rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 
 
-//cal api contacts
+//cal api contacts T
 Route::get('contacts', [ContactController::class, 'index']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
 Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
-//call api rotations
+//call api rotations T
 Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
 Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
 Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
@@ -258,6 +278,7 @@ Route::delete('history-rotations/{id}', [HistoryRotationsController::class, 'del
 
 
 //call api countdown_vouchers
+
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
 Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
@@ -281,5 +302,13 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
 
+Route::post('/register-members/{registerMember}/process-payment', [PaymentController::class, 'processPaymentForRegister']);
+Route::get('payment/NCB-return1', [PaymentController::class, 'paymentReturn1']);
 
-Route::post('process-payment/{register_member_id}/{payment_method}', [PaymentController::class, 'processPaymentForRegister']);
+// Route::middleware('auth:api')->get('/email/verification-status', function (Request $request) {
+//     return response()->json([
+//         'is_verified' => !is_null($request->user()->email_verified_at),
+//         'verified_at' => $request->user()->email_verified_at
+//     ]);
+// });
+

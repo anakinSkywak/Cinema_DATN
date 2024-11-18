@@ -20,7 +20,13 @@ class AuthController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        // nếu route nào không cần đăng nhập thì viết vào đây
+        $this->middleware('auth:api', ['except' => [
+            'login',
+            'register',
+            'sendResetLinkEmail',
+            'resetPassword'
+        ]]);
     }
 
     // Đăng nhập và trả về token
@@ -60,21 +66,27 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        $user = User::create(array_merge(
-            $validator->validated(),
-            ['password' => bcrypt($request->password)]
-        ));
+        try {
+            $user = User::create(array_merge(
+                $validator->validated(),
+                ['password' => bcrypt($request->password)]
+            ));
 
-        // khi nào cần xác nhận bằng mail thì dùng 
-        $user->sendEmailVerificationNotification();
-        
-        return response()->json([
-            'message' => 'Đăng ký tài khoản thành công, Kiểm tra email để xác thực email chính chủ'
-        ], 201);
+            // Send verification email
+            $user->sendEmailVerificationNotification();
 
-
-
+            return response()->json([
+                'message' => 'Đăng ký tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                'user' => $user
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Đã xảy ra lỗi khi đăng ký tài khoản.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
+
     // Tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
     {
@@ -92,7 +104,7 @@ class AuthController extends Controller
         // dữ liệu booking user đã đặt
         $dataBooking = Booking::where('user_id', auth()->id())->orderBy('id', 'DESC')->get();
         $dataRegisterMember = RegisterMember::where('user_id', auth()->id())->get();
-        $dataComment= Comment::where('user_id', auth()->id())->get();
+        $dataComment = Comment::where('user_id', auth()->id())->get();
 
         if (!auth()->check()) {
             return response()->json(['error' => 'Bạn hiện chưa có tài khoản'], 401);
@@ -152,42 +164,42 @@ class AuthController extends Controller
     //     $validator = Validator::make($request->all(), [
     //         'email' => 'required|email'
     //     ]);
-    
+
     //     if ($validator->fails()) {
     //         return response()->json([
     //             'message' => 'Email không hợp lệ',
     //             'errors' => $validator->errors()
     //         ], 400);
     //     }
-    
+
     //     // Kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
     //     $user = User::where('email', $request->email)->first();
-    
+
     //     if (!$user) {
     //         return response()->json([
     //             'message' => "Không thể tìm thấy email"
     //         ], 404); // Trả về mã 404 nếu không tìm thấy email
     //     }
-    
+
     //     // Attempt to send reset link
     //     $status = Password::sendResetLink([
     //         'email' => $user->email // Gửi email, không phải là đối tượng User
     //     ]);
-    
+
     //     // Check status and return appropriate response
     //     if ($status === Password::RESET_LINK_SENT) {
     //         return response()->json([
     //             'message' => 'Link reset mật khẩu đã được gửi tới email của bạn'
     //         ], 200);
     //     }
-    
+
     //     // Trả về thông báo lỗi nếu không thể gửi link
     //     return response()->json([
     //         'message' => 'Đã xảy ra lỗi khi gửi link reset mật khẩu. Vui lòng thử lại.'
     //     ], 500);
     // }
-    
-    
+
+
     // public function resetPassword(Request $request, $token){
     //       // Tìm token đặt lại mật khẩu từ bảng password_reset_tokens
     //     $passwordReset = PasswordResetToken::where('token', $token)->first();
@@ -220,7 +232,7 @@ class AuthController extends Controller
     //         'message' => 'Mật khẩu đã được cập nhật thành công!'
     //     ]);
     // }
-    
+
 
     public function sendResetLinkEmail(Request $request)
     {
@@ -242,13 +254,11 @@ class AuthController extends Controller
         if (!$user) {
             return response()->json([
                 'message' => "Không thể tìm thấy email"
-            ], 404); // Trả về mã 404 nếu không tìm thấy email
+            ], 404);
         }
 
         // Attempt to send reset link
-        $status = Password::sendResetLink([
-            'email' => $user->email // Gửi email, không phải là đối tượng User
-        ]);
+        $status = Password::sendResetLink($request->only('email')); // Fixed: Pass request data directly
 
         // Check status and return appropriate response
         if ($status === Password::RESET_LINK_SENT) {
@@ -263,39 +273,58 @@ class AuthController extends Controller
         ], 500);
     }
 
-
     public function resetPassword(Request $request, $token)
     {
-        // Tìm token đặt lại mật khẩu từ bảng password_reset_tokens
-        $passwordReset = PasswordResetToken::where('token', $token)->first();
+        // Validate request
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+            'password_confirmation' => 'required'
+        ]);
 
-        // Kiểm tra token có tồn tại không
-        if (!$passwordReset) {
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'Token không hợp lệ hoặc đã hết hạn.'
-            ], 422);
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 400);
         }
 
-        // Tìm người dùng theo email từ bản ghi reset password
-        $user = User::where('email', $passwordReset->email)->first();
+        // Use Laravel's built-in Password facade to handle reset
+        $status = Password::reset(
+            array_merge($request->only('email', 'password', 'password_confirmation'), ['token' => $token]),
+            function ($user, $password) {
+                $user->password = bcrypt($password);
+                $user->save();
+            }
+        );
 
-        // Kiểm tra người dùng có tồn tại không
-        if (!$user) {
+        if ($status === Password::PASSWORD_RESET) {
             return response()->json([
-                'message' => 'Không tìm thấy người dùng với email này.'
+                'message' => 'Mật khẩu đã được cập nhật thành công!'
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Không thể đặt lại mật khẩu. Vui lòng thử lại.'
+        ], 500);
+    }
+
+    // xóa user bên admin
+
+    public function deleteUser($id)
+    {
+        $data = User::find($id);
+
+        if (!$data) {
+            return response()->json([
+                "message" => "Không tìm thấy user"
             ], 404);
         }
 
-        // Cập nhật mật khẩu mới cho người dùng
-        $user->password = bcrypt($request->input('password'));
-        $user->save();
-
-        // Xóa token sau khi thành công
-        $passwordReset->delete();
+        $data->delete();
 
         return response()->json([
-            'message' => 'Mật khẩu đã được cập nhật thành công!'
-        ]);
+            "message" => "Bạn đã xóa user thành công"
+        ], 200);
     }
-
 }

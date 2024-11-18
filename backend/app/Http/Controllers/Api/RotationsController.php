@@ -12,13 +12,22 @@ use Illuminate\Support\Facades\Validator;
 
 class RotationsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function quayThuong()
     {
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Bạn cần đăng nhập để quay thưởng'], 401);
+        }
 
+        //comment
+        // Lấy các vòng quay có thể quay (trạng thái = 1)
         $rotations = Rotation::where('trang_thai', 1)->get();
 
         // Kiểm tra có vòng quay nào khả dụng không
-        
         if ($rotations->isEmpty()) {
             return response()->json(['message' => 'Hiện không có vòng quay khả dụng'], 404);
         }
@@ -46,7 +55,7 @@ class RotationsController extends Controller
 
             // Lưu lịch sử
             HistoryRotation::create([
-                'user_id' => 1,
+                'user_id' => Auth::id(),
                 'vongquay_id' => $selectedRotation->id,
                 'ket_qua' => $selectedRotation->ten_phan_thuong,
                 'ngay_quay' => Carbon::now(),
@@ -102,7 +111,6 @@ class RotationsController extends Controller
 public function update(Request $request, $id)
 {
     $rotation = Rotation::find($id);
-
     if (!$rotation) {
         return response()->json(['message' => 'Không tìm thấy phần thưởng'], 404);
     }

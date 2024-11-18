@@ -49,15 +49,16 @@ class RegisterMemberController extends Controller
 
         DB::beginTransaction();
         try {
-            // Tạo mới RegisterMember mà không thêm Membership
+            // Tạo mới RegisterMember
             $registerMember = RegisterMember::create([
                 'user_id' => $validated['user_id'],
                 'hoivien_id' => $validated['hoivien_id'],
                 'tong_tien' => $tong_tien,
                 'ngay_dang_ky' => $ngay_dang_ky,
                 'ngay_het_han' => $ngay_het_han,
-                'trang_thai' => 0, // Đăng ký chưa thanh toán
+                'trang_thai' => 0,
             ]);
+
 
             DB::commit();
 
@@ -67,7 +68,7 @@ class RegisterMemberController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Lỗi khi tạo RegisterMember', ['error' => $e->getMessage()]);
+            Log::error('Lỗi khi tạo RegisterMember và Membership', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'message' => 'Có lỗi xảy ra khi tạo RegisterMember',
@@ -75,11 +76,6 @@ class RegisterMemberController extends Controller
             ], 500);
         }
     }
-
-
-
-
-
 
     public function update(Request $request, $id)
     {

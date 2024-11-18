@@ -21,14 +21,13 @@ class BookingDetailController extends Controller
 
         if (!$user) {
             return response()->json([
-                'message' => 'Vui lòng đăng nhập.',
+                'message' => 'Vui lòng đăng nhập',
             ], 401);
         }
 
-
        $bookDetails = DB::table('booking_details')
         ->join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
-        ->join('payments', 'booking_details.thanhtoan_id', '=', 'payments.id')
+        ->join('payments', 'booking_details.payment_id', '=', 'payments.id')
         ->where('bookings.user_id', $user->id)
         ->select('booking_details.*', 'bookings.*', 'payments.*')
         ->get();
