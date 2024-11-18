@@ -10,6 +10,29 @@ use Illuminate\Support\Facades\Auth;
 
 class CouponCodeTakenController extends Controller
 {
+    public function showVoucherCodes()
+    {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Bạn cần đăng nhập để xem mã giảm giá'], 401);
+        }
+
+        $user = Auth::user(); // Lấy thông tin người dùng đang đăng nhập
+
+        // Lấy tất cả các mã giảm giá mà người dùng đã nhận
+        $voucherCodes = CouponCodeTaken::where('user_id', $user->id)->get();
+
+        // Kiểm tra nếu không có mã giảm giá nào
+        if ($voucherCodes->isEmpty()) {
+            return response()->json(['message' => 'Bạn chưa nhận mã giảm giá nào.'], 404);
+        }
+
+        // Trả về danh sách mã giảm giá
+        return response()->json([
+            'message' => 'Danh sách mã giảm giá của bạn',
+            'voucher_codes' => $voucherCodes,
+        ]);
+    }
     public function spinVoucher(Request $request)
     {
         $user = Auth::user();
