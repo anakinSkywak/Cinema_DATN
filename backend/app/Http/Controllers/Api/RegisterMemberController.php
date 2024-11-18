@@ -80,83 +80,80 @@ class RegisterMemberController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Tìm đăng ký hội viên
         $registerMember = RegisterMember::find($id);
 
         if (!$registerMember) {
             return response()->json(['message' => 'Không tìm thấy đăng ký hội viên'], 404);
         }
 
+        // Validate dữ liệu đầu vào
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'hoivien_id' => 'required|exists:members,id',
-            'trang_thai' => 'required|integer', // 0: chưa thanh toán, 1: đã thanh toán
+            'trang_thai' => 'required|integer',
         ]);
 
+        // Lấy thông tin loại hội viên mới
         $newMember = Member::find($validated['hoivien_id']);
-        $newMember = $newMember->refresh();
-
-        $currentMember = $registerMember->member;
+        $currentMember = $registerMember->member; // Lấy thông tin loại hội viên hiện tại
 
         if (!$newMember) {
             return response()->json(['message' => 'Loại hội viên không tồn tại'], 404);
         }
 
+        // Tính tổng tiền mới (chưa tính giảm giá)
+        $tong_tien_moi = $newMember->gia * $newMember->thoi_gian;
+
+        // Áp dụng giảm giá nếu nâng cấp từ "thường" lên "VIP"
+        if (
+            strtolower(trim($currentMember->loai_hoi_vien)) === 'hội viên thường' &&
+            strtolower(trim($newMember->loai_hoi_vien)) === 'vip'
+        ) {
+            $tong_tien_moi *= 0.8; // Giảm giá 20%
+        }
+
+        // Ngày đăng ký và hết hạn
+        $ngayDangKy = Carbon::now();
+        $ngayHetHan = Carbon::parse($registerMember->ngay_het_han);
+
+        // Kiểm tra ngày hết hạn của thẻ hiện tại
+        if ($ngayHetHan->greaterThan($ngayDangKy)) {
+            // Nếu thẻ còn hạn và người dùng muốn gia hạn thêm
+            if ($currentMember->id == $newMember->id) {
+                // Thẻ cũ vẫn giữ nguyên và thêm thời gian gia hạn
+                $ngayHetHan = $ngayHetHan->addMonths($newMember->thoi_gian);
+                $message = "Thẻ được gia hạn thêm.";
+            } else {
+                // Nếu người dùng muốn nâng cấp thẻ
+                $ngayHetHan = $ngayDangKy->copy()->addMonths($newMember->thoi_gian);
+                $message = "Thẻ đã được nâng cấp.";
+            }
+        } else {
+            // Nếu thẻ đã hết hạn, tiến hành cập nhật thẻ mới
+            $ngayHetHan = $ngayDangKy->copy()->addMonths($newMember->thoi_gian);
+            $message = "Thẻ đã hết hạn và được gia hạn.";
+        }
+
+        // Cập nhật thông tin đăng ký
         DB::beginTransaction();
         try {
-            // Tính tổng tiền mới
-            $tong_tien_moi = $newMember->gia * $newMember->thoi_gian;
-
-            // Áp dụng giảm giá nếu nâng cấp từ thường lên VIP
-            if (
-                strtolower($currentMember->loai_thanh_vien) === 'Hội viên thường' &&
-                strtolower($newMember->loai_thanh_vien) === 'vip'
-            ) {
-                $tong_tien_moi *= 0.8;
-            }
-
-            // Ngày đăng ký mới
-            $ngayDangKy = Carbon::now();
-
-            // Kiểm tra nếu thẻ chưa hết hạn
-            $thoi_gian_con_lai = Carbon::parse($registerMember->ngay_het_han)->diffInDays($ngayDangKy);
-
-            if ($thoi_gian_con_lai > 0) {
-                // Thẻ chưa đến ngày hết hạn, không cập nhật
-                return response()->json([
-                    'message' => 'Thẻ chưa đến ngày hết hạn, không cần cập nhật.',
-                    'data' => $registerMember
-                ], 200);
-            }
-
-            // Xử lý gia hạn hoặc nâng cấp
-            if ($currentMember->id == $newMember->id) {
-                // Gia hạn: Thêm thời gian vào ngày hết hạn hiện tại
-                $ngayHetHan = Carbon::parse($registerMember->ngay_het_han)
-                    ->addMonths($newMember->thoi_gian);
-            } else {
-                // Nâng cấp: Thiết lập ngày đăng ký và hết hạn mới
-                $ngayHetHan = $ngayDangKy->copy()->addMonths($newMember->thoi_gian);
-            }
-
-            // Cập nhật thông tin đăng ký
             $registerMember->update([
                 'user_id' => $validated['user_id'],
                 'hoivien_id' => $validated['hoivien_id'],
                 'tong_tien' => $tong_tien_moi,
-                'trang_thai' => 0, // Trạng thái 0: chưa thanh toán
+                'trang_thai' => $validated['trang_thai'],
                 'ngay_dang_ky' => $ngayDangKy,
                 'ngay_het_han' => $ngayHetHan,
             ]);
 
-            // Nếu trạng thái là chưa thanh toán, gọi hàm xử lý thanh toán
-            if ($validated['trang_thai'] == 0) {
-                app('App\Http\Controllers\Api\PaymentController')->processPaymentForRegister($request, $registerMember->id);
-            }
+            // Load lại quan hệ để trả về chính xác dữ liệu
+            $registerMember->load('member');
 
             DB::commit();
 
             return response()->json([
-                'message' => 'Cập nhật thẻ thành công, trạng thái thẻ là chưa thanh toán!',
+                'message' => $message,
                 'data' => $registerMember,
             ], 200);
         } catch (\Exception $e) {
@@ -165,6 +162,14 @@ class RegisterMemberController extends Controller
             return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'], 500);
         }
     }
+
+
+    
+
+
+
+
+
 
 
 
