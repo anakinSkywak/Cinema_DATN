@@ -18,7 +18,7 @@ class PaymentController extends Controller
 
 
     // đưa đến from chọn phương thức thanh toán
-    public function createPayment($bookingId, $method)
+    private function createPayment($bookingId, $method)
     {
 
         $user = auth()->user();
@@ -49,9 +49,7 @@ class PaymentController extends Controller
         $payment->ngay_thanh_toan = Carbon::now();
         $payment->save();
 
-       
         // 'credit_card','paypal','cash','bank_transfer','vietqr','vnpay','viettel_money','payoo','mastercard','visa','ncb','jcb'
-
         switch ($method) {
             case 'ncb':
                 return $this->paymentNCB($booking, $money, $payment);
@@ -71,15 +69,15 @@ class PaymentController extends Controller
     }
 
 
-    public function paymentNCB($booking, $money, $payment)
+    private function paymentNCB($booking, $money, $payment)
     {
 
         // Cấu hình của VNPAY
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        //$vnp_ReturnUrl = "http://localhost:5173/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
-        $vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
+        $vnp_ReturnUrl = "http://localhost:5173/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
+        //$vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
@@ -137,7 +135,7 @@ class PaymentController extends Controller
 
         ]);
     }
-    public function NCBReturn(Request $request)
+    private function NCBReturn(Request $request)
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
@@ -212,7 +210,7 @@ class PaymentController extends Controller
     }
 
 
-    public function paymentVISA($booking, $money, $payment)
+    private function paymentVISA($booking, $money, $payment)
     {
 
         // Cấu hình của VNPAY
@@ -278,7 +276,7 @@ class PaymentController extends Controller
 
         ]);
     }
-    public function visaReturn(Request $request)
+    private function visaReturn(Request $request)
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
@@ -352,7 +350,7 @@ class PaymentController extends Controller
     }
    
 
-    public function paymentMasterCard($booking, $money, $payment)
+    private function paymentMasterCard($booking, $money, $payment)
     {
 
         // Cấu hình của VNPAY
@@ -418,7 +416,7 @@ class PaymentController extends Controller
 
         ]);
     }
-    public function mastercardReturn(Request $request)
+    private function mastercardReturn(Request $request)
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
@@ -505,16 +503,16 @@ class PaymentController extends Controller
         return $errors[$code] ?? 'Lỗi không xác định';
     }
 
-    public function paymentVIETQR($booking, $money, $payment) {}
-    public function vietqrReturn(Request $request) {}
+    private function paymentVIETQR($booking, $money, $payment) {}
+    private function vietqrReturn(Request $request) {}
 
 
-    public function paymentVIETTELMONEY($booking, $money, $payment) {}
-    public function viettelmoneyReturn(Request $request) {}
+    private function paymentVIETTELMONEY($booking, $money, $payment) {}
+    private function viettelmoneyReturn(Request $request) {}
 
 
-    public function paymentPAYOO($booking, $money, $payment) {}
-    public function payooReturn(Request $request) {}
+    private function paymentPAYOO($booking, $money, $payment) {}
+    private function payooReturn(Request $request) {}
 
 
 

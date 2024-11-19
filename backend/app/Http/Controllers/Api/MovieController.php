@@ -66,8 +66,8 @@ class MovieController extends Controller
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
             'hinh_thuc_phim' => 'required|string|max:255',
-            'loaiphim_ids' => 'required|array', // Xác thực mảng thể loại phim
-            'loaiphim_ids.*' => 'exists:moviegenres,id', // Xác thực các thể loại phim tồn tại
+            'loaiphim_ids' => 'required|array',
+            'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric',
         ]);
 
@@ -77,7 +77,7 @@ class MovieController extends Controller
 
         if ($request->hasFile('anh_phim')) {
             $file = $request->file('anh_phim');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
             $validated['anh_phim'] = '/storage/' . $filePath;
         }
@@ -114,6 +114,7 @@ class MovieController extends Controller
     public function showEditID(string $id)
     {
         $movieID = Movie::find($id);
+
         if (!$movieID) {
             return response()->json([
                 'message' => 'Không có phim theo id ' . $id
@@ -151,37 +152,40 @@ class MovieController extends Controller
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:255',
-            'trailer' => 'required|string|max:255',
+            'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
             'hinh_thuc_phim' => 'required|string|max:255',
+            'thoi_gian_phim' => 'required|numeric',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
-            'thoi_gian_phim' => 'required|numeric',
         ]);
 
-
         if ($request->hasFile('anh_phim')) {
-            // Xóa file cũ nếu cần
-            if ($movie->anh_phim) {
+
+            if ($movie->anh_phim && file_exists(public_path($movie->anh_phim))) {
                 unlink(public_path($movie->anh_phim));
+            } else {
+                return response()->json([
+                    'message' => 'Không tìm thấy hoặc không thể xóa tệp ảnh cũ'
+                ], 400);
             }
 
             $file = $request->file('anh_phim');
-            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
-
             $validated['anh_phim'] = '/storage/' . $filePath;
         } else {
             $validated['anh_phim'] = $movie->anh_phim;
         }
 
         $movie->update($validated);
+
         $movie->movie_genres()->sync($request->loaiphim_ids);
 
         return response()->json([
             'message' => 'Cập nhật thành công',
             'data' => $movie->load('movie_genres'),
-            //'image_url' => asset($movie->anh_phim),
+            'image_url' => asset($movie->anh_phim),
         ], 200);
     }
 
@@ -242,8 +246,10 @@ class MovieController extends Controller
 
 
 
+    //1
     // chi tiết phim và đồ ăn showime theo phim đã thêm khi ấn vào phim đưa đến trang chi tiết phim
     //Phương thức movieDetail để nhóm và hiển thị showtime theo ngày
+    
     public function movieDetail($movieID)
     {
         // Truy vấn thông tin phim và các showtimes của phim
@@ -256,7 +262,7 @@ class MovieController extends Controller
         }
 
         // Kiểm tra xem có showtime nào cho phim hay không
-        $showtimes = Showtime::where('phim_id', $movieID)->orderBy('ngay_chieu')->select('id', 'ngay_chieu', 'room_id')->get()->groupBy(function ($showtime) {
+        $showtimes = Showtime::where('phim_id', $movieID)->orderBy('ngay_chieu')->select('id', 'ngay_chieu')->get()->groupBy(function ($showtime) {
             return Carbon::parse($showtime->ngay_chieu)->format('Y-m-d');
         })->map(function ($group) {
             return $group->first();
@@ -279,38 +285,102 @@ class MovieController extends Controller
                 'foods' => $getFoodAll,
             ], 200);
         }
-    }
+    } 
 
 
-
+    // 2
     // hàm khi ấn vào showtime theo ngày mong muốn sẽ đổ all gio_chieu có theo ngày ấn đó để chọn giờ chiếu sẽ đổ all theo giờ đó
-    // Phương thức để lấy tất cả giờ chiếu trong ngày khi chọn ngày
+    // phương thức để lấy tất cả giờ chiếu trong ngày khi chọn ngày
+
     public function getShowtimesByDate(Request $request, $movieID, $date)
     {
 
         // truy van showtime cho phim trong ngay da chon
         $showtimes = Showtime::where('phim_id', $movieID)
-            ->whereDate('ngay_chieu', $date)->select('id' , 'gio_chieu')
-            ->get();
+            ->whereDate('ngay_chieu', $date)->select('id', 'gio_chieu',)
+            ->get()
+            ->groupBy('gio_chieu');
+
 
         if ($showtimes->isEmpty()) {
             return response()->json(['message' => 'Không có suất chiếu nào cho ngày đã chọn.']);
         }
 
+        // lấy giờ chiếu duy nhất nếu có nhiều nhờ chiếu nhưng phòng khác nhau
+
+        $uniqueShowtimes = $showtimes->map(function ($group) {
+            // chọn phần tử đầu tiên trong nhóm (giờ chiếu trùng)
+            return $group->first();
+        })->values();
+
         return response()->json([
             'message' => 'Lấy danh sách giờ chiếu thành công.',
-            'showtimes' => $showtimes
+            'showtimes' => $uniqueShowtimes
+        ], 200);
+    } 
+
+
+    // 3
+    // khi ấn vào thời gian đổ ra room nếu có room nhiều phòng cùng 1 giờ
+    public function getRoomsByShowtime(Request $request, $movieID, $date, $time)
+    {
+        // Truy vấn danh sách các phòng chiếu cho giờ và ngày đã chọn
+        $roomsByTime = Showtime::where('phim_id', $movieID)
+            ->whereDate('ngay_chieu', $date)
+            ->where('gio_chieu', $time)
+            ->select('id', 'phim_id', 'room_id', 'ngay_chieu', 'gio_chieu')
+            ->with('room') // Lấy thông tin phòng
+            ->get();
+
+        if ($roomsByTime->isEmpty()) {
+            return response()->json(['message' => 'Không có phòng chiếu nào cho giờ đã chọn.']);
+        }
+
+        // Khởi tạo mảng để chứa phòng và ghế với trạng thái
+        $roomsWithSeats = $roomsByTime->map(function ($showtime) {
+            // Lấy room_id của từng suất chiếu
+            $roomID = $showtime->room_id;
+
+            // Lấy tất cả ghế của phòng chiếu
+            $allSeats = Seat::where('room_id', $roomID)->get();
+
+            // Truy vấn trạng thái của ghế đã đặt cho showtime này
+            $bookedSeats = DB::table('seat_showtime_status')
+                ->where('thongtinchieu_id', $showtime->id) // Lấy ghế của showtime cụ thể
+                ->where('trang_thai', 1) // Ghế đã đặt
+                ->pluck('ghengoi_id'); // Lấy danh sách ghế đã đặt
+
+            // Lấy trạng thái của các ghế (đã đặt hoặc trống)
+            $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats) {
+                return [
+                    'id' => $seat->id,
+                    'ten_ghe_ngoi' => $seat->so_ghe_ngoi,
+                    'trang_thai' => $bookedSeats->contains($seat->id) ? 'đã đặt' : 'trống'
+                ];
+            });
+
+            // Trả về thông tin phòng và ghế với trạng thái
+            return [
+                'room' => $showtime->room, 
+                'seats' => $seatsWithStatus  
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Lấy danh sách phòng chiếu và trạng thái ghế thành công.',
+            'roomsWithSeats' => $roomsWithSeats // Danh sách các phòng chiếu và ghế
         ], 200);
     }
 
 
 
-    // khi ấn vào gio mong muon do all ghe 
-    //Phương thức getSeatsByShowtime để lấy ghế khi chọn giờ chiếu
+
+    // bỏ
     public function getSeatsByShowtime($movieID, $showtimeID)
     {
         // Truy vấn thông tin suất chiếu cụ thể (showtime)
         $showtime = Showtime::with(['room'])->find($showtimeID);
+
 
         if (!$showtime) {
             return response()->json([
@@ -351,5 +421,5 @@ class MovieController extends Controller
             'showtime' => $showtime,
             'seats' => $seatsWithStatus
         ], 200);
-    }
+    } // bỏ
 }
