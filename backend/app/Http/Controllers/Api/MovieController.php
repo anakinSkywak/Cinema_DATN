@@ -249,7 +249,7 @@ class MovieController extends Controller
     //1
     // chi tiết phim và đồ ăn showime theo phim đã thêm khi ấn vào phim đưa đến trang chi tiết phim
     //Phương thức movieDetail để nhóm và hiển thị showtime theo ngày
-    
+
     public function movieDetail($movieID)
     {
         // Truy vấn thông tin phim và các showtimes của phim
@@ -268,7 +268,7 @@ class MovieController extends Controller
             return $group->first();
         });
 
-        $getFoodAll = Food::all();
+        $getFoodAll = DB::table('foods')->select('id', 'ten_do_an', 'anh_do_an', 'gia', 'ghi_chu', 'trang_thai')->where('trang_thai' , 0)->get();
 
         if (!$showtimes) {
             return response()->json([
@@ -285,7 +285,7 @@ class MovieController extends Controller
                 'foods' => $getFoodAll,
             ], 200);
         }
-    } 
+    }
 
 
     // 2
@@ -317,7 +317,7 @@ class MovieController extends Controller
             'message' => 'Lấy danh sách giờ chiếu thành công.',
             'showtimes' => $uniqueShowtimes
         ], 200);
-    } 
+    }
 
 
     // 3
@@ -361,8 +361,8 @@ class MovieController extends Controller
 
             // Trả về thông tin phòng và ghế với trạng thái
             return [
-                'room' => $showtime->room, 
-                'seats' => $seatsWithStatus  
+                'room' => $showtime->room,
+                'seats' => $seatsWithStatus
             ];
         });
 

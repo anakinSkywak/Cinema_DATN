@@ -140,4 +140,45 @@ class FoodController extends Controller
             'message' => 'Xóa Booking theo id thành công'
         ], 200);
     }
+
+    // hàm dừng bán đồ ăn theo id
+    public function stopFood(string $id)
+    {
+        
+        $foodID = Food::find($id);
+        if (!$foodID) {
+            return response()->json([
+                'message' => 'Không có đồ ăn theo id'.$foodID,
+            ], 404);
+        }
+
+        // cập nhật trạng thái là 2 bảo trị lỗi
+        $foodID->update(['trang_thai' => 1]);
+
+
+        return response()->json([
+            'message' => 'Dừng bán đồ ăn này theo id '.$foodID,
+            'data' => $foodID
+        ], 200);
+    }
+
+    public function openFood(string $id)
+    {
+    
+        $foodID = Food::find($id);
+        if (!$foodID) {
+            return response()->json([
+                'message' => 'Không có đồ ăn theo id'.$foodID,
+            ], 404);
+        }
+
+        // cập nhật trạng thái là 0 mở bán
+        $foodID->update(['trang_thai' => 0]);
+
+
+        return response()->json([
+            'message' => 'Mở bán đồ ăn này theo id '.$foodID,
+            'data' => $foodID
+        ], 200);
+    }
 }

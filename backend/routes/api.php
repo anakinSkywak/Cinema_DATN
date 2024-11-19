@@ -182,6 +182,8 @@ Route::get('showFood/{id}', [FoodController::class, 'show']);
 Route::get('editFood/{id}', [FoodController::class, 'edit']);
 Route::put('updateFood/{id}', [FoodController::class, 'update']);
 Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);
+Route::put('stopFood/{id}', [FoodController::class, 'stopFood']);
+Route::put('openFood/{id}', [FoodController::class, 'openFood']);
 
 
 // Ánh : call api vouchers 
