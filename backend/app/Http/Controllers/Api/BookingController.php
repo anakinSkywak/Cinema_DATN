@@ -21,7 +21,7 @@ class BookingController extends Controller
 
 
     // hàm  truy vấn ghế đã lấy để thêm tên ghế ngồi vào cột ghe_ngoi
-    private function getNameSeat(array $selectedSeats)
+    public function getNameSeat(array $selectedSeats)
     {
         $seatNames = [];
         foreach ($selectedSeats as $seatId) {
@@ -35,7 +35,7 @@ class BookingController extends Controller
 
 
     // hàm tính tổng tiền với giá phim , đồ ăn , số lượng ghế , giá ghế
-    private function tongTien($showtime, array $selectedSeats, $foodPrice = 0)
+    public function tongTien($showtime, array $selectedSeats, $foodPrice = 0)
     {
         $gia_ve_phim = $showtime->movie->gia_ve;
         $tong_gia_ve_phim = $gia_ve_phim * count($selectedSeats);
@@ -52,7 +52,7 @@ class BookingController extends Controller
     }
 
     // hàm sử dụng voucher nếu có sử dụng tính tiền khi sử dụng voucher
-    private function tinhTienVoucher($ma_giam_gia, $tong_tien)
+    public function tinhTienVoucher($ma_giam_gia, $tong_tien)
     {
         // Truy vấn mã giảm giá
         $voucher = Voucher::where('ma_giam_gia', $ma_giam_gia)
@@ -93,7 +93,7 @@ class BookingController extends Controller
     }
 
     // Hàm xử lý đặt vé với đồ ăn và tính tiền
-    private function Booking(Request $request)
+    public function Booking(Request $request)
     {
         $user = auth()->user();
         if (!$user) {
@@ -180,7 +180,7 @@ class BookingController extends Controller
     }
 
     // Hàm format tên món ăn và số lượng món ăn thành chuỗi
-    private function formatDoAnString($doanDetails)
+    public function formatDoAnString($doanDetails)
     {
         $doAnList = [];
         foreach ($doanDetails as $doan) {

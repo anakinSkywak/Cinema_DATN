@@ -18,7 +18,7 @@ class PaymentController extends Controller
 
 
     // đưa đến from chọn phương thức thanh toán
-    private function createPayment($bookingId, $method)
+    public function createPayment($bookingId, $method)
     {
 
         $user = auth()->user();
@@ -69,7 +69,7 @@ class PaymentController extends Controller
     }
 
 
-    private function paymentNCB($booking, $money, $payment)
+    public function paymentNCB($booking, $money, $payment)
     {
 
         // Cấu hình của VNPAY
@@ -135,7 +135,7 @@ class PaymentController extends Controller
 
         ]);
     }
-    private function NCBReturn(Request $request)
+    public function NCBReturn(Request $request)
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
@@ -210,7 +210,7 @@ class PaymentController extends Controller
     }
 
 
-    private function paymentVISA($booking, $money, $payment)
+    public function paymentVISA($booking, $money, $payment)
     {
 
         // Cấu hình của VNPAY
@@ -276,7 +276,7 @@ class PaymentController extends Controller
 
         ]);
     }
-    private function visaReturn(Request $request)
+    public function visaReturn(Request $request)
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
@@ -350,7 +350,7 @@ class PaymentController extends Controller
     }
    
 
-    private function paymentMasterCard($booking, $money, $payment)
+    public function paymentMasterCard($booking, $money, $payment)
     {
 
         // Cấu hình của VNPAY
@@ -416,7 +416,7 @@ class PaymentController extends Controller
 
         ]);
     }
-    private function mastercardReturn(Request $request)
+    public function mastercardReturn(Request $request)
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
@@ -490,7 +490,7 @@ class PaymentController extends Controller
     }
 
 
-    private function getVnpayErrorMessage($code)
+    public function getVnpayErrorMessage($code)
     {
         $errors = [
             '01' => 'Giao dịch đã tồn tại',
@@ -503,16 +503,16 @@ class PaymentController extends Controller
         return $errors[$code] ?? 'Lỗi không xác định';
     }
 
-    private function paymentVIETQR($booking, $money, $payment) {}
-    private function vietqrReturn(Request $request) {}
+    public function paymentVIETQR($booking, $money, $payment) {}
+    public function vietqrReturn(Request $request) {}
 
 
-    private function paymentVIETTELMONEY($booking, $money, $payment) {}
-    private function viettelmoneyReturn(Request $request) {}
+    public function paymentVIETTELMONEY($booking, $money, $payment) {}
+    public function viettelmoneyReturn(Request $request) {}
 
 
-    private function paymentPAYOO($booking, $money, $payment) {}
-    private function payooReturn(Request $request) {}
+    public function paymentPAYOO($booking, $money, $payment) {}
+    public function payooReturn(Request $request) {}
 
 
 
