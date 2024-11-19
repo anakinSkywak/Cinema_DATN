@@ -94,7 +94,7 @@ class ShowtimeController extends Controller
 
             if ($exists) {
                 return response()->json([
-                    'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| đã tồn tại trong phòng |{$room_id}|.",
+                    'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| đã tồn tại trong phòng",
                 ], 400);
             }
 
@@ -115,7 +115,7 @@ class ShowtimeController extends Controller
                 // Kiểm tra giờ chiếu mới phải lớn hơn giờ kết thúc của giờ chiếu trước
                 if ($gio_chieu->lessThanOrEqualTo($thoi_gian_ket_thuc_truoc)) {
                     return response()->json([
-                        'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| quá gần với giờ chiếu trước đó (giờ chiếu sau phải lớn hơn giờ sau theo Giờ Phim + 15 Phút dọn dẹp phòng của nhân viên).",
+                        'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| quá gần với giờ chiếu trước đó (giờ chiếu sau phải lớn hơn giờ sau theo Giờ Phim + 15p Phút dọn dẹp phòng của nhân viên).",
                     ], 400);
                 }
             }
