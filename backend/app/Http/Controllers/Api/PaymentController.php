@@ -542,7 +542,7 @@ class PaymentController extends Controller
                 'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
                 'ma_thanh_toan' => strtoupper(uniqid('PAY_')),
                 'ngay_thanh_toan' => Carbon::now(),
-                'trang_thai' => 'Đang chờ xử lý', 
+                'trang_thai' => 'Đã hoàn thành', // Đã thanh toán
             ]);
 
             Log::info('Payment created successfully', ['payment' => $payment]);
@@ -568,7 +568,7 @@ class PaymentController extends Controller
                 'dangkyhoivien_id' => $registerMember->id,
                 'so_the' => strtoupper(uniqid('CARD_')), // Số thẻ unique
                 'ngay_dang_ky' => $registerMember->ngay_dang_ky,
-                'ngay_het_han' => $registerMember->ngay_het_han, 
+                'ngay_het_han' => $registerMember->ngay_het_han,
             ]);
 
             return response()->json([
@@ -710,19 +710,10 @@ class PaymentController extends Controller
                         $payment->save();
                     }
 
-                    $membership = new MemberShips();
-                    $membership->dangkyhoivien_id = $registerMember->id; // Lấy ID từ RegisterMember
-                    $membership->so_the = 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT); // Tạo số thẻ, ví dụ: MEM000037
-                    $membership->ngay_dang_ky = $registerMember->ngay_dang_ky; // Lấy ngày đăng ký từ RegisterMember
-                    $membership->ngay_het_han = $registerMember->ngay_het_han; // Lấy ngày hết hạn từ RegisterMember
-                    $membership->save();
-    
                     return response()->json([
-                        'message' => 'Thanh toán và đăng ký thành công!',
+                        'message' => 'Thanh toán thành công!',
                         'register_id' => $registerMember->id,
-                        'tong_tien' => $registerMember->tong_tien,
-                        'membership_id' => $membership->id, // ID của bản ghi Membership mới tạo
-                        'so_the' => $membership->so_the // Số thẻ người dùng
+                        'tong_tien' => $registerMember->tong_tien
                     ]);
                 }
             } else { // Nếu thanh toán thất bại
@@ -733,5 +724,4 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Dữ liệu trả về không hợp lệ.'], 400);
         }
     }
-    
 }

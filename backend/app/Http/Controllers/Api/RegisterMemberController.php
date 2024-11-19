@@ -119,18 +119,14 @@ class RegisterMemberController extends Controller
 
         // Kiểm tra ngày hết hạn của thẻ hiện tại
         if ($ngayHetHan->greaterThan($ngayDangKy)) {
-            // Nếu thẻ còn hạn và người dùng muốn gia hạn thêm
             if ($currentMember->id == $newMember->id) {
-                // Thẻ cũ vẫn giữ nguyên và thêm thời gian gia hạn
                 $ngayHetHan = $ngayHetHan->addMonths($newMember->thoi_gian);
                 $message = "Thẻ được gia hạn thêm.";
             } else {
-                // Nếu người dùng muốn nâng cấp thẻ
                 $ngayHetHan = $ngayDangKy->copy()->addMonths($newMember->thoi_gian);
                 $message = "Thẻ đã được nâng cấp.";
             }
         } else {
-            // Nếu thẻ đã hết hạn, tiến hành cập nhật thẻ mới
             $ngayHetHan = $ngayDangKy->copy()->addMonths($newMember->thoi_gian);
             $message = "Thẻ đã hết hạn và được gia hạn.";
         }
@@ -150,6 +146,15 @@ class RegisterMemberController extends Controller
             // Load lại quan hệ để trả về chính xác dữ liệu
             $registerMember->load('member');
 
+            // Thực hiện thanh toán
+            // try {
+            //     $this->processPaymentForRegister($request, $registerMember); // Gọi hàm xử lý thanh toán
+            // } catch (\Exception $e) {
+            //     DB::rollBack(); // Rollback nếu thanh toán bị lỗi
+            //     Log::error('Lỗi khi xử lý thanh toán: ' . $e->getMessage());
+            //     return response()->json(['message' => 'Thanh toán không thành công!'], 500);
+            // }
+
             DB::commit();
 
             return response()->json([
@@ -162,17 +167,6 @@ class RegisterMemberController extends Controller
             return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau.'], 500);
         }
     }
-
-
-    
-
-
-
-
-
-
-
-
 
 
 
