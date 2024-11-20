@@ -22,7 +22,6 @@ use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
 use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\RotationsController;
-use Illuminate\Routing\Controllers\HasMiddleware;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\MemberShipsController;
@@ -30,27 +29,19 @@ use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
-
-
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 
 
+// xác thực email
+Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
+    ->middleware(['throttle:6,1'])
+    ->name('verifyEmail');
 
+// show all user
+Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
-
-
-// route xu li , nhan xac thuc email ve email
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill();
-
-    // You can add logging here to debug
-    \Illuminate\Support\Facades\Log::info('Email verified for user: ' . $request->user()->id);
-
-    $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
-    return redirect($frontendUrl); // Add a query param to indicate success
-})->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
-
+// xóa user bên admin
+Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     // Đăng ký người dùng mới
@@ -318,10 +309,3 @@ Route::middleware('auth:api')->group(function () {
     Route::put('comments/{id}', [CommentController::class, 'update']);
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
-
-// Route::middleware('auth:api')->get('/email/verification-status', function (Request $request) {
-//     return response()->json([
-//         'is_verified' => !is_null($request->user()->email_verified_at),
-//         'verified_at' => $request->user()->email_verified_at
-//     ]);
-// });

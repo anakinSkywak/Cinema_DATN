@@ -11,6 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
+use Illuminate\Auth\Notifications\VerifyEmail;
 
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
@@ -23,6 +24,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
      */
 
     protected $table = 'users';
+
+    protected $primaryKey = 'id';
+
     protected $fillable = [
         'ho_ten',
         'anh',
@@ -62,13 +66,14 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return $this->getKey();
     }
 
+    // public function getKey()
+    // {
+    //     return $this->attributes['id'];
+    // }
+
     // trả về giá trị của khóa chính của bản ghi hiện tại id 
     public function getJWTCustomClaims()
     {
-        // return [];
-
-        //return ['role' => $this->role];
-
         return ['vai_tro' => $this->vai_tro];
     }
 
@@ -121,5 +126,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getEmailForVerification()
     {
         return $this->email;
+    }
+
+    public function sendEmailVerificationNotification($otp = null)
+    {
+        $this->notify(new VerifyEmail($otp));
     }
 }
