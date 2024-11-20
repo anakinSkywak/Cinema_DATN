@@ -288,6 +288,22 @@ class AuthController extends Controller
         ], 500);
     }
 
+    // show all user
+    public function showAllUser()
+    {
+        $data = User::all();
+
+        if (!$data) {
+            return response()->json([
+                "message" => "Không tìm thấy user"
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'đã lấy thành công tất cả user',
+            'data' => $data
+        ]);
+    }
+
     // xóa user bên admin
 
     public function deleteUser($id)
