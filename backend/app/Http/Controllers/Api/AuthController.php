@@ -29,7 +29,7 @@ class AuthController extends Controller
             'register',
             'sendResetLinkEmail',
             'resetPassword',
-            // 'verification.verify'
+            'verifyEmail',
         ]]);
     }
 
@@ -104,6 +104,41 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Đã xảy ra lỗi khi đăng ký tài khoản.',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // xác thực email bằng OTP
+    public function verifyEmail(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp' => 'required|numeric'
+            ]);
+
+            $user = User::where('email', $request->email)
+                        ->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid OTP or email'
+                ], 400);
+            }
+
+            $user->email_verified_at = now();
+            $user->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Email verified successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
             ], 500);
         }
     }

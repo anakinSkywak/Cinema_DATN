@@ -29,30 +29,12 @@ use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
-use App\Http\Controllers\Api\VerifyEmailController;    
 
 
 
-use App\Http\Controllers\Api\CouponCodeTakenController;
-
-// route xu li , nhan xac thuc email ve email
-// Route xử lý xác thực email khi người dùng click vào link trong email
-// Route::get('/email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
-//     ->middleware(['auth:api','throttle:6,1'])
-//     ->name('verification.verify');
-
-Route::post('/email/verify-otp', [VerifyEmailController::class, 'verifyOtp'])
+Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
     ->middleware(['throttle:6,1'])
-    ->name('verification.verify');
-
-Route::post('/email/resend-otp', [VerifyEmailController::class, 'resendOtp'])
-    ->middleware(['throttle:6,1'])
-    ->name('verification.resend');
-
-// giao diện xác thực email
-// Route::get('/emailVerify', function () {
-//     return view('email.emailVerify');
-// })->name('email.emailVerify');
+    ->name('verifyEmail');
 
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
