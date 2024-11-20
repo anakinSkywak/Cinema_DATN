@@ -38,7 +38,15 @@ class FoodController extends Controller
             'ten_do_an' => 'required|string|max:250',
             'gia' => 'required|numeric',
             'ghi_chu' => 'required|string|max:250',
+            'anh_do_an' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        if ($request->hasFile('anh_do_an')) {
+            $file = $request->file('anh_do_an');
+            $filename = $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_do_an', $filename, 'public');
+            $validated['anh_do_an'] = '/storage/' . $filePath;
+        }
 
         // them moi food
         $food = Food::create($validated);
@@ -138,6 +146,47 @@ class FoodController extends Controller
 
         return response()->json([
             'message' => 'Xóa Booking theo id thành công'
+        ], 200);
+    }
+
+    // hàm dừng bán đồ ăn theo id
+    public function stopFood(string $id)
+    {
+
+        $foodID = Food::find($id);
+        if (!$foodID) {
+            return response()->json([
+                'message' => 'Không có đồ ăn theo id' . $foodID,
+            ], 404);
+        }
+
+        // cập nhật trạng thái là 2 bảo trị lỗi
+        $foodID->update(['trang_thai' => 1]);
+
+
+        return response()->json([
+            'message' => 'Dừng bán đồ ăn này theo id ' . $foodID,
+            'data' => $foodID
+        ], 200);
+    }
+
+    public function openFood(string $id)
+    {
+
+        $foodID = Food::find($id);
+        if (!$foodID) {
+            return response()->json([
+                'message' => 'Không có đồ ăn theo id' . $foodID,
+            ], 404);
+        }
+
+        // cập nhật trạng thái là 0 mở bán
+        $foodID->update(['trang_thai' => 0]);
+
+
+        return response()->json([
+            'message' => 'Mở bán đồ ăn này theo id ' . $foodID,
+            'data' => $foodID
         ], 200);
     }
 }

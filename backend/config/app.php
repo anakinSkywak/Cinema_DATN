@@ -170,7 +170,7 @@ return [
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
-        Barryvdh\DomPDF\ServiceProvider::class
+        Barryvdh\DomPDF\ServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -192,6 +192,7 @@ return [
     'charset' => 'UTF-8',
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    'Auth' => Illuminate\Support\Facades\Auth::class,
 
 
 ];

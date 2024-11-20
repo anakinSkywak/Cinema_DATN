@@ -25,18 +25,21 @@ class Showtime extends Model
     // tham chieu moi quan he de truy van lay du lieu cac cot
     // all moi quan he 1 nhieu
 
-    public function movie(){
+    public function movie()
+    {
 
-        return $this->belongsTo(Movie::class , 'phim_id');
-        
+        return $this->belongsTo(Movie::class, 'phim_id');
     }
 
-    
-    public function room(){
 
-        return $this->belongsTo(Room::class , 'room_id');
+    public function room()
+    {
 
+        return $this->belongsTo(Room::class, 'room_id');
     }
 
-    
+    public function seats()
+    {
+        return $this->belongsToMany(Seat::class, 'seat_showtime_status', 'thongtinchieu_id', 'ghengoi_id');
+    }
 }

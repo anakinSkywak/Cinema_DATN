@@ -53,7 +53,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password',
         'remember_token',
     ];
-
+    public function couponCodeTakens()
+    {
+        return $this->hasMany(CouponCodeTaken::class, 'user_id');
+    }
     // methods JWT tra ve token khi dang nhap
     //  xác thực JWT JSON Web Token trong Laravel khi sử dụng gói jwt-auth
 
