@@ -66,8 +66,8 @@ class ShowtimeController extends Controller
         $request->validate([
             'ngay_chieu' => 'required|date',
             'phim_id' => 'required|exists:movies,id',
-            'room_ids' => 'required|array', 
-            'room_ids.*' => 'exists:rooms,id', 
+            'room_ids' => 'required|array',
+            'room_ids.*' => 'exists:rooms,id',
             'gio_chieu' => 'required|array',
             'gio_chieu.*' => 'required|date_format:H:i'
         ]);
@@ -80,62 +80,61 @@ class ShowtimeController extends Controller
         $showtimes = [];
 
         foreach ($request->room_ids as $room_id) { // thêm showtime với nhiều phòng cùng 1 giờ
-              
-        foreach ($request->gio_chieu as $gio) {
 
-            $gio = $gio . ':00';  // Thêm phần giây nếu không có
-            $gio_chieu = Carbon::createFromFormat('H:i:s', $gio); // Tạo Carbon instance từ giờ chiếu
+            foreach ($request->gio_chieu as $gio) {
 
-            // Kiểm tra xem ngày chiếu và giờ chiếu đã tồn tại trong phòng này chưa
-            $exists = Showtime::where('ngay_chieu', $request->ngay_chieu)
-                ->where('room_id', $request->room_ids)
-                ->where('gio_chieu', $gio)
-                ->exists();
+                $gio = $gio . ':00';  // Thêm phần giây nếu không có
+                $gio_chieu = Carbon::createFromFormat('H:i:s', $gio); // Tạo Carbon instance từ giờ chiếu
 
-            if ($exists) {
-                return response()->json([
-                    'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| đã tồn tại trong phòng",
-                ], 400);
-            }
+                // Kiểm tra xem ngày chiếu và giờ chiếu đã tồn tại trong phòng này chưa
+                $exists = Showtime::where('ngay_chieu', $request->ngay_chieu)
+                    ->where('room_id', $room_id)
+                    ->where('gio_chieu', $gio)
+                    ->exists();
 
-            // Kiểm tra giờ chiếu trước đó trong cùng phòng và ngày
-            $last_showtime = Showtime::where('ngay_chieu', $request->ngay_chieu)
-                ->where('room_id', $request->room_ids)
-                ->where('gio_chieu', '<', $gio_chieu->toTimeString()) // Tìm giờ chiếu trước đó
-                ->orderBy('gio_chieu', 'desc') // Lấy giờ chiếu gần nhất
-                ->first();
-
-            if ($last_showtime) {
-
-                // Tính thời gian kết thúc của giờ chiếu trước đó (bao gồm thời gian chiếu + 15 phút dọn dẹp)
-
-                $gio_truoc = Carbon::createFromFormat('H:i:s', $last_showtime->gio_chieu);
-                $thoi_gian_ket_thuc_truoc = $gio_truoc->copy()->addMinutes($thoi_luong_chieu + 14); // 14 or 15
-
-                // Kiểm tra giờ chiếu mới phải lớn hơn giờ kết thúc của giờ chiếu trước
-                if ($gio_chieu->lessThanOrEqualTo($thoi_gian_ket_thuc_truoc)) {
+                if ($exists) {
                     return response()->json([
-                        'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| quá gần với giờ chiếu trước đó (giờ chiếu sau phải lớn hơn giờ sau theo Giờ Phim + 15p Phút dọn dẹp phòng của nhân viên).",
+                        'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| đã tồn tại trong phòng",
                     ], 400);
                 }
+
+                // Kiểm tra giờ chiếu trước đó trong cùng phòng và ngày
+                // Không kiểm tra ngày, chỉ kiểm tra trong cùng phòng
+                $last_showtime = Showtime::where('room_id', $room_id)
+                    ->where('gio_chieu', '<', $gio_chieu->toTimeString())
+                    ->orderBy('gio_chieu', 'desc') // Lấy giờ chiếu gần nhất
+                    ->first();
+
+                if ($last_showtime) {
+                    // Tính thời gian kết thúc của giờ chiếu trước đó (bao gồm thời gian chiếu + 15 phút dọn dẹp)
+                    $gio_truoc = Carbon::createFromFormat('H:i:s', $last_showtime->gio_chieu);
+
+                    $thoi_gian_ket_thuc_truoc = $gio_truoc->copy()->addMinutes($thoi_luong_chieu + 15);
+
+                    // Kiểm tra giờ chiếu mới phải lớn hơn giờ kết thúc của giờ chiếu trước
+                    if ($gio_chieu->lessThanOrEqualTo($thoi_gian_ket_thuc_truoc)) {
+
+                        $gio_ket_thuc = $thoi_gian_ket_thuc_truoc->format('H:i:s');
+
+                        return response()->json([
+                            'error' => "Giờ chiếu |$gio| không thể thêm vì quá gần với giờ chiếu trước đó là: {$last_showtime->gio_chieu} phải thêm mới với lớn hơn {$gio_ket_thuc}.",
+                        ], 400);
+                    }
+                }
+
+                // Tạo mới showtime
+                $showtime = Showtime::create([
+                    'ngay_chieu' => $request->ngay_chieu,
+                    'thoi_luong_chieu' => $thoi_luong_chieu,
+                    'phim_id' => $request->phim_id,
+                    //'room_id' => $request->room_id,
+                    'room_id' => $room_id,
+                    'gio_chieu' => $gio,
+                ]);
+
+                $showtimes[] = $showtime;
             }
-
-
-            //$thoi_gian_ket_thuc = $gio_chieu->copy()->addMinutes($thoi_luong_chieu + 15);
-
-            // Tạo mới showtime
-            $showtime = Showtime::create([
-                'ngay_chieu' => $request->ngay_chieu,
-                'thoi_luong_chieu' => $thoi_luong_chieu,
-                'phim_id' => $request->phim_id,
-                //'room_id' => $request->room_id,
-                'room_id' => $room_id,
-                'gio_chieu' => $gio,
-            ]);
-
-            $showtimes[] = $showtime;
         }
-    }
 
         return response()->json([
             'message' => 'Thêm mới showtime thành công',

@@ -204,10 +204,6 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);
 
 
 
-
-
-
-
 // call api type_blogs T
 // Route::apiResource('type_blogs', TypeBlogController::class);
 Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
