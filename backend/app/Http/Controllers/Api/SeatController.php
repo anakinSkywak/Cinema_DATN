@@ -60,8 +60,9 @@ class SeatController extends Controller
             'seats.*.gia_ghe' => 'required|numeric',
         ]);
 
-        // Mảng ghế ngồi rỗng
+
         $seatCreate = [];
+        $totalSeatAddNew = 0;
 
         // Lặp qua từng ghế để thêm ghế ngồi
         foreach ($validated['seats'] as $seatConfig) {
@@ -75,7 +76,15 @@ class SeatController extends Controller
 
             // Lưu tất cả ghế ngồi vào mảng kết quả
             $seatCreate = array_merge($seatCreate, $seats);
+
+            // Đếm tổng số ghế và thêm vào cột tong_ghe_phong của bảng rooms
+            $totalSeatAddNew += count($seats);
         }
+
+        // Cập nhật số ghế trong bảng rooms
+        $room = Room::find($validated['room_id']);
+        $room->tong_ghe_phong += $totalSeatAddNew;
+        $room->save();
 
         return response()->json([
             'message' => 'Thêm mới ghế ngồi thành công',
@@ -195,5 +204,4 @@ class SeatController extends Controller
             'message' => 'Xóa seat theo id thành công'
         ], 200);
     }
-
 }

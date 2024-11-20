@@ -34,7 +34,7 @@ class RoomController extends Controller
     {
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
-            'tong_ghe_phong' => 'required|integer',
+            //'tong_ghe_phong' => 'required|integer',
         ]);
 
         $room = Room::create($validated);
@@ -91,7 +91,7 @@ class RoomController extends Controller
 
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
-            'tong_ghe_phong' => 'required|integer',
+            //'tong_ghe_phong' => 'required|integer',
         ]);
 
         $room->update($validated);

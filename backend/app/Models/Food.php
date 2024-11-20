@@ -16,7 +16,8 @@ class Food extends Model
         'ten_do_an',
         'gia',
         'ghi_chu',
-        'trang_thai'
+        'trang_thai', 
+        'anh_do_an'
     ];
 
     protected $dates = ['deleted_at'];

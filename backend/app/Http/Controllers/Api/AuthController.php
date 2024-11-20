@@ -6,12 +6,15 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Member;
 use App\Models\Booking;
+use App\Models\Comment;
+use App\Mail\WelcomeEmail;
 use Illuminate\Http\Request;
 use App\Models\RegisterMember;
 use App\Models\PasswordResetToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
-use App\Models\Comment;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -25,7 +28,8 @@ class AuthController extends Controller
             'login',
             'register',
             'sendResetLinkEmail',
-            'resetPassword'
+            'resetPassword',
+            'verifyEmail',
         ]]);
     }
 
@@ -41,12 +45,21 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        // Thực hiện xác thực và tạo token
+        // kiểm tra token có tồn tại không
         if (!$token = JWTAuth::attempt($validator->validated())) {
             return response()->json(['error' => 'Không thể đăng nhập'], 401);
         }
 
-        // Trả về token
+        // kiểm tra email có được xác thực không
+        // $user = auth()->user();
+        // if ($user->email_verified_at === null) {
+        //     auth()->logout(); // đăng xuất user
+        //     return response()->json([
+        //         'message' => 'Email của bạn không được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.'
+        //     ], 401);
+        // }
+
+        // nếu tất cả đúng thì trả về token
         return $this->createNewToken($token);
     }
 
@@ -69,14 +82,22 @@ class AuthController extends Controller
         try {
             $user = User::create(array_merge(
                 $validator->validated(),
-                ['password' => bcrypt($request->password)]
+                [
+                    'password' => bcrypt($request->password),
+                    'email_verified_at' => Carbon::now()
+                ]
             ));
 
-            // Send verification email
-            $user->sendEmailVerificationNotification();
+            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+            // Lưu OTP vào cache với thời gian sống là 5 phút
+            Cache::put('verify_otp_' . $request->email, $otp, now()->addMinutes(5));
+
+            // Gửi email chào mừng thay vì email xác thực
+            Mail::to($user->email)->send(new WelcomeEmail($user, $otp));
 
             return response()->json([
-                'message' => 'Đăng ký tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                'message' => 'Đăng ký tài khoản thành công!',
                 'user' => $user
             ], 201);
         } catch (\Exception $e) {
@@ -87,7 +108,42 @@ class AuthController extends Controller
         }
     }
 
-    // Tạo token mới khi người dùng đăng nhập
+    // xác thực email bằng OTP
+    public function verifyEmail(Request $request)
+    {
+        try {
+            $request->validate([
+                'email' => 'required|email',
+                'otp' => 'required|numeric'
+            ]);
+
+            $user = User::where('email', $request->email)
+                        ->first();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Invalid OTP or email'
+                ], 400);
+            }
+
+            $user->email_verified_at = now();
+            $user->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Email verified successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
     {
         return response()->json([
@@ -98,7 +154,7 @@ class AuthController extends Controller
         ]);
     }
 
-    // Hiển thị thông tin người dùng
+    // hiển thị thông tin người dùng
     public function userProfile()
     {
         // dữ liệu booking user đã đặt
@@ -120,7 +176,7 @@ class AuthController extends Controller
         ]);
     }
 
-    // Đăng xuất người dùng
+    // đăng xuất người dùng
     public function logout()
     {
         try {
@@ -133,7 +189,7 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user = JWTAuth::parseToken()->authenticate(); // Lấy đối tượng User
+        $user = JWTAuth::parseToken()->authenticate(); // lấy đối tượng User
 
         $validator = Validator::make($request->all(), [
             'ho_ten' => 'required|string|max:255',
@@ -146,97 +202,20 @@ class AuthController extends Controller
             return response()->json($validator->errors()->toJson(), 400);
         }
 
-        // Chỉ lấy những trường cần cập nhật
+        // chỉ lấy những trường cần cập nhật
         $dataToUpdate = $validator->validated();
 
-        // Cập nhật thông tin người dùng
-        $user->update($dataToUpdate); // Sử dụng update
+        // cập nhật thông tin người dùng
+        $user->update($dataToUpdate); // sử dụng update
 
         return response()->json([
             'message' => 'Bạn đã cập nhật tài khoản thành công'
         ]);
     }
-    // xác nhận đăng ký thành công
-
-    // public function sendResetLinkEmail(Request $request)
-    // {
-    //     // Validate email input
-    //     $validator = Validator::make($request->all(), [
-    //         'email' => 'required|email'
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'message' => 'Email không hợp lệ',
-    //             'errors' => $validator->errors()
-    //         ], 400);
-    //     }
-
-    //     // Kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
-    //     $user = User::where('email', $request->email)->first();
-
-    //     if (!$user) {
-    //         return response()->json([
-    //             'message' => "Không thể tìm thấy email"
-    //         ], 404); // Trả về mã 404 nếu không tìm thấy email
-    //     }
-
-    //     // Attempt to send reset link
-    //     $status = Password::sendResetLink([
-    //         'email' => $user->email // Gửi email, không phải là đối tượng User
-    //     ]);
-
-    //     // Check status and return appropriate response
-    //     if ($status === Password::RESET_LINK_SENT) {
-    //         return response()->json([
-    //             'message' => 'Link reset mật khẩu đã được gửi tới email của bạn'
-    //         ], 200);
-    //     }
-
-    //     // Trả về thông báo lỗi nếu không thể gửi link
-    //     return response()->json([
-    //         'message' => 'Đã xảy ra lỗi khi gửi link reset mật khẩu. Vui lòng thử lại.'
-    //     ], 500);
-    // }
-
-
-    // public function resetPassword(Request $request, $token){
-    //       // Tìm token đặt lại mật khẩu từ bảng password_reset_tokens
-    //     $passwordReset = PasswordResetToken::where('token', $token)->first();
-
-    //     // Kiểm tra token có tồn tại không
-    //     if (!$passwordReset) {
-    //         return response()->json([
-    //             'message' => 'Token không hợp lệ hoặc đã hết hạn.'
-    //         ], 422);
-    //     }
-
-    //     // Tìm người dùng theo email từ bản ghi reset password
-    //     $user = User::where('email', $passwordReset->email)->first();
-
-    //     // Kiểm tra người dùng có tồn tại không
-    //     if (!$user) {
-    //         return response()->json([
-    //             'message' => 'Không tìm thấy người dùng với email này.'
-    //         ], 404);
-    //     }
-
-    //     // Cập nhật mật khẩu mới cho người dùng
-    //     $user->password = bcrypt($request->input('password'));
-    //     $user->save();
-
-    //     // Xóa token sau khi thành công
-    //     $passwordReset->delete();
-
-    //     return response()->json([
-    //         'message' => 'Mật khẩu đã được cập nhật thành công!'
-    //     ]);
-    // }
-
-
+  
     public function sendResetLinkEmail(Request $request)
     {
-        // Validate email input
+        // kiếm tra email có hợp lệ không
         $validator = Validator::make($request->all(), [
             'email' => 'required|email'
         ]);
@@ -248,7 +227,7 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // Kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
+        // kiểm tra xem email có tồn tại trong cơ sở dữ liệu không
         $user = User::where('email', $request->email)->first();
 
         if (!$user) {
@@ -257,17 +236,17 @@ class AuthController extends Controller
             ], 404);
         }
 
-        // Attempt to send reset link
+        // gửi link reset mật khẩu
         $status = Password::sendResetLink($request->only('email')); // Fixed: Pass request data directly
 
-        // Check status and return appropriate response
+        // kiểm tra status và trả về response
         if ($status === Password::RESET_LINK_SENT) {
             return response()->json([
                 'message' => 'Link reset mật khẩu đã được gửi tới email của bạn'
             ], 200);
         }
 
-        // Trả về thông báo lỗi nếu không thể gửi link
+        // trả về thông báo lỗi nếu không thể gửi link
         return response()->json([
             'message' => 'Đã xảy ra lỗi khi gửi link reset mật khẩu. Vui lòng thử lại.'
         ], 500);
@@ -275,7 +254,7 @@ class AuthController extends Controller
 
     public function resetPassword(Request $request, $token)
     {
-        // Validate request
+        // kiếm tra request có hợp lệ không
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:8|confirmed',
@@ -289,7 +268,7 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // Use Laravel's built-in Password facade to handle reset
+        // sử dụng Laravel's built-in Password facade để xử lý reset
         $status = Password::reset(
             array_merge($request->only('email', 'password', 'password_confirmation'), ['token' => $token]),
             function ($user, $password) {
@@ -307,6 +286,22 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Không thể đặt lại mật khẩu. Vui lòng thử lại.'
         ], 500);
+    }
+
+    // show all user
+    public function showAllUser()
+    {
+        $data = User::all();
+
+        if (!$data) {
+            return response()->json([
+                "message" => "Không tìm thấy user"
+            ], 404);
+        }
+        return response()->json([
+            'message' => 'đã lấy thành công tất cả user',
+            'data' => $data
+        ]);
     }
 
     // xóa user bên admin
