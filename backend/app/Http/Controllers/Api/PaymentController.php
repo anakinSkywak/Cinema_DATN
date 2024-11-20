@@ -474,7 +474,7 @@ class PaymentController extends Controller
                 ]);
 
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
-                
+
                 return response()->json(['message' => 'Thanh toán thành công']);
             } else {
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
