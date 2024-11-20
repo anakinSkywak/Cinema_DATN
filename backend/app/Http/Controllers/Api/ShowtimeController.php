@@ -209,6 +209,7 @@ class ShowtimeController extends Controller
     }
 
 
+    // xu ly sau
     public function update(Request $request, string $id)
     {
         // cap nhat theo id
@@ -223,10 +224,12 @@ class ShowtimeController extends Controller
         }
 
         // Xác thực dữ liệu đầu vào
-        $validated = $request->validate([
+       $validated =  $request->validate([
             'ngay_chieu' => 'required|date',
             'phim_id' => 'required|exists:movies,id',
-            'room_id' => 'required|exists:rooms,id',
+            'room_ids' => 'required|array',
+            'room_ids.*' => 'exists:rooms,id',
+            '//gio_chieu' => 'required|array',
             'gio_chieu' => 'required|date_format:H:i'
         ]);
 
