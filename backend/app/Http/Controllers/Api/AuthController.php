@@ -6,12 +6,15 @@ use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Member;
 use App\Models\Booking;
+use App\Models\Comment;
+use App\Mail\WelcomeEmail;
 use Illuminate\Http\Request;
 use App\Models\RegisterMember;
 use App\Models\PasswordResetToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
-use App\Models\Comment;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
@@ -25,7 +28,8 @@ class AuthController extends Controller
             'login',
             'register',
             'sendResetLinkEmail',
-            'resetPassword'
+            'resetPassword',
+            // 'verification.verify'
         ]]);
     }
 
@@ -47,13 +51,13 @@ class AuthController extends Controller
         }
 
         // kiểm tra email có được xác thực không
-        $user = auth()->user();
-        if ($user->email_verified_at === null) {
-            auth()->logout(); // đăng xuất user
-            return response()->json([
-                'message' => 'Email của bạn không được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.'
-            ], 401);
-        }
+        // $user = auth()->user();
+        // if ($user->email_verified_at === null) {
+        //     auth()->logout(); // đăng xuất user
+        //     return response()->json([
+        //         'message' => 'Email của bạn không được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.'
+        //     ], 401);
+        // }
 
         // nếu tất cả đúng thì trả về token
         return $this->createNewToken($token);
@@ -78,14 +82,22 @@ class AuthController extends Controller
         try {
             $user = User::create(array_merge(
                 $validator->validated(),
-                ['password' => bcrypt($request->password)]
+                [
+                    'password' => bcrypt($request->password),
+                    'email_verified_at' => Carbon::now()
+                ]
             ));
 
-            // gửi email xác thực
-            $user->sendEmailVerificationNotification();
+            $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+            // Lưu OTP vào cache với thời gian sống là 5 phút
+            Cache::put('verify_otp_' . $request->email, $otp, now()->addMinutes(5));
+
+            // Gửi email chào mừng thay vì email xác thực
+            Mail::to($user->email)->send(new WelcomeEmail($user, $otp));
 
             return response()->json([
-                'message' => 'Đăng ký tài khoản thành công! Vui lòng kiểm tra email để xác thực tài khoản.',
+                'message' => 'Đăng ký tài khoản thành công!',
                 'user' => $user
             ], 201);
         } catch (\Exception $e) {
