@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\MemberShips;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 
 class MemberShipsController extends Controller
@@ -16,7 +17,7 @@ class MemberShipsController extends Controller
     public function index()
     {
         // Lấy tất cả dữ liệu từ bảng Membership
-        $data = memberships::with('registerMember')->get();
+        $data = Memberships::with('registerMember')->get();
 
         if ($data->isEmpty()) {
             return response()->json([
@@ -24,21 +25,17 @@ class MemberShipsController extends Controller
             ], 200);
         }
 
+        // Dữ liệu đã có status tự động qua Accessor
         return response()->json([
             'message' => 'Hiển thị dữ liệu thành công',
             'data' => $data
         ]);
     }
 
-    /**
-     * Hiển thị thông tin thẻ hội viên theo ID.
-     *
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
+
     public function show($id)
     {
-        $membership = memberships::with('registerMember')->find($id);
+        $membership = Memberships::with('registerMember')->find($id);
 
         if (!$membership) {
             return response()->json([
@@ -46,43 +43,24 @@ class MemberShipsController extends Controller
             ], 404); // Trả về 404 nếu không tìm thấy
         }
 
+        // Xác định trạng thái thẻ dựa trên ngày
+        $currentDate = now();
+        if ($membership->ngay_het_han && $membership->ngay_het_han < $currentDate) {
+            $membership->status = 'expired';
+
+            // Thêm thông báo yêu cầu đăng ký thẻ mới
+            $membership->renewal_message = "Thẻ hội viên đã hết hạn. Vui lòng đăng ký lại thẻ hội viên mới!";
+        } else {
+            $membership->status = 'active';
+            $membership->renewal_message = null;  // Không có thông báo nếu thẻ còn hạn
+        }
+
         return response()->json([
+            'message' => 'Hiển thị thông tin thẻ hội viên thành công',
             'data' => $membership
         ], 200); // Trả về 200 nếu tìm thấy
     }
 
-    /**
-     * Cập nhật thông tin thẻ hội viên theo ID.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function update(Request $request, $id)
-    {
-        $membership = memberships::find($id);
-
-        if (!$membership) {
-            return response()->json([
-                'message' => 'Thẻ hội viên không tồn tại!'
-            ], 404); // Trả về 404 nếu không tìm thấy
-        }
-
-        // Xác thực dữ liệu đầu vào
-        $validated = $request->validate([
-            'register_member_id' => 'sometimes|required|exists:register_members,id',
-            'so_the' => 'sometimes|required|string|max:255',
-            'ngay_cap' => 'sometimes|required|date',
-            'ngay_het_han' => 'sometimes|required|date|after:ngay_cap',
-        ]);
-
-        $membership->update($validated);
-
-        return response()->json([
-            'data' => $membership,
-            'message' => 'Cập nhật thẻ hội viên thành công!'
-        ], 200); // Trả về 200 khi cập nhật thành công
-    }
 
     /**
      * Xóa thẻ hội viên theo ID.

@@ -311,4 +311,5 @@ Route::get('payment/NCB-return1', [PaymentController::class, 'paymentReturn1']);
 //         'verified_at' => $request->user()->email_verified_at
 //     ]);
 // });
-
+Route::post('/register-members/{registerMember}/{method}', [PaymentController::class, 'createPayment1']);
+Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
