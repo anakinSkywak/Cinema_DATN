@@ -152,10 +152,11 @@ class MovieController extends Controller
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric',
             'hinh_thuc_phim' => 'required|string|max:255',
-            'thoi_gian_phim' => 'required|numeric',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
+            'thoi_gian_phim' => 'required|numeric',
         ]);
+
 
         $movie = Movie::find($id);
 

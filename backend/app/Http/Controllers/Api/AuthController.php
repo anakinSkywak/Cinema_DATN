@@ -189,12 +189,12 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user = JWTAuth::parseToken()->authenticate(); // lấy đối tượng User
+        $user = JWTAuth::parseToken()->authenticate();
 
         $validator = Validator::make($request->all(), [
             'ho_ten' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->user_id,
-            'so_dien_thoai' => 'required|string|max:10|unique:users,so_dien_thoai,' . $user->user_id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'so_dien_thoai' => 'required|string|size:10|unique:users,so_dien_thoai,' . $user->id,
             'gioi_tinh' => 'required|in:nam,nu,khac',
         ]);
 
@@ -303,6 +303,24 @@ class AuthController extends Controller
             'data' => $data
         ]);
     }
+
+    // update user bên admin
+    public function updateUser(Request $request, $id)
+    {
+        $data = User::find($id);
+
+        if (!$data) {
+            return response()->json([
+                "message" => "Không tìm thấy user"
+            ], 404);
+        }
+
+        $data->update($request->all());
+
+        return response()->json([
+            "message" => "Bạn đã cập nhật user thành công"
+        ], 200);
+    }       
 
     // xóa user bên admin
 

@@ -40,6 +40,9 @@ Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
 // show all user
 Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
+// update user bên admin
+Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+
 // xóa user bên admin
 Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
 
@@ -59,7 +62,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('logout', [AuthController::class, 'logout']);
 
         // Cập nhật thông tin tài khoản
-        Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+        Route::put('updateProfile', [AuthController::class, 'updateProfile']);
     });
 
     // Route xử lý khi chưa xác thực
