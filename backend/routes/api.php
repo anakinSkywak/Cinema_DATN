@@ -40,6 +40,9 @@ Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
 // show all user
 Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
+// update user bên admin
+Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+
 // xóa user bên admin
 Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
 

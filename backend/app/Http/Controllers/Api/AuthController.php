@@ -304,6 +304,24 @@ class AuthController extends Controller
         ]);
     }
 
+    // update user bên admin
+    public function updateUser(Request $request, $id)
+    {
+        $data = User::find($id);
+
+        if (!$data) {
+            return response()->json([
+                "message" => "Không tìm thấy user"
+            ], 404);
+        }
+
+        $data->update($request->all());
+
+        return response()->json([
+            "message" => "Bạn đã cập nhật user thành công"
+        ], 200);
+    }       
+
     // xóa user bên admin
 
     public function deleteUser($id)
