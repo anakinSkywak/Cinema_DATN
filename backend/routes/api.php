@@ -226,7 +226,9 @@ Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị t
 Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
-Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']);
+Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+Route::put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
+
 
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
@@ -235,6 +237,8 @@ Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
 Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
+ 
+
 
 
 
