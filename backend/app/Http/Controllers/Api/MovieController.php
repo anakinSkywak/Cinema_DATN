@@ -138,30 +138,52 @@ class MovieController extends Controller
     // cập nhật phim với các thông tin thay đổi đang lỗi fix sau
     public function update(Request $request, string $id)
     {
-        $movie = Movie::find($id);
-
-        if (!$movie) {
-            return response()->json([
-                'message' => 'Không có phim theo id ' . $id
-            ], 404);
-        }
-
-        // Điều chỉnh validation rules - chỉ yêu cầu ảnh khi có file mới
-        $validated = $request->validate([
-            'ten_phim' => 'required|string|max:255',
-            'anh_phim' => $request->hasFile('anh_phim') ? 'file|mimes:jpeg,png,jpg,gif|max:2048' : '',
-            'dao_dien' => 'required|string|max:255',
-            'dien_vien' => 'required|string|max:255',
-            'noi_dung' => 'required|string|max:255',
-            'trailer' => 'required|string|url|max:255',
-            'gia_ve' => 'required|numeric',
-            'hinh_thuc_phim' => 'required|string|max:255',
-            'loaiphim_ids' => 'required|array',
-            'loaiphim_ids.*' => 'exists:moviegenres,id',
-            'thoi_gian_phim' => 'required|numeric',
-        ]);
-
         try {
+            // Tìm phim theo id
+            $movie = Movie::find($id);
+
+            if (!$movie) {
+                return response()->json([
+                    'message' => 'Không tìm thấy phim với id ' . $id
+                ], 404);
+            }
+
+            // Xác thực dữ liệu đầu vào
+            $validated = $request->validate([
+                // Tên phim: chuỗi tối đa 255 ký tự, không bắt buộc
+                'ten_phim' => 'sometimes|string|max:255',
+                
+                // Ảnh phim: file ảnh jpeg/png/jpg/gif tối đa 2MB nếu có upload, không bắt buộc
+                'anh_phim' => $request->hasFile('anh_phim') ? 'file|mimes:jpeg,png,jpg,gif|max:2048' : 'nullable',
+                
+                // Đạo diễn: chuỗi tối đa 255 ký tự, không bắt buộc  
+                'dao_dien' => 'sometimes|string|max:255',
+                
+                // Diễn viên: chuỗi tối đa 255 ký tự, không bắt buộc
+                'dien_vien' => 'sometimes|string|max:255',
+                
+                // Nội dung: chuỗi tối đa 255 ký tự, không bắt buộc
+                'noi_dung' => 'sometimes|string|max:255',
+                
+                // Trailer: URL hợp lệ tối đa 255 ký tự, không bắt buộc
+                'trailer' => 'sometimes|string|url|max:255',
+                
+                // Giá vé: số, không bắt buộc
+                'gia_ve' => 'sometimes|numeric',
+                
+                // Hình thức phim: chuỗi tối đa 255 ký tự, không bắt buộc
+                'hinh_thuc_phim' => 'sometimes|string|max:255',
+                
+                // Mảng ID thể loại phim, không bắt buộc
+                'loaiphim_ids' => 'sometimes|array',
+                
+                // Mỗi ID trong mảng phải tồn tại trong bảng moviegenres
+                'loaiphim_ids.*' => 'exists:moviegenres,id',
+                
+                // Thời gian phim: số, không bắt buộc
+                'thoi_gian_phim' => 'sometimes|numeric',
+            ]);
+
             // Xử lý upload ảnh mới nếu có
             if ($request->hasFile('anh_phim')) {
                 // Xóa ảnh cũ nếu tồn tại
@@ -170,27 +192,36 @@ class MovieController extends Controller
                 }
 
                 $file = $request->file('anh_phim');
-                $filename = $file->getClientOriginalName();
+                $filename = time() . '_' . $file->getClientOriginalName();
                 $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
                 $validated['anh_phim'] = '/storage/' . $filePath;
             } else {
                 // Giữ nguyên ảnh cũ nếu không có ảnh mới
-                $validated['anh_phim'] = $movie->anh_phim;
+                unset($validated['anh_phim']);
             }
 
             // Cập nhật thông tin phim
             $movie->update($validated);
-            $movie->movie_genres()->sync($request->loaiphim_ids);
+            
+            // Cập nhật thể loại phim
+            if (isset($validated['loaiphim_ids'])) {
+                $movie->movie_genres()->sync($validated['loaiphim_ids']);
+            }
 
             return response()->json([
-                'message' => 'Cập nhật thành công',
+                'message' => 'Cập nhật phim thành công',
                 'data' => $movie->load('movie_genres'),
                 'image_url' => asset($movie->anh_phim),
             ], 200);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'Lỗi khi cập nhật phim',
+                'message' => 'Có lỗi xảy ra khi cập nhật phim',
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -411,7 +442,7 @@ class MovieController extends Controller
             ], 404);
         }
 
-        // Kiểm tra xem showtime có thuộc về bộ phim không
+        // Kiểm tra xem showtime c thuộc về bộ phim không
         if ($showtime->phim_id != $movieID) {
             return response()->json([
                 'message' => 'Suất chiếu này không thuộc về phim này.'

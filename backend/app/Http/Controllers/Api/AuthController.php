@@ -123,7 +123,7 @@ class AuthController extends Controller
             if (!$user) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Invalid OTP or email'
+                    'message' => 'OTP không hợp lệ hoặc email không tồn tại'
                 ], 400);
             }
 
@@ -132,7 +132,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'Email verified successfully'
+                'message' => 'Email đã được xác thực thành công'
             ], 200);
 
         } catch (\Exception $e) {

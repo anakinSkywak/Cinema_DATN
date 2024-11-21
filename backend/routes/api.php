@@ -34,6 +34,7 @@ use App\Http\Controllers\Api\AuthController; //  auth api
 
 // xác thực email
 Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
+// giới hạn số lần gửi mail
     ->middleware(['throttle:6,1'])
     ->name('verifyEmail');
 
@@ -158,7 +159,7 @@ Route::get('movies', [MovieController::class, 'index']);
 Route::get('addMovie', [MovieController::class, 'getMovieGenre']);
 Route::post('storeMovie', [MovieController::class, 'store']);
 Route::get('showMovie/{id}', [MovieController::class, 'show']);
-// Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
+Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
 Route::put('updateMovie/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'delete']);
 Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
