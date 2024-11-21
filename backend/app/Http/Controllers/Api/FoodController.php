@@ -54,7 +54,8 @@ class FoodController extends Controller
         // tra ve khi them moi ok
         return response()->json([
             'message' => 'Thêm mới Food thành công',
-            'data' => $food
+            'data' => $food,
+            'image_url' => asset($validated['anh_do_an']),
         ], 201);    // tra về 201 them moi thanh cong
 
     }
@@ -141,7 +142,8 @@ class FoodController extends Controller
 
         return response()->json([
             'message' => 'Cập nhật dữ liệu Food id thành công',
-            'data' => $foodID
+            'data' => $foodID,
+            'image_url' => asset($foodID->anh_do_an),
         ], 200);
     }
 
