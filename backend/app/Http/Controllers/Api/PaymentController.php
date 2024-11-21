@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Mail\BookingPaymentSuccessMail;
 use Auth;
 use Carbon\Carbon;
 use App\Models\Booking;
@@ -12,6 +13,7 @@ use App\Models\BookingDetail;
 use App\Models\RegisterMember;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
@@ -53,12 +55,6 @@ class PaymentController extends Controller
         switch ($method) {
             case 'ncb':
                 return $this->paymentNCB($booking, $money, $payment);
-            case 'vietqr':
-                return $this->paymentVIETQR($booking, $money, $payment);
-            case 'viettel_monney':
-                return $this->paymentVIETTELMONEY($booking, $money, $payment);
-            case 'payoo':
-                return $this->paymentPAYOO($booking, $money, $payment);
             case 'mastercard':
                 return $this->paymentMasterCard($booking, $money, $payment); //MasterCard
             case 'visa':
@@ -193,6 +189,9 @@ class PaymentController extends Controller
                     //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
+                //dd($booking->user, $booking->user->email);
+                //dd('View:', 'emails.send_bill');
+                Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return response()->json(['message' => 'Thanh toán thành công']);
             } else {
@@ -333,6 +332,7 @@ class PaymentController extends Controller
                     'payment_id' => $payment->id
                 ]);
 
+                Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return response()->json(['message' => 'Thanh toán thành công']);
             } else {
@@ -348,7 +348,7 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Xác thực chữ ký thất bại'], 400);
         }
     }
-   
+
 
     public function paymentMasterCard($booking, $money, $payment)
     {
@@ -473,6 +473,7 @@ class PaymentController extends Controller
                     'payment_id' => $payment->id
                 ]);
 
+                Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return response()->json(['message' => 'Thanh toán thành công']);
             } else {
@@ -502,19 +503,6 @@ class PaymentController extends Controller
 
         return $errors[$code] ?? 'Lỗi không xác định';
     }
-
-    public function paymentVIETQR($booking, $money, $payment) {}
-    public function vietqrReturn(Request $request) {}
-
-
-    public function paymentVIETTELMONEY($booking, $money, $payment) {}
-    public function viettelmoneyReturn(Request $request) {}
-
-
-    public function paymentPAYOO($booking, $money, $payment) {}
-    public function payooReturn(Request $request) {}
-
-
 
     public function processPaymentForRegister(Request $request, RegisterMember $registerMember)
     {
