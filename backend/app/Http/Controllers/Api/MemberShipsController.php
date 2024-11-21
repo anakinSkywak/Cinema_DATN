@@ -32,34 +32,73 @@ class MemberShipsController extends Controller
         ]);
     }
 
-
     public function show($id)
     {
+        // Kiểm tra nếu người dùng đã đăng nhập
+        // if (!auth()->check()) {
+        //     return response()->json([
+        //         'message' => 'Bạn cần đăng nhập để xem thông tin thẻ hội viên!'
+        //     ], 401);  // 401 Unauthorized nếu chưa đăng nhập
+        // }
+
+        // Lấy thông tin thẻ hội viên của người dùng đã đăng nhập
+        // $membership = Memberships::with('registerMember')
+        //     ->where('dangkyhoivien_id', auth()->user()->id) // Chỉ lấy thẻ của người dùng hiện tại
+        //     ->find($id);
+
+        //test thử
         $membership = Memberships::with('registerMember')->find($id);
 
         if (!$membership) {
             return response()->json([
                 'message' => 'Thẻ hội viên không tồn tại!'
-            ], 404); // Trả về 404 nếu không tìm thấy
+            ], 404);
         }
 
-        // Xác định trạng thái thẻ dựa trên ngày
-        $currentDate = now();
-        if ($membership->ngay_het_han && $membership->ngay_het_han < $currentDate) {
-            $membership->status = 'expired';
+        if (!$membership) {
+            return response()->json([
+                'message' => 'Thẻ hội viên không tồn tại hoặc không phải của bạn!'
+            ], 404); // 404 nếu không tìm thấy thẻ hoặc thẻ không phải của người dùng hiện tại
+        }
 
-            // Thêm thông báo yêu cầu đăng ký thẻ mới
+        // Xác định trạng thái thẻ dựa trên ngày hết hạn
+        $currentDate = now(); // Lấy thời gian hiện tại (bao gồm ngày và giờ)
+        $expirationDate = Carbon::parse($membership->ngay_het_han);
+
+        if ($expirationDate->isBefore($currentDate)) {
+            // Thẻ đã hết hạn
+            $membership->trang_thai = 1;  // Thẻ hết hạn => Trạng thái = 1
             $membership->renewal_message = "Thẻ hội viên đã hết hạn. Vui lòng đăng ký lại thẻ hội viên mới!";
+
+            // Kiểm tra nếu thẻ đã hết hạn và không gia hạn trong vòng 2 ngày
+            if ($expirationDate->addDays(2)->isBefore($currentDate)) {
+                // Nếu đã qua 2 ngày sau khi hết hạn mà không gia hạn, xóa thẻ
+                $membership->delete();
+                return response()->json([
+                    'message' => 'Thẻ hội viên đã hết hạn hơn 2 ngày và đã bị xóa!',
+                ], 200);
+            }
         } else {
-            $membership->status = 'active';
-            $membership->renewal_message = null;  // Không có thông báo nếu thẻ còn hạn
+            // Kiểm tra nếu thẻ còn ít nhất 2 ngày nữa sẽ hết hạn
+            if ($expirationDate->diffInDays($currentDate) <= 2) {
+                $membership->renewal_message = "Thẻ hội viên sắp hết hạn!!!. Vui lòng gia hạn thẻ!";
+            }
+
+            // Thẻ còn hạn
+            $membership->trang_thai = 0;  // Thẻ còn hạn => Trạng thái = 0
+            $membership->renewal_message = $membership->renewal_message ?? null;  // Không có thông báo nếu thẻ còn hạn
         }
+
+        // Cập nhật thẻ nếu có thay đổi trạng thái
+        $membership->save();
 
         return response()->json([
             'message' => 'Hiển thị thông tin thẻ hội viên thành công',
             'data' => $membership
-        ], 200); // Trả về 200 nếu tìm thấy
+        ], 200);
     }
+
+
 
 
     /**
@@ -70,7 +109,7 @@ class MemberShipsController extends Controller
      */
     public function destroy($id)
     {
-        $membership = memberships::find($id);
+        $membership = Memberships::find($id);
 
         if (!$membership) {
             return response()->json([

@@ -18,6 +18,7 @@ class MemberShips extends Model
         'ngay_dang_ky',
         'ngay_het_han',
         'trang_thai',
+        'renewal_message'
     ];
 
     // Mối quan hệ với RegisterMember

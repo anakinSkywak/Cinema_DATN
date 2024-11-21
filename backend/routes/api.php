@@ -108,7 +108,11 @@ Route::middleware('auth:api')->group(function () {
 
 });
 
+// Route::middleware('auth:api')->group(function () {
 
+//     Route::get('memberships/{id}', [MemberShipsController::class, 'show']);
+//     Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+// });
 
 Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
 Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
