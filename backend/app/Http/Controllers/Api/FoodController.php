@@ -38,7 +38,7 @@ class FoodController extends Controller
             'ten_do_an' => 'required|string|max:250',
             'gia' => 'required|numeric',
             'ghi_chu' => 'required|string|max:250',
-            'anh_do_an' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'anh_do_an' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($request->hasFile('anh_do_an')) {
@@ -103,26 +103,42 @@ class FoodController extends Controller
     // cập nhật
     public function update(Request $request, string $id)
     {
-        // cap nhat food theo id 
+
+        $request->validate([
+            'ten_do_an' => 'required|string|max:250',
+            'gia' => 'required|numeric',
+            'ghi_chu' => 'required|string|max:250',
+            'anh_do_an' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
         $foodID = Food::find($id);
 
-        //check khi sửa de cap nhat 
         if (!$foodID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Food theo id này',
             ], 404);
         }
-        // check cac truong 
-        $validated = $request->validate([
-            'ten_do_an' => 'required|string|max:250',
-            'gia' => 'required|numeric',
-            'ghi_chu' => 'required|string|max:250',
+
+        $imagePath = $foodID->anh_do_an;
+
+        if ($request->hasFile('anh_phim')) {
+            if ($foodID->anh_do_an && file_exists(public_path($imagePath))) {
+                unlink(public_path($imagePath));
+            }
+
+            $file = $request->file('anh_do_an');
+            $filename = $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_do_an', $filename, 'public');
+            $imagePath = '/storage/' . $filePath;
+        }
+
+        $foodID->update([
+            'ten_do_an' => $request->ten_do_an,
+            'gia' => $request->gia,
+            'ghi_chu' => $request->ghi_chu,
+            'anh_do_an' => $imagePath,
         ]);
 
-        // cap nhat
-        $foodID->update($validated);
-
-        // trả về 
         return response()->json([
             'message' => 'Cập nhật dữ liệu Food id thành công',
             'data' => $foodID
