@@ -203,9 +203,8 @@ Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
 Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
 Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
 Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
-Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);  // xoa theo id
 // call api BlogController T
-Route::apiResource('blogs', BlogController::class);
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
 Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
 Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id

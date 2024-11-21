@@ -17,8 +17,8 @@ class Voucher extends Model
         'user_id',
         'ma_giam_gia',
         'muc_giam_gia',
+        'gia_don_toi_thieu',
         'mota',
-        'ngay_het_han',
         'so_luong',
         'so_luong_da_su_dung',
         'trang_thai'
