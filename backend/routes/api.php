@@ -54,7 +54,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('logout', [AuthController::class, 'logout']);
 
         // Cập nhật thông tin tài khoản
-        Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+        Route::put('updateProfile', [AuthController::class, 'updateProfile']);
     });
 
     // Route xử lý khi chưa xác thực
@@ -150,7 +150,7 @@ Route::get('movies', [MovieController::class, 'index']);
 Route::get('addMovie', [MovieController::class, 'getMovieGenre']);
 Route::post('storeMovie', [MovieController::class, 'store']);
 Route::get('showMovie/{id}', [MovieController::class, 'show']);
-Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
+// Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
 Route::put('updateMovie/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'delete']);
 Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
