@@ -156,7 +156,7 @@ Route::get('addMovie', [MovieController::class, 'getMovieGenre']);
 Route::post('storeMovie', [MovieController::class, 'store']);
 Route::get('showMovie/{id}', [MovieController::class, 'show']);
 Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
-Route::put('updateMovie/{id}', [MovieController::class, 'update']);
+Route::post('updateMovie/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'delete']);
 Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
 Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']);

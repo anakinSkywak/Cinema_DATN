@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isEmpty;
+
 class MovieController extends Controller
 {
 
@@ -70,6 +72,8 @@ class MovieController extends Controller
             'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric',
         ]);
+
+        //dd($validated);
 
         // check ko chấp nhận kiểu ảnh webp : check sau
 
@@ -138,15 +142,8 @@ class MovieController extends Controller
     // cập nhật phim với các thông tin thay đổi đang lỗi fix sau
     public function update(Request $request, string $id)
     {
-        $movie = Movie::find($id);
 
-        if (!$movie) {
-            return response()->json([
-                'message' => 'Không có phim theo id ' . $id
-            ], 404);
-        }
-
-        $validated = $request->validate([
+        $request->validate([
             'ten_phim' => 'required|string|max:255',
             'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
             'dao_dien' => 'required|string|max:255',
@@ -160,27 +157,45 @@ class MovieController extends Controller
             'loaiphim_ids.*' => 'exists:moviegenres,id',
         ]);
 
-        if ($request->hasFile('anh_phim')) {
+        $movie = Movie::find($id);
 
-            if ($movie->anh_phim && file_exists(public_path($movie->anh_phim))) {
-                unlink(public_path($movie->anh_phim));
-            } else {
-                return response()->json([
-                    'message' => 'Không tìm thấy hoặc không thể xóa tệp ảnh cũ'
-                ], 400);
+        if (!$movie) {
+            return response()->json([
+                'message' => 'Không có phim theo id ' . $id
+            ], 404);
+        }
+
+        $imagePath = $movie->anh_phim;
+
+        // Xử lý ảnh phim
+        if ($request->hasFile('anh_phim')) {
+            if ($movie->anh_phim && file_exists(public_path($imagePath))) {
+                unlink(public_path($imagePath));
             }
+
 
             $file = $request->file('anh_phim');
             $filename = $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
-            $validated['anh_phim'] = '/storage/' . $filePath;
-        } else {
-            $validated['anh_phim'] = $movie->anh_phim;
+            $imagePath = '/storage/' . $filePath;
         }
 
-        $movie->update($validated);
+
+        // Cập nhật dữ liệu phim
+        $movie->update([
+            'ten_phim' => $request->ten_phim,
+            'anh_phim' => $imagePath,
+            'dao_dien' => $request->dao_dien,
+            'dien_vien' => $request->dien_vien,
+            'noi_dung' => $request->noi_dung,
+            'trailer' => $request->trailer,
+            'gia_ve' => $request->gia_ve,
+            'hinh_thuc_phim' => $request->hinh_thuc_phim,
+            'thoi_gian_phim' => $request->thoi_gian_phim,
+        ]);
 
         $movie->movie_genres()->sync($request->loaiphim_ids);
+
 
         return response()->json([
             'message' => 'Cập nhật thành công',
@@ -268,7 +283,7 @@ class MovieController extends Controller
             return $group->first();
         });
 
-        $getFoodAll = DB::table('foods')->select('id', 'ten_do_an', 'anh_do_an', 'gia', 'ghi_chu', 'trang_thai')->where('trang_thai' , 0)->get();
+        $getFoodAll = DB::table('foods')->select('id', 'ten_do_an', 'anh_do_an', 'gia', 'ghi_chu', 'trang_thai')->where('trang_thai', 0)->get();
 
         if (!$showtimes) {
             return response()->json([
@@ -337,26 +352,26 @@ class MovieController extends Controller
         }
 
         // Khởi tạo mảng để chứa phòng và ghế với trạng thái
-        
+
         $roomsWithSeats = $roomsByTime->map(function ($showtime) {
             // Lấy room_id của từng suất chiếu
             $roomID = $showtime->room_id;
-    
+
             // Lấy tất cả ghế của phòng chiếu
             $allSeats = Seat::where('room_id', $roomID)->get();
-    
+
             // Truy vấn trạng thái của ghế đã đặt cho showtime này
             $bookedSeats = DB::table('seat_showtime_status')
-                ->where('thongtinchieu_id', $showtime->id) 
+                ->where('thongtinchieu_id', $showtime->id)
                 ->where('trang_thai', 1) // Ghế đã đặt
-                ->pluck('ghengoi_id'); 
-    
+                ->pluck('ghengoi_id');
+
             // Truy vấn trạng thái bảo trì của ghế từ bảng 'seats
             $maintenanceSeats = DB::table('seats')
-                ->where('room_id', $roomID) 
+                ->where('room_id', $roomID)
                 ->where('trang_thai', 2) // Trạng thái bảo trì của ghế
-                ->pluck('id'); 
-    
+                ->pluck('id');
+
             // Lấy trạng thái của các ghế (đã đặt, bảo trì hoặc trống)
             $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats, $maintenanceSeats) {
                 // Xác định trạng thái của ghế
@@ -367,14 +382,14 @@ class MovieController extends Controller
                 } else {
                     $status = 'trống'; // Ghế còn lại là trống
                 }
-    
+
                 return [
                     'id' => $seat->id,
                     'ten_ghe_ngoi' => $seat->so_ghe_ngoi, // Tên ghế (số ghế ngồi)
                     'trang_thai' => $status // Trạng thái ghế
                 ];
             });
-    
+
             // Trả về thông tin phòng và ghế với trạng thái
             return [
                 'room' => $showtime->room,

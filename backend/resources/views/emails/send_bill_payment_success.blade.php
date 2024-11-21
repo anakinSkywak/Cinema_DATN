@@ -47,6 +47,10 @@
                     <td style="padding: 10px;">{{ $booking->so_luong }}</td>
                 </tr>
                 <tr>
+                    <td style="padding: 10px;">Ngày xem phim</td>
+                    <td style="padding: 10px;">{{ $booking->showtime->ngay_chieu }}</td>
+                </tr>
+                <tr>
                     <td style="padding: 10px;">Phòng chiếu</td>
                     <td style="padding: 10px;">{{ $room->ten_phong_chieu }}</td>
                 </tr>
