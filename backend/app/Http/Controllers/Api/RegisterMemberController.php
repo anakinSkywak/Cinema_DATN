@@ -29,52 +29,62 @@ class RegisterMemberController extends Controller
             'data' => $data
         ]);
     }
-
-    public function store(Request $request)
+    public function store(Request $request, $hoivien_id)
     {
-        $validated = $request->validate([
-            'user_id' => 'required|integer|exists:users,id',
-            'hoivien_id' => 'required|integer|exists:members,id',
-        ]);
+          // Kiểm tra xem người dùng đã đăng nhập chưa
+        // $user = auth()->user();
+        // if (!$user) {
+        //     return response()->json(['message' => 'Bạn cần đăng nhập để tiếp tục'], 401);
+        // }
 
-        $member = Member::find($validated['hoivien_id']);
+        // Kiểm tra xem hội viên có tồn tại không
+        $member = Member::find($hoivien_id);
         if (!$member) {
             return response()->json(['message' => 'Hội viên không tồn tại!'], 404);
         }
-
+    
+        // Tính tổng tiền dựa trên loại hội viên và thời gian
         $tong_tien = $member->gia * $member->thoi_gian;
         $ngay_dang_ky = Carbon::now();
         $ngay_het_han = $ngay_dang_ky->copy()->addMonths($member->thoi_gian);
-
+    
+        // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
         DB::beginTransaction();
         try {
-            // Tạo mới RegisterMember
+            // Tạo mới bản ghi RegisterMember
             $registerMember = RegisterMember::create([
-                'user_id' => $validated['user_id'],
-                'hoivien_id' => $validated['hoivien_id'],
+                // 'user_id' => $user->id,  // Sử dụng user đang đăng nhập
+                'user_id' => 14,  // Bạn có thể thay đổi số này thành user_id thực tế nếu có
+                'hoivien_id' => $hoivien_id,
                 'tong_tien' => $tong_tien,
                 'ngay_dang_ky' => $ngay_dang_ky,
                 'ngay_het_han' => $ngay_het_han,
-                'trang_thai' => 0,
+                'trang_thai' => 0,  // Trạng thái đăng ký ban đầu là chưa thanh toán
             ]);
-
-
+    
+            // Commit transaction nếu không có lỗi
             DB::commit();
-
+    
+            // Trả về kết quả thành công
             return response()->json([
                 'message' => 'Đăng ký thành công, vui lòng chọn phương thức thanh toán.',
                 'data' => $registerMember
             ], 201);
         } catch (\Exception $e) {
+            // Rollback transaction nếu có lỗi
             DB::rollBack();
-            Log::error('Lỗi khi tạo RegisterMember và Membership', ['error' => $e->getMessage()]);
-
+            Log::error('Lỗi khi tạo RegisterMember', ['error' => $e->getMessage()]);
+    
+            // Trả về thông báo lỗi
             return response()->json([
                 'message' => 'Có lỗi xảy ra khi tạo RegisterMember',
                 'error' => $e->getMessage(),
             ], 500);
         }
     }
+    
+
+
 
 
     public function update(Request $request, $id)

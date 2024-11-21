@@ -226,11 +226,12 @@ Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị t
 Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
+Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']);
 
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
+Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
 Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
@@ -311,5 +312,6 @@ Route::get('payment/NCB-return1', [PaymentController::class, 'paymentReturn1']);
 //         'verified_at' => $request->user()->email_verified_at
 //     ]);
 // });
-Route::post('/register-members/{registerMember}/{method}', [PaymentController::class, 'createPayment1']);
+Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
+
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);

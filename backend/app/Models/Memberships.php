@@ -17,7 +17,7 @@ class MemberShips extends Model
         'so_the',
         'ngay_dang_ky',
         'ngay_het_han',
-        'status',
+        'trang_thai',
     ];
 
     // Mối quan hệ với RegisterMember
@@ -26,28 +26,28 @@ class MemberShips extends Model
         return $this->belongsTo(RegisterMember::class, 'dangkyhoivien_id');
     }
 
-    // Định nghĩa phương thức truy cập (Accessor) cho status
-    public function getStatusAttribute()
-    {
-        // Kiểm tra nếu ngày hết hạn < ngày hiện tại, thẻ hết hạn
-        if ($this->ngay_het_han && Carbon::parse($this->ngay_het_han)->isPast()) {
-            return 'expired';
-        }
-        return 'active';
-    }
+    // // Định nghĩa phương thức truy cập (Accessor) cho status
+    // public function getStatusAttribute()
+    // {
+    //     // Kiểm tra nếu ngày hết hạn < ngày hiện tại, thẻ hết hạn
+    //     if ($this->ngay_het_han && Carbon::parse($this->ngay_het_han)->isPast()) {
+    //         return 'expired';
+    //     }
+    //     return 'active';
+    // }
 
-    // Sự kiện "saving" để tự động cập nhật status
-    public static function boot()
-    {
-        parent::boot();
+    // // Sự kiện "saving" để tự động cập nhật status
+    // public static function boot()
+    // {
+    //     parent::boot();
 
-        static::saving(function ($model) {
-            // Tự động cập nhật status trước khi lưu
-            if ($model->ngay_het_han && Carbon::parse($model->ngay_het_han)->isPast()) {
-                $model->status = 'expired';
-            } else {
-                $model->status = 'active';
-            }
-        });
-    }
+    //     static::saving(function ($model) {
+    //         // Tự động cập nhật status trước khi lưu
+    //         if ($model->ngay_het_han && Carbon::parse($model->ngay_het_han)->isPast()) {
+    //             $model->status = 'expired';
+    //         } else {
+    //             $model->status = 'active';
+    //         }
+    //     });
+    // }
 }

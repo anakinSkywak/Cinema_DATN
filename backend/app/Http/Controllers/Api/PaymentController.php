@@ -532,7 +532,7 @@ class PaymentController extends Controller
         //     ], 401);
         // }
 
-        $registerMember = RegisterMember::find($registerMemberId); // Changed Booking to RegisterMember
+        $registerMember = RegisterMember::find($registerMemberId); 
         if (!$registerMember) {
             return response()->json(['message' => 'No register member found'], 404);
         }
@@ -579,7 +579,7 @@ class PaymentController extends Controller
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
         $vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return1"; // URL to handle payment response
 
-        $vnp_TxnRef = $registerMember->id . '_' . time(); 
+        $vnp_TxnRef = $registerMember->id . '_' . time();
 
         $vnp_OrderInfo = "Thanh toán register member ID: " . $registerMember->id;
         $vnp_OrderType = "billpayment";
@@ -641,64 +641,75 @@ class PaymentController extends Controller
     {
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
-        // Get all input data from the request
+        // Lấy dữ liệu đầu vào từ request
         $inputData = $request->all();
         $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
 
-        // Check if vnp_SecureHash is missing
+        // Kiểm tra vnp_SecureHash có tồn tại hay không
         if (!$vnp_SecureHash) {
-            return response()->json(['message' => 'Missing vnp_SecureHash data'], 400);
+            return response()->json(['message' => 'Thiếu dữ liệu vnp_SecureHash'], 400);
         }
 
-        // Remove vnp_SecureHash from the data to calculate the hash
+        // Loại bỏ vnp_SecureHash để tính toán lại hash
         unset($inputData['vnp_SecureHash']);
-
-        // Sort the input data by keys
-        ksort($inputData);
-
-        // Build the string for hash calculation
+        ksort($inputData); // Sắp xếp dữ liệu theo key
         $hashData = http_build_query($inputData, '', '&');
 
-        // Calculate the secure hash using the secret key
+        // Tính toán hash để xác thực
         $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
 
-        // Check if the secure hash matches and verify the response code
+        // Xác thực hash và kiểm tra mã phản hồi
         if ($secureHash === $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
-
-                // Successful payment
-
-                // Find the payment record by transaction reference
+                // Tìm bản ghi thanh toán
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
-
                 if ($payment) {
-                    $payment->trang_thai = 'Đã hoàn thành'; // Update payment status
+                    $payment->trang_thai = 'Đã hoàn thành'; // Cập nhật trạng thái thanh toán
                     $payment->save();
                 } else {
-                    return response()->json(['message' => 'Payment not found'], 404);
+                    return response()->json(['message' => 'Không tìm thấy thông tin thanh toán'], 404);
                 }
 
-                // Find the registerMember using the transaction reference
+                // Tìm bản ghi đăng ký hội viên
                 $registerMember = RegisterMember::find($inputData['vnp_TxnRef']);
-
                 if ($registerMember) {
-                    $registerMember->trang_thai = 2; // Update register member status to completed
+                    $registerMember->trang_thai = 2; // Cập nhật trạng thái đăng ký
                     $registerMember->save();
+
+                    // Kiểm tra hoặc cập nhật bảng memberships
+                    $membership = MemberShips::where('dangkyhoivien_id', $registerMember->id)->first();
+
+                    if ($membership) {
+                        $membership->ngay_dang_ky = $registerMember->ngay_dang_ky;
+                        $membership->ngay_het_han = $registerMember->ngay_het_han;
+                        $membership->save();
+
+                        $message = "Membership với ID {$membership->id} đã được cập nhật.";
+                    } else {
+                        $newMembership = MemberShips::create([
+                            'dangkyhoivien_id' => $registerMember->id,
+                            'so_the' => 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT),
+                            'ngay_dang_ky' => $registerMember->ngay_dang_ky,
+                            'ngay_het_han' => $registerMember->ngay_het_han,
+                        ]);
+
+                        $message = "Membership mới được tạo với ID {$newMembership->id}.";
+                    }
+
+                    return response()->json(['message' => $message]);
+                } else {
+                    return response()->json(['message' => 'Không tìm thấy thông tin đăng ký hội viên'], 404);
                 }
-
-
-
-                return response()->json(['message' => 'Payment successful']);
             } else {
-                // Handle failure response code
+                // Thanh toán thất bại
                 return response()->json([
-                    'message' => 'Payment failed',
+                    'message' => 'Thanh toán thất bại',
                     'error_code' => $inputData['vnp_ResponseCode'],
                     'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
                 ], 400);
             }
         } else {
-            return response()->json(['message' => 'Secure hash validation failed'], 400);
+            return response()->json(['message' => 'Xác thực secure hash thất bại'], 400);
         }
     }
 }
