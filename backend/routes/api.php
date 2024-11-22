@@ -214,11 +214,12 @@ Route::middleware('auth:api')->group(function(){
     //Ánh call api showtime
     Route::get('showtimes', [ShowtimeController::class, 'index']);
     Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
-    Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
+    
 
 
     // chỉ có role admin
     Route::middleware('role:admin')->group(function(){
+        Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
         Route::post('storeShowtime', [ShowtimeController::class, 'store']);
         Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
         Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
@@ -234,12 +235,13 @@ Route::middleware('auth:api')->group(function(){
 
     Route::get('foods', [FoodController::class, 'index']);
     Route::get('showFood/{id}', [FoodController::class, 'show']);
-    Route::get('editFood/{id}', [FoodController::class, 'edit']);
+    
 
 
     // chỉ có role admin
     Route::middleware('role:admin')->group(function(){
         Route::post('storeFood', [FoodController::class, 'store']);
+        Route::get('editFood/{id}', [FoodController::class, 'edit']);
         Route::put('updateFood/{id}', [FoodController::class, 'update']);
         Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);
         Route::put('stopFood/{id}', [FoodController::class, 'stopFood']);
@@ -251,14 +253,20 @@ Route::middleware('auth:api')->group(function(){
 
 
 // Ánh : call api vouchers 
-Route::get('vouchers', [VoucherController::class, 'index']);
-Route::post('storeVoucher', [VoucherController::class, 'store']);
-Route::get('showVoucher/{id}', [VoucherController::class, 'show']);
-Route::get('editVoucher/{id}', [VoucherController::class, 'edit']);
-Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);
-Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
 
+    Route::get('vouchers', [VoucherController::class, 'index']);
+    Route::get('showVoucher/{id}', [VoucherController::class, 'show']);
 
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('storeVoucher', [VoucherController::class, 'store']);
+        Route::get('editVoucher/{id}', [VoucherController::class, 'edit']);
+        Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);
+        Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);
+    });
+});
 
 
 
