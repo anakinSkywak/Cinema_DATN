@@ -299,20 +299,20 @@ Route::middleware('auth:api')->group(function(){
 });
 
 
+// route menbers
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+    Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
+    Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
 
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
+        Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
+        Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
+    });
+});
 
-
-
-Route::apiResource('members', MemberController::class);
-Route::apiResource('registermembers', RegisterMemberController::class);
-Route::apiResource('memberships', MemberShipsController::class);
-
-Route::apiResource('members', MemberController::class);
-Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
-Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
-Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
-Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
