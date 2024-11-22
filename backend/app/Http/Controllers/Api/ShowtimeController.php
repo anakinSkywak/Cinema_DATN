@@ -36,7 +36,7 @@ class ShowtimeController extends Controller
     public function addShowtime()
     {
 
-        $movies = Movie::select('id', 'ten_phim')->get();
+        $movies = Movie::select('id', 'ten_phim' , 'hinh_thuc_phim')->where('hinh_thuc_phim' , 'Đang Chiếu')->get();
         if ($movies->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phim hãy thêm phim'
@@ -57,7 +57,7 @@ class ShowtimeController extends Controller
                 'movies' => $movies,
                 'rooms' => $rooms,
             ],
-        ], 200);  // 200 có dữ liệu trả về
+        ], 200);  
     }
 
 

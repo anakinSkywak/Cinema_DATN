@@ -79,6 +79,9 @@ Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 
+
+Route::get('movie-client', [MovieController::class, 'movieClient']);
+
 // chi tiết theo id phim khi ấn vào phim ở home
 // 1
 //http://127.0.0.1:8000/api/movie-detail/31

@@ -17,11 +17,12 @@ use function PHPUnit\Framework\isEmpty;
 class MovieController extends Controller
 {
 
-    // xuất all phim với thể loại đã chọn khi thêm phim
+    // xuất all phim với thể loại đã chọn khi thêm phim :admin
     public function index()
     {
         // call show all du lieu ra 
         $movieall = Movie::with('movie_genres')->orderBy('id', 'DESC')->get();
+
         //dd($data);
         if ($movieall->isEmpty()) {
 
@@ -36,23 +37,35 @@ class MovieController extends Controller
         ], 200);
     }
 
-    public function bookingtick()
+    public function movieClient()
     {
-        // call show all du lieu ra 
-        $movieall = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Đang Chiếu')->orderBy('id', 'DESC')->get();
-        //dd($data);
-        if ($movieall->isEmpty()) {
+       
+        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Đang Chiếu')->orderBy('id', 'DESC')->get();
+
+        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Sắp Công Chiếu')->orderBy('id', 'DESC')->get();
+        
+        if ($movie_chieu->isEmpty()) {
 
             return response()->json([
-                'message' => 'Không có dữ liệu Movie nào'
+                'message' => 'Không có dữ liệu Movie đang chiếu nào'
+            ], 404);
+        }
+
+        if ($movie_sap_chieu->isEmpty()) {
+
+            return response()->json([
+                'message' => 'Không có dữ liệu Movie sắp công chiếu nào'
             ], 404);
         }
 
         return response()->json([
             'message' => 'Hiện thị dữ liệu thành công',
-            'data' => $movieall
+            'movie_chieu' => $movie_chieu,
+            'movie_sapchieu' => $movie_sap_chieu,
+            
         ], 200);
     }
+
 
 
     // đổ all thể loại phim để chọn ghi thêm mới phim
