@@ -211,7 +211,7 @@ Route::middleware('auth:api')->group(function(){
 Route::middleware('auth:api')->group(function(){
     // tất cả các role đều truy cập dc
 
-    //Ánh call api movie
+    //Ánh call api showtime
     Route::get('showtimes', [ShowtimeController::class, 'index']);
     Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
     Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
@@ -228,16 +228,26 @@ Route::middleware('auth:api')->group(function(){
 
 
 
-
 // Ánh : call api Foods
-Route::get('foods', [FoodController::class, 'index']);
-Route::post('storeFood', [FoodController::class, 'store']);
-Route::get('showFood/{id}', [FoodController::class, 'show']);
-Route::get('editFood/{id}', [FoodController::class, 'edit']);
-Route::put('updateFood/{id}', [FoodController::class, 'update']);
-Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);
-Route::put('stopFood/{id}', [FoodController::class, 'stopFood']);
-Route::put('openFood/{id}', [FoodController::class, 'openFood']);
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+
+    Route::get('foods', [FoodController::class, 'index']);
+    Route::get('showFood/{id}', [FoodController::class, 'show']);
+    Route::get('editFood/{id}', [FoodController::class, 'edit']);
+
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('storeFood', [FoodController::class, 'store']);
+        Route::put('updateFood/{id}', [FoodController::class, 'update']);
+        Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);
+        Route::put('stopFood/{id}', [FoodController::class, 'stopFood']);
+        Route::put('openFood/{id}', [FoodController::class, 'openFood']);
+    });
+});
+
+
 
 
 // Ánh : call api vouchers 
