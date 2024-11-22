@@ -7,5 +7,14 @@ use Illuminate\Http\Request;
 
 class BookingTicketController extends Controller
 {
+
+    // hiện phim theo trạng ở booking cho khác phim đang công chiếu và có xuất chiếu
+
+    public function listMovieBookTicket(Request $request){
+
+    }
+
+
+    // 
     
 }

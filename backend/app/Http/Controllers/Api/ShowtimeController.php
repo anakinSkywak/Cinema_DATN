@@ -57,7 +57,7 @@ class ShowtimeController extends Controller
                 'movies' => $movies,
                 'rooms' => $rooms,
             ],
-        ], 200);  
+        ], 200);  // 200 có dữ liệu trả về
     }
 
 
