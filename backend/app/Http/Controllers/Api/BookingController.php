@@ -105,7 +105,7 @@ class BookingController extends Controller
             'ghe_ngoi' => 'required|array|min:1',
             'ghe_ngoi.*' => 'required|exists:seats,id',
             'doan' => 'nullable|array',
-            'doan.*.doan_id' => 'exists:foods,id',
+            'doan.*.doan_id' => 'nullable|exists:foods,id',
             'doan.*.so_luong_do_an' => 'nullable|numeric|min:1',
             'ma_giam_gia' => 'nullable|string|max:255',
             'ghi_chu' => 'nullable|string|max:255',
@@ -122,16 +122,21 @@ class BookingController extends Controller
 
         $doAnDetails = [];
         $tongTienDoAn = 0;
+        if (!empty($request->doan)) {
+            foreach ($request->doan as $doan) {
+                $food = Food::find($doan['doan_id']);
+                if ($food) {
 
-        foreach ($request->doan as $doan) {
-            $food = Food::find($doan['doan_id']);
-            if ($food) {
-                $doAnDetails[] = ['ten_do_an' => $food->ten_do_an, 'so_luong' => $doan['so_luong_do_an']];
-                $tongTienDoAn += $food->gia * $doan['so_luong_do_an'];
+                    $doAnDetails[] = ['ten_do_an' => $food->ten_do_an, 'so_luong_do_an' => $doan['so_luong_do_an']];
+                    $tongTienDoAn += $food->gia * $doan['so_luong_do_an'];
+                }
             }
         }
 
-        $doAnString = $this->formatDoAnString($request->doan);
+        //dd($doAnDetails);
+        $doAnString = $this->formatDoAnString($doAnDetails);
+
+        //dd($doAnString);
 
         // Tính tổng tiền
         $tongTien = $this->tongTien($showtime, $selectedSeats, $tongTienDoAn);
@@ -140,7 +145,7 @@ class BookingController extends Controller
         if ($request->ma_giam_gia) {
             $result = $this->tinhTienVoucher($request->ma_giam_gia, $tongTien);
             if (isset($result['error'])) {
-                return response()->json($result, 400); 
+                return response()->json($result, 400);
             }
             $tongTien = $result['tong_tien_sau_giam'];
         }
@@ -175,7 +180,7 @@ class BookingController extends Controller
         return response()->json([
             'message' => 'Tạo Booking thành công, vui lòng thanh toán.',
             'data' => $booking,
-            'doan_details' =>  $doAnDetails // chỉ để xem dữ liệu thôi
+            //'doan_details' =>  $doAnDetails // chỉ để xem dữ liệu thôi
         ], 200);
     }
 
@@ -184,15 +189,11 @@ class BookingController extends Controller
     {
         $doAnList = [];
         foreach ($doanDetails as $doan) {
-            // Kiểm tra nếu 'ten_do_an' tồn tại trong mỗi phần tử
-            if (isset($doan['ten_do_an'])) {
+            if (isset($doan['ten_do_an']) && isset($doan['so_luong_do_an'])) {
                 $doAnList[] = $doan['ten_do_an'] . ' (x' . $doan['so_luong_do_an'] . ')';
-            } else {
-                // Nếu không có tên món ăn, bạn có thể xử lý tùy ý, ví dụ: bỏ qua hoặc báo lỗi
-                $doAnList[] = 'Món ăn không xác định (x' . $doan['so_luong_do_an'] . ')';
             }
         }
-        return implode(', ', $doAnList); // Chuyển thành chuỗi với định dạng: "Phở bò (x2), Bánh mì (x2)"
+        return implode(', ', $doAnList); 
     }
 
 
@@ -273,6 +274,4 @@ class BookingController extends Controller
             'message' => 'Xóa thành công booking theo id'
         ], 200);
     }
-
-
 }

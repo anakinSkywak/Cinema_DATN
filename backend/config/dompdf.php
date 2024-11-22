@@ -190,7 +190,7 @@ return [
          *
          * @var string
          */
-        'default_font' => 'serif',
+        // 'default_font' => 'serif',
 
         /**
          * Image DPI setting
@@ -297,7 +297,7 @@ return [
         /**
          * A ratio applied to the fonts height to be more like browsers' line height
          */
-        'font_height_ratio' => 1.1,
+        // 'font_height_ratio' => 1.1,
 
         /**
          * Use the HTML5 Lib parser

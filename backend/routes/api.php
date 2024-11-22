@@ -58,7 +58,9 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::middleware('auth:api')->group(function () {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
-
+        //call api CouponCodeTaken T
+        Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+        Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
         // Đăng xuất - vô hiệu hóa token
         Route::post('logout', [AuthController::class, 'logout']);
 
@@ -111,7 +113,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 
     // in bill  
-    Route::get('/bill/{id}', [BillController::class, 'exportBill']);
+    //Route::get('/bill/{id}', [BillController::class, 'exportBill']);
 });
 
 

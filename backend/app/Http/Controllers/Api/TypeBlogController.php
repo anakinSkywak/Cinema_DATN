@@ -61,13 +61,14 @@ class TypeBlogController extends Controller
     public function destroy($id)
     {
         $typeBlog = TypeBlog::find($id);
-
+    
         if (!$typeBlog) {
             return response()->json(['message' => 'Loại bài viết không tồn tại'], 404);
         }
-
+    
         $typeBlog->delete();
-
+    
         return response()->json(['message' => 'Loại bài viết đã được xóa']);
     }
+    
 }

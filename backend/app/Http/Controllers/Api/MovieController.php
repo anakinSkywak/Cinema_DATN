@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use function PHPUnit\Framework\isEmpty;
+
 class MovieController extends Controller
 {
 
@@ -20,6 +22,24 @@ class MovieController extends Controller
     {
         // call show all du lieu ra 
         $movieall = Movie::with('movie_genres')->orderBy('id', 'DESC')->get();
+        //dd($data);
+        if ($movieall->isEmpty()) {
+
+            return response()->json([
+                'message' => 'Không có dữ liệu Movie nào'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Hiện thị dữ liệu thành công',
+            'data' => $movieall
+        ], 200);
+    }
+
+    public function bookingtick()
+    {
+        // call show all du lieu ra 
+        $movieall = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Đang Chiếu')->orderBy('id', 'DESC')->get();
         //dd($data);
         if ($movieall->isEmpty()) {
 
@@ -70,6 +90,8 @@ class MovieController extends Controller
             'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric',
         ]);
+
+        //dd($validated);
 
         // check ko chấp nhận kiểu ảnh webp : check sau
 
@@ -138,6 +160,7 @@ class MovieController extends Controller
     // cập nhật phim với các thông tin thay đổi đang lỗi fix sau
     public function update(Request $request, string $id)
     {
+<<<<<<< HEAD
         try {
             // Tìm phim theo id
             $movie = Movie::find($id);
@@ -202,7 +225,69 @@ class MovieController extends Controller
                 'message' => 'Có lỗi xảy ra khi cập nhật phim',
                 'error' => $e->getMessage()
             ], 500);
+=======
+
+        $request->validate([
+            'ten_phim' => 'required|string|max:255',
+            'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'dao_dien' => 'required|string|max:255',
+            'dien_vien' => 'required|string|max:255',
+            'noi_dung' => 'required|string|max:255',
+            'trailer' => 'required|string|url|max:255',
+            'gia_ve' => 'required|numeric',
+            'hinh_thuc_phim' => 'required|string|max:255',
+            'loaiphim_ids' => 'required|array',
+            'loaiphim_ids.*' => 'exists:moviegenres,id',
+            'thoi_gian_phim' => 'required|numeric',
+        ]);
+
+
+        $movie = Movie::find($id);
+
+        if (!$movie) {
+            return response()->json([
+                'message' => 'Không có phim theo id ' . $id
+            ], 404);
         }
+
+        $imagePath = $movie->anh_phim;
+
+        // Xử lý ảnh phim
+        if ($request->hasFile('anh_phim')) {
+            if ($movie->anh_phim && file_exists(public_path($imagePath))) {
+                unlink(public_path($imagePath));
+            }
+
+
+            $file = $request->file('anh_phim');
+            $filename = $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
+            $imagePath = '/storage/' . $filePath;
+>>>>>>> 061cbab0d92a33854a796f7edf5634aaf3a3cd41
+        }
+
+
+        // Cập nhật dữ liệu phim
+        $movie->update([
+            'ten_phim' => $request->ten_phim,
+            'anh_phim' => $imagePath,
+            'dao_dien' => $request->dao_dien,
+            'dien_vien' => $request->dien_vien,
+            'noi_dung' => $request->noi_dung,
+            'trailer' => $request->trailer,
+            'gia_ve' => $request->gia_ve,
+            'hinh_thuc_phim' => $request->hinh_thuc_phim,
+            'thoi_gian_phim' => $request->thoi_gian_phim,
+        ]);
+
+        $movie->movie_genres()->sync($request->loaiphim_ids);
+
+
+        return response()->json([
+            'message' => 'Cập nhật thành công',
+            'data' => $movie->load('movie_genres'),
+            'image_url' => asset($movie->anh_phim),
+        ], 200);
     }
 
 
