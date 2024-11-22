@@ -9,7 +9,13 @@ class Blog extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['loaibaiviet_id', 'tieu_de', 'anh_bai_viet', 'noi_dung', 'ngay_viet'];
+    protected $fillable = [
+        'loaibaiviet_id',
+        'tieu_de',
+        'anh_bai_viet',
+        'noi_dung',
+        'ngay_viet'
+    ];
 
     public function typeBlog()
     {

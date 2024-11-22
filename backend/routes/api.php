@@ -40,6 +40,9 @@ Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
 // show all user
 Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
+// update user bên admin
+Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+
 // xóa user bên admin
 Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
 
@@ -54,12 +57,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::middleware('auth:api')->group(function () {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
-
+        //call api CouponCodeTaken T
+        Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+        Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
         // Đăng xuất - vô hiệu hóa token
         Route::post('logout', [AuthController::class, 'logout']);
 
         // Cập nhật thông tin tài khoản
-        Route::post('updateProfile', [AuthController::class, 'updateProfile']);
+        Route::put('updateProfile', [AuthController::class, 'updateProfile']);
     });
 
     // Route xử lý khi chưa xác thực
@@ -103,7 +108,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 
     // in bill  
-    Route::get('/bill/{id}', [BillController::class, 'exportBill']);
+    //Route::get('/bill/{id}', [BillController::class, 'exportBill']);
 });
 
 
@@ -156,7 +161,7 @@ Route::get('addMovie', [MovieController::class, 'getMovieGenre']);
 Route::post('storeMovie', [MovieController::class, 'store']);
 Route::get('showMovie/{id}', [MovieController::class, 'show']);
 Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
-Route::put('updateMovie/{id}', [MovieController::class, 'update']);
+Route::post('updateMovie/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'delete']);
 Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
 Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']);
@@ -177,7 +182,7 @@ Route::get('foods', [FoodController::class, 'index']);
 Route::post('storeFood', [FoodController::class, 'store']);
 Route::get('showFood/{id}', [FoodController::class, 'show']);
 Route::get('editFood/{id}', [FoodController::class, 'edit']);
-Route::put('updateFood/{id}', [FoodController::class, 'update']);
+Route::post('updateFood/{id}', [FoodController::class, 'update']);
 Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);
 Route::put('stopFood/{id}', [FoodController::class, 'stopFood']);
 Route::put('openFood/{id}', [FoodController::class, 'openFood']);
@@ -201,9 +206,8 @@ Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
 Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
 Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
 Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
-Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);  // xoa theo id
 // call api BlogController T
-Route::apiResource('blogs', BlogController::class);
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
 Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
 Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
@@ -292,8 +296,8 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
-//call api CouponCodeTaken T
-Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+
+
 //call api moment
 Route::get('moments', [MomentController::class, 'index']);
 Route::post('moments', [MomentController::class, 'store']);

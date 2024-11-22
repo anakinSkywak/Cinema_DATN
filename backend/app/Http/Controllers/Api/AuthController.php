@@ -13,10 +13,12 @@ use App\Models\RegisterMember;
 use App\Models\PasswordResetToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+
 
 
 class AuthController extends Controller
@@ -50,6 +52,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Không thể đăng nhập'], 401);
         }
 
+
         // kiểm tra email có được xác thực không
         // $user = auth()->user();
         // if ($user->email_verified_at === null) {
@@ -62,6 +65,8 @@ class AuthController extends Controller
         // nếu tất cả đúng thì trả về token
         return $this->createNewToken($token);
     }
+
+  
 
     // Đăng ký tài khoản người dùng với xác thực
     public function register(Request $request)
@@ -143,14 +148,14 @@ class AuthController extends Controller
         }
     }
 
-    // tạo token mới khi người dùng đăng nhập
+    //tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
     {
         return response()->json([
             'access-token' => $token,
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60, // Lấy TTL từ tệp cấu hình
-            'auth' => auth()->user(),
+            //'auth' => auth()->user(),
         ]);
     }
 
@@ -189,12 +194,12 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $user = JWTAuth::parseToken()->authenticate(); // lấy đối tượng User
+        $user = JWTAuth::parseToken()->authenticate();
 
         $validator = Validator::make($request->all(), [
             'ho_ten' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->user_id,
-            'so_dien_thoai' => 'required|string|max:10|unique:users,so_dien_thoai,' . $user->user_id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'so_dien_thoai' => 'required|string|size:10|unique:users,so_dien_thoai,' . $user->id,
             'gioi_tinh' => 'required|in:nam,nu,khac',
         ]);
 
@@ -303,6 +308,24 @@ class AuthController extends Controller
             'data' => $data
         ]);
     }
+
+    // update user bên admin
+    public function updateUser(Request $request, $id)
+    {
+        $data = User::find($id);
+
+        if (!$data) {
+            return response()->json([
+                "message" => "Không tìm thấy user"
+            ], 404);
+        }
+
+        $data->update($request->all());
+
+        return response()->json([
+            "message" => "Bạn đã cập nhật user thành công"
+        ], 200);
+    }       
 
     // xóa user bên admin
 

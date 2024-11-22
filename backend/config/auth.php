@@ -46,6 +46,14 @@ return [
         'provider' => 'users',
         'hash' => false,
     ],
+
+    //// Ánh làm login k giới hạn token
+
+    // 'api' => [
+    //     'driver' => 'passport',
+    //     'provider' => 'users',
+    //     'hash' => false,
+    // ],
 ],
 
     

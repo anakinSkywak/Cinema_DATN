@@ -171,6 +171,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+
+        // Ánh làm login k giới hạn token
+        //Laravel\Passport\PassportServiceProvider::class
+
     ])->toArray(),
 
     /*
