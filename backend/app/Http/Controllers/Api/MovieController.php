@@ -36,6 +36,24 @@ class MovieController extends Controller
         ], 200);
     }
 
+    public function bookingtick()
+    {
+        // call show all du lieu ra 
+        $movieall = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Đang Chiếu')->orderBy('id', 'DESC')->get();
+        //dd($data);
+        if ($movieall->isEmpty()) {
+
+            return response()->json([
+                'message' => 'Không có dữ liệu Movie nào'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Hiện thị dữ liệu thành công',
+            'data' => $movieall
+        ], 200);
+    }
+
 
     // đổ all thể loại phim để chọn ghi thêm mới phim
     public function getMovieGenre()

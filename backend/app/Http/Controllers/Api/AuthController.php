@@ -155,7 +155,7 @@ class AuthController extends Controller
             'access-token' => $token,
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60, // Lấy TTL từ tệp cấu hình
-            //'auth' => auth()->user(),
+            'auth' => auth()->user(),
         ]);
     }
 
