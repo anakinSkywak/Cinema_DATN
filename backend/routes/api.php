@@ -154,14 +154,22 @@ Route::middleware('auth:api')->group(function () {
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
-Route::get('seats', [SeatController::class, 'index']);
-Route::get('addSeat', [SeatController::class, 'addSeat']);
-Route::post('storeSeat', [SeatController::class, 'store']);
-Route::get('showSeat/{id}', [SeatController::class, 'show']);
-Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
-Route::put('updateSeat/{id}', [SeatController::class, 'update']);
-Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
 
+// việt phần quyền admin
+Route::middleware('auth:api', 'role:admin')->group(function () {
+    Route::get('seats', [SeatController::class, 'index']);
+    Route::get('addSeat', [SeatController::class, 'addSeat']);
+    Route::post('storeSeat', [SeatController::class, 'store']);
+    Route::get('showSeat/{id}', [SeatController::class, 'show']);
+    Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
+    Route::put('updateSeat/{id}', [SeatController::class, 'update']);
+    Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
+});
+
+// việt phần quyền user, nhân viên và admin
+Route::middleware('auth:api')->group(function () {
+    Route::get('seats', [SeatController::class, 'index']);
+});
 
 // Ánh : call api moviegenres
 Route::get('moviegenres', [MoviegenreController::class, 'index']);
