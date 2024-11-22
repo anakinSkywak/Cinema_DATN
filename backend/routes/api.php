@@ -284,18 +284,21 @@ Route::middleware('auth:api')->group(function(){
     });
 });
 
+// route blog
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+    Route::get('blogs', [BlogController::class, 'index']); // xuat all
+    Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
+        Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
+        Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
+    });
+});
 
 
-
-// Route::apiResource('type_blogs', TypeBlogController::class);
-
-// call api BlogController T
-Route::apiResource('blogs', BlogController::class);
-Route::get('blogs', [BlogController::class, 'index']); // xuat all
-Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
-Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
-Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
-Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
 
 
