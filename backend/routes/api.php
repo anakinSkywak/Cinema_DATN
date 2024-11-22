@@ -38,14 +38,18 @@ Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
     ->middleware(['throttle:6,1'])
     ->name('verifyEmail');
 
-// show all user
-Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
-// update user bên admin
-Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+Route::middleware('auth:api', 'role:admin')->group(function(){
+        // show all user
+    Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
-// xóa user bên admin
-Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
+    // update user bên admin
+    Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+
+    // xóa user bên admin
+    Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
+});
+
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     // Đăng ký người dùng mới
