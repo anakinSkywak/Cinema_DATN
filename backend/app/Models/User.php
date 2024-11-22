@@ -12,10 +12,11 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Laravel\Passport\HasApiTokens as PassportHasApiTokens;
 
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, MustVerifyEmailTrait;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, MustVerifyEmailTrait ;
 
     /**
      * The attributes that are mass assignable.

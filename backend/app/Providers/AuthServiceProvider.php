@@ -4,6 +4,7 @@ namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,13 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        //Ánh làm login k giới hạn token
+        // $this->registerPolicies();
+
+        // Passport::ignoreRoutes();
+
+        // Passport::personalAccessTokensExpireIn(null);
+        // Passport::tokensExpireIn(null);
+        // Passport::refreshTokensExpireIn(null);
     }
 }

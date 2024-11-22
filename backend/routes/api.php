@@ -106,7 +106,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 
     // in bill  
-    Route::get('/bill/{id}', [BillController::class, 'exportBill']);
+    //Route::get('/bill/{id}', [BillController::class, 'exportBill']);
 });
 
 
