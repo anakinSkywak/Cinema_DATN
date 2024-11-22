@@ -155,41 +155,57 @@ Route::middleware('auth:api')->group(function () {
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 
-// việt phần quyền admin
-Route::middleware('auth:api', 'role:admin')->group(function () {
-    Route::get('seats', [SeatController::class, 'index']);
-    Route::get('addSeat', [SeatController::class, 'addSeat']);
-    Route::post('storeSeat', [SeatController::class, 'store']);
-    Route::get('showSeat/{id}', [SeatController::class, 'show']);
-    Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
-    Route::put('updateSeat/{id}', [SeatController::class, 'update']);
-    Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
-});
-
 // việt phần quyền user, nhân viên và admin
 Route::middleware('auth:api')->group(function () {
     Route::get('seats', [SeatController::class, 'index']);
+    Route::get('showSeat/{id}', [SeatController::class, 'show']);
+
+    // việt phần quyền admin
+    Route::middleware('role:admin')->group(function () {
+        Route::get('addSeat', [SeatController::class, 'addSeat']);
+        Route::post('storeSeat', [SeatController::class, 'store']);
+        Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
+        Route::put('updateSeat/{id}', [SeatController::class, 'update']);
+        Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
+    });
+
 });
 
 // Ánh : call api moviegenres
-Route::get('moviegenres', [MoviegenreController::class, 'index']);
-Route::post('storeMoviegenre', [MoviegenreController::class, 'store']);
-Route::get('showMoviegenre/{id}', [MoviegenreController::class, 'show']);
-Route::get('editMoviegenre/{id}', [MoviegenreController::class, 'edit']);
-Route::put('updateMoviegenre/{id}', [MoviegenreController::class, 'update']);
-Route::delete('moviegenre/{id}', [MoviegenreController::class, 'delete']);
+
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+    Route::get('moviegenres', [MoviegenreController::class, 'index']);
+    Route::get('showMoviegenre/{id}', [MoviegenreController::class, 'show']);
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('storeMoviegenre', [MoviegenreController::class, 'store']);
+        Route::get('editMoviegenre/{id}', [MoviegenreController::class, 'edit']);
+        Route::put('updateMoviegenre/{id}', [MoviegenreController::class, 'update']);
+        Route::delete('moviegenre/{id}', [MoviegenreController::class, 'delete']);
+    });
+});
 
 
-//Ánh call api movie
-Route::get('movies', [MovieController::class, 'index']);
-Route::get('addMovie', [MovieController::class, 'getMovieGenre']);
-Route::post('storeMovie', [MovieController::class, 'store']);
-Route::get('showMovie/{id}', [MovieController::class, 'show']);
-Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
-Route::put('updateMovie/{id}', [MovieController::class, 'update']);
-Route::delete('movies/{id}', [MovieController::class, 'delete']);
-Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
-Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']);
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+
+    //Ánh call api movie
+    Route::get('movies', [MovieController::class, 'index']);
+    Route::get('showMovie/{id}', [MovieController::class, 'show']);
+    Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
+    Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']);
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('storeMovie', [MovieController::class, 'store']);
+        Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
+        Route::put('updateMovie/{id}', [MovieController::class, 'update']);
+        Route::delete('movies/{id}', [MovieController::class, 'delete']);
+    });
+});
+
 
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
