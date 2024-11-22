@@ -80,16 +80,20 @@ Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])-
 
 // chi tiết theo id phim khi ấn vào phim ở home
 // 1
-//http://127.0.0.1:8000/api/movie-detail/31
-Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
 
-// 2
-//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
-Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
+Route::middleware('auth:api')->group(function(){
 
-// 3
-//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00
-Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getRoomsByShowtime']);
+    //http://127.0.0.1:8000/api/movie-detail/31
+    Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
+    
+    // 2
+    //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
+    Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
+    
+    // 3
+    //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00
+    Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getRoomsByShowtime']);
+});
 
 
 Route::middleware('auth:api')->group(function () {
