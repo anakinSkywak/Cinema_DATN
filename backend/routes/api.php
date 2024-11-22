@@ -124,15 +124,33 @@ Route::put('confirm-booking-detail/{id}', [BookingDetailController::class, 'conf
 
 
 //Ánh call api rooms
-Route::get('rooms', [RoomController::class, 'index']);
-Route::post('storeRoom', [RoomController::class, 'store']);
-Route::get('showRoom/{id}', [RoomController::class, 'show']);
-Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);
-Route::put('updatetRoom/{id}', [RoomController::class, 'update']);
-Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);
-Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
-Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
-Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
+
+// việt phần quyền admin
+Route::middleware('auth:api', 'role:admin')->group(function () {
+
+    Route::post('storeRoom', [RoomController::class, 'store']);
+    Route::get('showRoom/{id}', [RoomController::class, 'show']);
+    Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);
+    Route::put('updatetRoom/{id}', [RoomController::class, 'update']);
+    Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);
+    Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
+    Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
+    Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
+});
+
+// việt phần quyền nhân viên và admin
+Route::middleware('auth:api', 'role:admin|nhan_vien')->group(function () {
+    Route::get('showRoom/{id}', [RoomController::class, 'show']);
+    Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);
+    Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
+    Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
+    Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
+});
+
+// việt phần quyền user, nhân viên và admin
+Route::middleware('auth:api')->group(function () {
+    Route::get('rooms', [RoomController::class, 'index']);
+});
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
