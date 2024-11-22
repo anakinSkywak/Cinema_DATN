@@ -365,16 +365,23 @@ Route::middleware('auth:api')->group(function(){
 // Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
 // Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
 
-
-
-
 //cal api contacts T
-Route::get('contacts', [ContactController::class, 'index']);
-Route::get('contacts/{id}', [ContactController::class, 'show']);
-Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
-Route::post('contacts', [ContactController::class, 'store']);
-Route::put('contacts/{id}', [ContactController::class, 'update']);
-Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+    Route::get('contacts', [ContactController::class, 'index']);
+    Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
+    Route::get('contacts/{id}', [ContactController::class, 'show']);
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('contacts', [ContactController::class, 'store']);
+        Route::put('contacts/{id}', [ContactController::class, 'update']);
+        Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
+    });
+});
+
+
+
 //call api rotations T
 Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
 Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
