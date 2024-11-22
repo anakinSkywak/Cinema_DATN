@@ -409,17 +409,23 @@ Route::middleware('auth:api')->group(function(){
     });
 });
 
-
-
-
-//call api CouponCodeTaken T
 Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+
 //call api moment
-Route::get('moments', [MomentController::class, 'index']);
-Route::post('moments', [MomentController::class, 'store']);
-Route::get('moments/{id}', [MomentController::class, 'show']);
-Route::put('moments/{id}', [MomentController::class, 'update']);
-Route::delete('moments/{id}', [MomentController::class, 'destroy']);
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+    Route::get('moments', [MomentController::class, 'index']);
+    Route::get('moments/{id}', [MomentController::class, 'show']);
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('moments', [MomentController::class, 'store']);
+        Route::put('moments/{id}', [MomentController::class, 'update']);
+        Route::delete('moments/{id}', [MomentController::class, 'destroy']);
+    });
+});
+
+
 
 
 Route::middleware('auth:api')->group(function () {
