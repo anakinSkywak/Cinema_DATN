@@ -104,7 +104,7 @@
         <table border="0" cellpadding="0" cellspacing="0" width="100%" class="main-table">
           <tr>
             <td class="header">
-              <img src="https://www.blogdesire.com/wp-content/uploads/2019/07/blogdesire-1.png" alt="Logo" width="48" style="display: block; margin: 0 auto;">
+              <img src="{{ asset('assets/images/logo.png') }}" alt="Logo" width="48" style="display: block; margin: 0 auto;">
             </td>
           </tr>
 
