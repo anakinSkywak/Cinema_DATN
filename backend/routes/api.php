@@ -381,13 +381,23 @@ Route::middleware('auth:api')->group(function(){
 });
 
 
-
 //call api rotations T
-Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
-Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
-Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
-Route::put('/rotations/{id}', [RotationsController::class, 'update']);
-Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+    Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
+    Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
+        Route::put('/rotations/{id}', [RotationsController::class, 'update']);
+        Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
+    });
+});
+
+
+
+
 
 
 //call api countdown_vouchers T
