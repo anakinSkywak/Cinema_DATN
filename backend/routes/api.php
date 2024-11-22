@@ -269,14 +269,26 @@ Route::middleware('auth:api')->group(function(){
 });
 
 
+// Ánh : call api type_blogs T
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
 
-// call api type_blogs T
+    Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
+    Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
+        Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
+        Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
+    });
+});
+
+
+
+
 // Route::apiResource('type_blogs', TypeBlogController::class);
-Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
-Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
-Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
-Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
-Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
+
 // call api BlogController T
 Route::apiResource('blogs', BlogController::class);
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
