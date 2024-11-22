@@ -390,22 +390,28 @@ Route::middleware('auth:api')->group(function(){
     // chỉ có role admin
     Route::middleware('role:admin')->group(function(){
         Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
-        Route::put('/rotations/{id}', [RotationsController::class, 'update']);
-        Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
+        Route::put('rotations/{id}', [RotationsController::class, 'update']);
+        Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
+    });
+});
+
+//call api countdown_vouchers T
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+    Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
+    Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
+        Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
+        Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
     });
 });
 
 
 
 
-
-
-//call api countdown_vouchers T
-Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
-Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
-Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
-Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
-Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
 //call api CouponCodeTaken T
 Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
 //call api moment
