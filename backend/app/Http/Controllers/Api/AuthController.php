@@ -13,10 +13,12 @@ use App\Models\RegisterMember;
 use App\Models\PasswordResetToken;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+
 
 
 class AuthController extends Controller
@@ -50,6 +52,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Không thể đăng nhập'], 401);
         }
 
+
         // kiểm tra email có được xác thực không
         // $user = auth()->user();
         // if ($user->email_verified_at === null) {
@@ -62,6 +65,8 @@ class AuthController extends Controller
         // nếu tất cả đúng thì trả về token
         return $this->createNewToken($token);
     }
+
+  
 
     // Đăng ký tài khoản người dùng với xác thực
     public function register(Request $request)
@@ -143,14 +148,14 @@ class AuthController extends Controller
         }
     }
 
-    // tạo token mới khi người dùng đăng nhập
+    //tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
     {
         return response()->json([
             'access-token' => $token,
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60, // Lấy TTL từ tệp cấu hình
-            'auth' => auth()->user(),
+            //'auth' => auth()->user(),
         ]);
     }
 
