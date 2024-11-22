@@ -15,15 +15,23 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-
         // Kiểm tra xem người dùng đã đăng nhập chưa
-        if(!auth()->check()){
-            return response()->json(['message' => 'Bạn không có quyền truy cập'], 403);
+        if (!auth()->check()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Vui lòng đăng nhập để tiếp tục'
+            ], 401);
         }
 
-        // Kiểm tra xem người dùng có vai trò phù hợp không
-        if(!in_array(auth()->user()->role, $roles)){
-            return response()->json(['message' => 'Bạn không có quyền truy cập'], 403);
+        // Lấy vai trò của người dùng hiện tại
+        $userRole = auth()->user()->vai_tro;
+
+        // Kiểm tra xem vai trò của người dùng có trong danh sách vai trò được phép không
+        if (!in_array($userRole, $roles)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Bạn không có quyền truy cập chức năng này'
+            ], 403);
         }
 
         return $next($request);
