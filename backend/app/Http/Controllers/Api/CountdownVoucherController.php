@@ -28,6 +28,7 @@ class CountdownVoucherController extends Controller
     {
         $validated = $request->validate([
             'magiamgia_id' => 'required|exists:vouchers,id',
+            'ngay' => 'required|date|after_or_equal:today', // Ngày phải là hôm nay hoặc trong tương lai
             'thoi_gian_bat_dau' => 'required|date_format:H:i:s',
             'thoi_gian_ket_thuc' => 'required|date_format:H:i:s|after:thoi_gian_bat_dau',
             'so_luong' => 'required|integer|min:1',
@@ -43,18 +44,28 @@ class CountdownVoucherController extends Controller
             ], 400);
         }
         
-        // Kiểm tra thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại
-        $currentTime = Carbon::now()->format('H:i:s');
-        if (Carbon::parse($validated['thoi_gian_bat_dau'])->lt($currentTime)) {
+        // Kiểm tra nếu ngày là hôm nay thì thoi_gian_bat_dau phải lớn hơn hoặc bằng thời gian hiện tại
+        if (Carbon::parse($validated['ngay'])->isToday()) {
+            $currentTime = Carbon::now()->format('H:i:s');
+            // So sánh thời gian bắt đầu với thời gian hiện tại
+            if (Carbon::parse($validated['thoi_gian_bat_dau'])->lt($currentTime)) {
+                return response()->json([
+                    'message' => 'Thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại.'
+                ], 400);
+            }
+        }
+    
+        // Kiểm tra thoi_gian_ket_thuc không vượt quá 23:59:59 và phải lớn hơn thoi_gian_bat_dau
+        $maxEndTime = '23:59:59';
+        if (Carbon::parse($validated['thoi_gian_ket_thuc'])->gt($maxEndTime)) {
             return response()->json([
-                'message' => 'Thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại (' . $currentTime . ').'
+                'message' => 'Thời gian kết thúc không được lớn hơn 23:59:59.'
             ], 400);
         }
-        
         // Tạo CountdownVoucher mới, so_luong_con_lai tự động bằng so_luong
         $countdownVoucher = CountdownVoucher::create([
             'magiamgia_id' => $validated['magiamgia_id'],
-            'ngay' => Carbon::today()->toDateString(), // Ngày luôn là hôm nay
+            'ngay' => $validated['ngay'],
             'thoi_gian_bat_dau' => $validated['thoi_gian_bat_dau'],
             'thoi_gian_ket_thuc' => $validated['thoi_gian_ket_thuc'],
             'so_luong' => $validated['so_luong'],
@@ -78,15 +89,7 @@ class CountdownVoucherController extends Controller
     {
         $validated = $request->validate([
             'magiamgia_id' => 'required|exists:vouchers,id',
-            'ngay' => [
-                'required',
-                'date',
-                function ($attribute, $value, $fail) {
-                    if (!Carbon::parse($value)->isToday()) {
-                        $fail('Ngày phải là ngày hôm nay.');
-                    }
-                },
-            ],
+            'ngay' => 'required|date|after_or_equal:today', // Ngày phải là hôm nay hoặc tương lai
             'thoi_gian_bat_dau' => 'required|date_format:H:i:s',
             'thoi_gian_ket_thuc' => 'required|date_format:H:i:s|after:thoi_gian_bat_dau',
             'so_luong' => 'required|integer|min:1',
@@ -94,27 +97,36 @@ class CountdownVoucherController extends Controller
             'trang_thai' => 'nullable|integer|in:0,1',
         ]);
     
-        // Lấy số lượng từ bảng 'vouchers' dựa trên 'magiamgia_id'
+        // Lấy số lượng từ bảng 'vouchers'
         $voucher = Voucher::find($validated['magiamgia_id']);
-    
         if ($validated['so_luong'] > $voucher->so_luong) {
             return response()->json([
                 'message' => 'Số lượng trong countdown voucher không thể lớn hơn số lượng trong voucher.',
             ], 400);
         }
     
-        // Kiểm tra số lượng còn lại không được lớn hơn số lượng đã nhập
+        // Kiểm tra số lượng còn lại không được lớn hơn tổng số lượng
         if (isset($validated['so_luong_con_lai']) && $validated['so_luong_con_lai'] > $validated['so_luong']) {
             return response()->json([
                 'message' => 'Số lượng còn lại không thể lớn hơn tổng số lượng.',
             ], 400);
         }
     
-        // Kiểm tra thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại
-        $currentTime = Carbon::now()->format('H:i:s');
-        if (Carbon::parse($validated['thoi_gian_bat_dau'])->lt($currentTime)) {
+        // Kiểm tra nếu ngày là hôm nay thì `thoi_gian_bat_dau` phải lớn hơn hoặc bằng thời gian hiện tại
+        if (Carbon::parse($validated['ngay'])->isToday()) {
+            $currentTime = Carbon::now()->format('H:i:s');
+            if (Carbon::parse($validated['thoi_gian_bat_dau'])->lt($currentTime)) {
+                return response()->json([
+                    'message' => 'Thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại (' . $currentTime . ').'
+                ], 400);
+            }
+        }
+    
+        // Kiểm tra `thoi_gian_ket_thuc` không vượt quá 23:59:59
+        $maxEndTime = '23:59:59';
+        if (Carbon::parse($validated['thoi_gian_ket_thuc'])->gt($maxEndTime)) {
             return response()->json([
-                'message' => 'Thời gian bắt đầu phải lớn hơn hoặc bằng thời gian hiện tại (' . $currentTime . ').'
+                'message' => 'Thời gian kết thúc không được lớn hơn 23:59:59.',
             ], 400);
         }
     
@@ -122,7 +134,7 @@ class CountdownVoucherController extends Controller
         $countdownVoucher = CountdownVoucher::findOrFail($id);
         $countdownVoucher->update([
             'magiamgia_id' => $validated['magiamgia_id'],
-            'ngay' => Carbon::today()->toDateString(),
+            'ngay' => $validated['ngay'],
             'thoi_gian_bat_dau' => $validated['thoi_gian_bat_dau'],
             'thoi_gian_ket_thuc' => $validated['thoi_gian_ket_thuc'],
             'so_luong' => $validated['so_luong'],
