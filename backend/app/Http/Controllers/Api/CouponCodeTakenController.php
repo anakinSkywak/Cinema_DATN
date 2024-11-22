@@ -66,13 +66,13 @@ class CouponCodeTakenController extends Controller
         $user = Auth::user(); // Lấy thông tin người dùng đang đăng nhập
 
         // Kiểm tra xem mã giảm giá còn khả dụng không
-        $countdownVoucher = CountdownVoucher::where('trang_thai', 0)
-            ->where('so_luong_con_lai', '>', 0)
-            ->whereDate('ngay', '=', now()->toDateString())
-            ->whereTime('thoi_gian_bat_dau', '<=', now())
-            ->whereTime('thoi_gian_ket_thuc', '>=', now())
-            ->first();
-
+        $countdownVoucher = CountdownVoucher::where('id', $request->countdownvoucher_id) // Kiểm tra mã giảm giá cụ thể
+        ->where('trang_thai', 0) // Kiểm tra trạng thái là 0
+        ->where('so_luong_con_lai', '>', 0) // Kiểm tra số lượng còn lại > 0
+        ->whereDate('ngay', '>=', Carbon::today()->toDateString()) // Ngày phải là hôm nay hoặc tương lai
+        ->whereTime('thoi_gian_bat_dau', '<=', Carbon::now()) // Thời gian bắt đầu phải trước hoặc bằng hiện tại
+        ->whereTime('thoi_gian_ket_thuc', '>=', Carbon::now()) // Thời gian kết thúc phải sau hiện tại
+        ->first(); 
         // Kiểm tra nếu không tìm thấy voucher
         if (!$countdownVoucher) {
             return response()->json(['message' => 'Mã giảm giá không còn khả dụng hoặc hết thời gian.'], 400);
