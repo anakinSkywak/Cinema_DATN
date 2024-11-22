@@ -14,26 +14,20 @@ class MemberController extends Controller
 {
     public function index(Request $request)
     {
-        // Kiểm tra vai trò
-        if (auth()->user()->vai_tro === 'admin') {
-            // Admin nhìn thấy tất cả thẻ hội viên, bao gồm cả những thẻ có trạng thái 0
-            $data = Member::all();
-        } else {
-            // Người dùng chỉ thấy các thẻ có trạng thái 1
-            $data = Member::where('trang_thai', 1)->get();
-        }
+        // Lấy tất cả dữ liệu từ bảng Member
+        $data = Member::all();
 
+        // Kiểm tra nếu không có dữ liệu
         if ($data->isEmpty()) {
             return response()->json(['message' => 'Không có dữ liệu Member nào'], 200);
         }
 
+        // Trả về dữ liệu thành công
         return response()->json([
             'message' => 'Hiển thị dữ liệu thành công',
             'data' => $data
-        ]);
+        ], 200);
     }
-
-
 
     public function store(Request $request)
     {
@@ -43,8 +37,8 @@ class MemberController extends Controller
             'uu_dai' => 'required|numeric',
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric',
-            'trang_thai' => 'required|integer',
+            'gia' => 'required|numeric'
+            
         ]);
 
         // Tạo mới Member
@@ -99,21 +93,38 @@ class MemberController extends Controller
         return response()->json(['message' => 'Xóa Member thành công'], 200);
     }
 
-    public function getMemberTypes()
+    public function getMemberTypes(Request $request)
     {
-        $members = Member::select('id', 'loai_hoi_vien', 'gia')
+        // Lấy tham số thời gian từ request (nếu có)
+        $thoi_gian = $request->input('thoi_gian', null); // Nếu không có, sẽ là null
+
+        // Lấy tất cả các loại hội viên đang hoạt động
+        $members = Member::select('id', 'loai_hoi_vien', 'gia', 'thoi_gian')
             ->where('trang_thai', 1)
             ->get();
 
+        // Kiểm tra nếu không có loại hội viên nào
         if ($members->isEmpty()) {
             return response()->json(['message' => 'Không có loại hội viên nào khả dụng'], 200);
         }
 
+        // Nếu người dùng thay đổi thời gian, tính lại tổng giá cho từng hội viên
+        if ($thoi_gian && is_numeric($thoi_gian) && $thoi_gian > 0) {
+            foreach ($members as $member) {
+                // Tính lại tổng tiền dựa trên thời gian người dùng chọn
+                $member->tong_tien = $member->gia * $thoi_gian;
+                $member->thoi_gian = $thoi_gian; // Cập nhật thời gian mới vào kết quả
+            }
+        }
+
+        // Trả về danh sách các loại hội viên với thông tin đã cập nhật
         return response()->json([
             'message' => 'Danh sách các loại hội viên khả dụng',
             'data' => $members
         ], 200);
     }
+
+
     public function updateStatus(Request $request, $id)
     {
         // Kiểm tra vai trò người dùng là admin

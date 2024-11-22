@@ -539,7 +539,7 @@ class PaymentController extends Controller
 
         // Check if payment has already been made
         if ($registerMember->trang_thai !== 0) {
-            return response()->json(['error' => 'Payment has already been processed for this register member'], 400);
+            return response()->json(['error' => 'Thanh toán đã tồn tại'], 400);
         }
 
         $money = $registerMember->tong_tien;

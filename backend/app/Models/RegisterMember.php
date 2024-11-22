@@ -26,9 +26,9 @@ class RegisterMember extends Model
     }
 
     // Quan hệ với Membership
-    public function membership()
+    public function memberships()
     {
-        return $this->hasOne(memberships::class, 'dangkyhoivien_id', 'id'); // Chỉ định khóa ngoại là 'dangkyhoivien_id' trong bảng 'memberships'
+        return $this->hasMany(memberships::class, 'dangkyhoivien_id', 'id'); // Chỉ định khóa ngoại là 'dangkyhoivien_id' trong bảng 'memberships'
     }
 
     // Quan hệ với Payment

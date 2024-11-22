@@ -42,10 +42,10 @@ use App\Http\Controllers\Api\CouponCodeTakenController;
 // route xu li , nhan xac thuc email ve email
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    
+
     // You can add logging here to debug
     \Illuminate\Support\Facades\Log::info('Email verified for user: ' . $request->user()->id);
-    
+
     $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
     return redirect($frontendUrl); // Add a query param to indicate success
 })->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
@@ -59,13 +59,15 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('login', [AuthController::class, 'login'])->name('login');
 
     // Các route yêu cầu xác thực token
-    Route::middleware('auth:api')->group(function() {
+    Route::middleware('auth:api')->group(function () {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
-        
+        // Route để đăng ký thẻ hội viên mới
+        Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+        Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'getUserMembership']);
         // Đăng xuất - vô hiệu hóa token
         Route::post('logout', [AuthController::class, 'logout']);
-        
+
         // Cập nhật thông tin tài khoản
         Route::post('updateProfile', [AuthController::class, 'updateProfile']);
     });
@@ -86,7 +88,7 @@ Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])-
 
 // chi tiết theo id phim khi ấn vào phim ở home
 
-Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']); 
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
 
 Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
 
@@ -105,14 +107,15 @@ Route::middleware('auth:api')->group(function () {
 
     // in bill  
     Route::get('/bill/{id}', [BillController::class, 'exportBill']);
-
 });
 
-// Route::middleware('auth:api')->group(function () {
+Route::middleware('auth:api')->group(function () {
+    // Route để xem thông tin thẻ hội viên theo ID
+    Route::get('memberships/{id}', [MemberShipsController::class, 'show']);
 
-//     Route::get('memberships/{id}', [MemberShipsController::class, 'show']);
-//     Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
-// });
+});
+Route::put('/update-register/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
+
 
 Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
 Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
@@ -217,7 +220,7 @@ Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 Route::apiResource('memberships', MembershipsController::class);
 Route::get('memberships', [MembershipsController::class, 'index']); // xuất all dữ liệu
 Route::post('memberships', [MembershipsController::class, 'store']); // thêm bản ghi mới
-Route::get('memberships/{id}', [MembershipsController::class, 'show']); // hiển thị theo id
+// Route::get('memberships/{id}', [MembershipsController::class, 'show']); // hiển thị theo id
 Route::put('memberships/{id}', [MembershipsController::class, 'update']); // cập nhật theo id
 Route::delete('memberships/{id}', [MembershipsController::class, 'destroy']); // xóa theo id
 
@@ -239,9 +242,8 @@ Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
 Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
-Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
- 
+
 
 
 
@@ -323,3 +325,8 @@ Route::get('payment/NCB-return1', [PaymentController::class, 'paymentReturn1']);
 Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
+
+
+// Route::get('memberships/{id}', [MembershipsController::class, 'show']);
+Route::middleware('auth:api')->get('auth/memberships/{id}', [MembershipsController::class, 'show']);
+

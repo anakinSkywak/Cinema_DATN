@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\MemberShips;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class MemberShipsController extends Controller
@@ -35,68 +36,93 @@ class MemberShipsController extends Controller
     public function show($id)
     {
         // Kiểm tra nếu người dùng đã đăng nhập
-        // if (!auth()->check()) {
-        //     return response()->json([
-        //         'message' => 'Bạn cần đăng nhập để xem thông tin thẻ hội viên!'
-        //     ], 401);  // 401 Unauthorized nếu chưa đăng nhập
-        // }
-
-        // Lấy thông tin thẻ hội viên của người dùng đã đăng nhập
-        // $membership = Memberships::with('registerMember')
-        //     ->where('dangkyhoivien_id', auth()->user()->id) // Chỉ lấy thẻ của người dùng hiện tại
-        //     ->find($id);
-
-        //test thử
-        $membership = Memberships::with('registerMember')->find($id);
-
-        if (!$membership) {
+        if (!auth()->check()) {
             return response()->json([
-                'message' => 'Thẻ hội viên không tồn tại!'
-            ], 404);
+                'message' => 'Bạn cần đăng nhập để xem thông tin thẻ hội viên!'
+            ], 401);  // 401 Unauthorized nếu chưa đăng nhập
         }
 
+        // Lấy user_id của người dùng đã đăng nhập
+        $user_id = auth()->user()->id;
+
+        $membership = Memberships::with('registerMember')
+            ->whereHas('registerMember', function ($query) use ($user_id) {
+                $query->where('user_id', $user_id);  
+            })
+            ->where('id', $id)  
+            ->first();
+
+        // Kiểm tra xem thẻ hội viên có tồn tại không và có thuộc người dùng này không
         if (!$membership) {
-            return response()->json([
-                'message' => 'Thẻ hội viên không tồn tại hoặc không phải của bạn!'
-            ], 404); // 404 nếu không tìm thấy thẻ hoặc thẻ không phải của người dùng hiện tại
+            return response()->json(['message' => 'Thẻ hội viên không tồn tại hoặc không phải của bạn!'], 404);
         }
 
-        // Xác định trạng thái thẻ dựa trên ngày hết hạn
-        $currentDate = now(); // Lấy thời gian hiện tại (bao gồm ngày và giờ)
+        // Thẻ hội viên hợp lệ, tiếp tục xử lý thông tin
+        $currentDate = now();
         $expirationDate = Carbon::parse($membership->ngay_het_han);
 
         if ($expirationDate->isBefore($currentDate)) {
-            // Thẻ đã hết hạn
-            $membership->trang_thai = 1;  // Thẻ hết hạn => Trạng thái = 1
+            $membership->trang_thai = 1;
             $membership->renewal_message = "Thẻ hội viên đã hết hạn. Vui lòng đăng ký lại thẻ hội viên mới!";
-
-            // Kiểm tra nếu thẻ đã hết hạn và không gia hạn trong vòng 2 ngày
-            if ($expirationDate->addDays(2)->isBefore($currentDate)) {
-                // Nếu đã qua 2 ngày sau khi hết hạn mà không gia hạn, xóa thẻ
-                $membership->delete();
-                return response()->json([
-                    'message' => 'Thẻ hội viên đã hết hạn hơn 2 ngày và đã bị xóa!',
-                ], 200);
-            }
         } else {
-            // Kiểm tra nếu thẻ còn ít nhất 2 ngày nữa sẽ hết hạn
             if ($expirationDate->diffInDays($currentDate) <= 2) {
                 $membership->renewal_message = "Thẻ hội viên sắp hết hạn!!!. Vui lòng gia hạn thẻ!";
             }
-
-            // Thẻ còn hạn
-            $membership->trang_thai = 0;  // Thẻ còn hạn => Trạng thái = 0
-            $membership->renewal_message = $membership->renewal_message ?? null;  // Không có thông báo nếu thẻ còn hạn
+            $membership->trang_thai = 0;
+            $membership->renewal_message = $membership->renewal_message ?? "Thẻ còn thời gian sử dụng.";
         }
 
-        // Cập nhật thẻ nếu có thay đổi trạng thái
+        // Cập nhật trạng thái thẻ hội viên
         $membership->save();
 
+        return response()->json(['message' => 'Hiển thị thông tin thẻ hội viên thành công', 'data' => $membership], 200);
+    }
+
+
+
+
+
+
+
+
+
+    public function getUserMembership()
+    {
+        // Kiểm tra nếu người dùng đã đăng nhập
+        if (!auth()->check()) {
+            return response()->json([
+                'message' => 'Bạn cần đăng nhập để xem thông tin thẻ hội viên!'
+            ], 401);  // 401 Unauthorized nếu chưa đăng nhập
+        }
+    
+        // Lấy user_id của người dùng đã đăng nhập
+        $user_id = auth()->user()->id;
+    
+        // Truy vấn để lấy thẻ hội viên của người dùng
+        $membership = Memberships::with('registerMember')  // Quan hệ với RegisterMember
+            ->whereHas('registerMember', function ($query) use ($user_id) {
+                $query->where('user_id', $user_id);  // Lọc theo user_id trong bảng register_members
+            })
+            ->first();  // Lấy thẻ hội viên đầu tiên (nếu có)
+    
+        // Kiểm tra xem thẻ hội viên có tồn tại không
+        if (!$membership) {
+            return response()->json([
+                'message' => 'Bạn chưa đăng ký thẻ hội viên!'
+            ], 404);
+        }
+    
+        // Nếu thẻ hội viên tồn tại, trả về thông tin thẻ hội viên
         return response()->json([
-            'message' => 'Hiển thị thông tin thẻ hội viên thành công',
+            'message' => 'Thông tin thẻ hội viên',
             'data' => $membership
         ], 200);
     }
+    
+
+
+
+
 
 
 
