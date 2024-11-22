@@ -207,15 +207,26 @@ Route::middleware('auth:api')->group(function(){
 });
 
 
-
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
-Route::get('showtimes', [ShowtimeController::class, 'index']);
-Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
-Route::post('storeShowtime', [ShowtimeController::class, 'store']);
-Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
-Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
-Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
-Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
+Route::middleware('auth:api')->group(function(){
+    // tất cả các role đều truy cập dc
+
+    //Ánh call api movie
+    Route::get('showtimes', [ShowtimeController::class, 'index']);
+    Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
+    Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
+
+
+    // chỉ có role admin
+    Route::middleware('role:admin')->group(function(){
+        Route::post('storeShowtime', [ShowtimeController::class, 'store']);
+        Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
+        Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
+        Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
+    });
+});
+
+
 
 
 // Ánh : call api Foods
