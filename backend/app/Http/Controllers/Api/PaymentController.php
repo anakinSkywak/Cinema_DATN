@@ -13,6 +13,7 @@ use App\Models\BookingDetail;
 use App\Models\RegisterMember;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
@@ -72,8 +73,8 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_ReturnUrl = "http://localhost:5173/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
-        //$vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
+        //$vnp_ReturnUrl = "http://localhost:5173/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
+        $vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
@@ -178,8 +179,7 @@ class PaymentController extends Controller
                 $booking = Booking::find($inputData['vnp_TxnRef']);
 
                 if ($booking) {
-
-                    $booking->trang_thai = 2; // Cập nhật trạng thái thành công ở booking
+                    $booking->trang_thai = 2;
                     $booking->save();
                 }
 
@@ -189,8 +189,10 @@ class PaymentController extends Controller
                     //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
-                //dd($booking->user, $booking->user->email);
-                //dd('View:', 'emails.send_bill');
+                // thêm 1 lượt quay khi đặt và trả tiền vé ok để quay trưởng
+                User::where('id' , $booking->user_id)->increment('so_luot_quay', 1);
+
+
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return response()->json(['message' => 'Thanh toán thành công']);

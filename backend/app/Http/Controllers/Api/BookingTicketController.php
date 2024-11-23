@@ -3,15 +3,23 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Movie;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BookingTicketController extends Controller
 {
 
-    // hiện phim theo trạng ở booking cho khác phim đang công chiếu và có xuất chiếu
+   
 
     public function listMovieBookTicket(Request $request){
 
+        $moviesBook = DB::table('showtimes')->join('movies' , 'showtimes.phim_id' , '=' , 'movies.id')->get();
+
+        return response()->json([
+            'message' => 'Kết quả tìm kiếm:',
+            'data' => $moviesBook
+        ], 200);
     }
 
 

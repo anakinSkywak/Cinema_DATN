@@ -122,7 +122,7 @@ class FoodController extends Controller
 
         $imagePath = $foodID->anh_do_an;
 
-        if ($request->hasFile('anh_phim')) {
+        if ($request->hasFile('anh_do_an')) {
             if ($foodID->anh_do_an && file_exists(public_path($imagePath))) {
                 unlink(public_path($imagePath));
             }
