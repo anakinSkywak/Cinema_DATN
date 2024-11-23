@@ -211,7 +211,7 @@ Route::middleware('auth:api')->group(function(){
     Route::middleware('role:admin')->group(function(){
         Route::post('storeMovie', [MovieController::class, 'store']);
         Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
-        Route::put('updateMovie/{id}', [MovieController::class, 'update']);
+        Route::post('updateMovie/{id}', [MovieController::class, 'update']);
         Route::delete('movies/{id}', [MovieController::class, 'delete']);
     });
 });
