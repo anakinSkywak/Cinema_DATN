@@ -176,7 +176,7 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => config('jwt.ttl') * 60, // Lấy TTL từ tệp cấu hình
             'auth' => auth()->user(),
-        ]);
+        ]); 
     }
 
     // hiển thị thông tin người dùng
