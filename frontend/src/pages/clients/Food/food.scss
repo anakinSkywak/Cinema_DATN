@@ -1,0 +1,137 @@
+$primary-color: #1e3a8a; // Màu xanh đậm
+$secondary-color: #3b82f6; // Màu xanh nhạt
+$accent-color: #ef4444; // Màu đỏ
+$background-color: #111827; // Màu nền tối
+$text-color: #ffffff; // Màu chữ trắng
+
+.container {
+    background-color: $background-color;
+    padding: 2rem;
+    border-radius: 0.5rem;
+}
+
+h1 {
+    color: $text-color;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.food-item {
+    background-color: #1f2937; // Màu nền món ăn
+    border: 1px solid #374151; // Màu viền
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.3s;
+    position: relative;
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .discount {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background-color: $accent-color;
+        color: $text-color;
+        padding: 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+    }
+
+    .content {
+        padding: 1rem;
+
+        .old-price {
+            text-decoration: line-through;
+            color: #9ca3af; // Màu xám nhạt
+        }
+
+        .new-price {
+            color: $secondary-color;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+
+        .food-name {
+            font-size: 1.5rem;
+            color: $text-color;
+            margin: 0.5rem 0;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+
+            .stars {
+                color: #fbbf24; // Màu vàng
+            }
+
+            .reviews {
+                color: #9ca3af; // Màu xám nhạt
+                margin-left: 0.5rem;
+            }
+        }
+
+        .sold {
+            color: #9ca3af; // Màu xám nhạt
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+
+            button {
+                background-color: $primary-color;
+                color: $text-color;
+                padding: 0.5rem;
+                border: none;
+                border-radius: 0.25rem;
+                cursor: pointer;
+
+                &:hover {
+                    background-color: darken($primary-color, 10%);
+                }
+            }
+
+            span {
+                margin: 0 1rem;
+                color: $text-color;
+            }
+        }
+
+        .add-to-cart {
+            background-color: $secondary-color;
+            color: $text-color;
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+            text-align: center;
+            transition: background-color 0.3s;
+
+            &:hover {
+                background-color: darken($secondary-color, 10%);
+            }
+        }
+    }
+}
+
+.checkout-button {
+    background-color: #22c55e; // Màu xanh lá
+    color: $text-color;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.25rem;
+    margin-top: 2rem;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: darken(#22c55e, 10%);
+    }
+}
