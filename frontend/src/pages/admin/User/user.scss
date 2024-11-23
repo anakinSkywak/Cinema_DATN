@@ -1,0 +1,106 @@
+.user-container {
+    background-color: #1f2937;
+    color: #e5e7eb;
+
+    .ant-input-search-button {
+        background-color: var(--primary-color);
+        &:hover {
+            background-color: var(--primary-color-dark) !important;
+        }
+    }
+
+    .ant-input {
+        background-color: #374151;
+        border-color: #4b5563;
+        color: #e5e7eb;
+
+        &:focus, &:hover {
+            border-color: var(--primary-color);
+        }
+    }
+
+    .custom-table {
+        .ant-table {
+            background-color: #1f2937;
+            color: #e5e7eb;
+
+            .ant-table-thead > tr > th {
+                background-color: #374151;
+                color: #e5e7eb;
+                border-bottom: 1px solid #4b5563;
+            }
+
+            .ant-table-tbody > tr > td {
+                border-bottom: 1px solid #374151;
+            }
+
+            .ant-table-tbody > tr:hover > td {
+                background-color: #374151;
+            }
+        }
+
+        .ant-pagination {
+            .ant-pagination-item {
+                background-color: #374151;
+                border-color: #4b5563;
+                a {
+                    color: #e5e7eb;
+                }
+                &-active {
+                    background-color: var(--primary-color);
+                    border-color: var(--primary-color);
+                }
+            }
+            .ant-pagination-prev, .ant-pagination-next {
+                button {
+                    background-color: #374151;
+                    border-color: #4b5563;
+                    color: #e5e7eb;
+                }
+            }
+        }
+    }
+
+    .ant-tag {
+        border-radius: 9999px;
+        padding: 2px 8px;
+    }
+}
+
+.user-form-container {
+}
+.user-detail-modal, .user-edit-modal {
+    .ant-modal-content {
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    }
+    .ant-modal-header {
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 8px 8px 0 0;
+    }
+    .ant-modal-body {
+    padding: 24px;
+    }
+    .ant-table-wrapper {
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    }
+    .ant-table-thead > tr > th {
+    background-color: #f9fafb;
+    color: #374151;
+    }
+    .ant-table-tbody > tr > td {
+    border-bottom: 1px solid #e5e7eb;
+    }
+    .ant-form-item-label > label {
+    color: #374151;
+    }
+    .ant-input, .ant-select-selector {
+    border-radius: 6px;
+    }
+    .ant-btn {
+    border-radius: 6px;
+    }
+    }
