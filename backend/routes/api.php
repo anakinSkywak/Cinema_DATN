@@ -104,6 +104,7 @@ Route::middleware('auth:api')->group(function () {
 
     //5
     //http://127.0.0.1:8000/api/payment/137/ncb
+
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
@@ -112,6 +113,7 @@ Route::middleware('auth:api')->group(function () {
 
     // in bill  
     //Route::get('/bill/{id}', [BillController::class, 'exportBill']);
+    
 });
 
 
