@@ -160,72 +160,6 @@ class MovieController extends Controller
     // cập nhật phim với các thông tin thay đổi đang lỗi fix sau
     public function update(Request $request, string $id)
     {
-<<<<<<< HEAD
-        try {
-            // Tìm phim theo id
-            $movie = Movie::find($id);
-
-            if (!$movie) {
-                return response()->json([
-                    'message' => 'Không tìm thấy phim với id ' . $id
-                ], 404);
-            }
-            // Xác thực dữ liệu đầu vào
-            $validated = $request->validate([
-                'ten_phim' => 'required|string|max:255',
-                'anh_phim' => $request->hasFile('anh_phim') ? 'file|mimes:jpeg,png,jpg,gif|max:2048' : 'nullable',
-                'dao_dien' => 'required|string|max:255',
-                'dien_vien' => 'required|string|max:255',
-                'noi_dung' => 'required|string|max:255',
-                'trailer' => 'required|string|url|max:255',
-                'gia_ve' => 'required|numeric',
-                'hinh_thuc_phim' => 'required|string|max:255',
-                'loaiphim_ids' => 'required|array',
-                'loaiphim_ids.*' => 'exists:moviegenres,id',
-                'thoi_gian_phim' => 'required|numeric',
-            ]);
-
-
-            // Xử lý upload ảnh mới nếu có
-            if ($request->hasFile('anh_phim')) {
-                // Xóa ảnh cũ nếu tồn tại
-                if ($movie->anh_phim && file_exists(public_path($movie->anh_phim))) {
-                    unlink(public_path($movie->anh_phim));
-                }
-
-                $file = $request->file('anh_phim');
-                $filename = time() . '_' . $file->getClientOriginalName();
-                $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
-                $validated['anh_phim'] = '/storage/' . $filePath;
-            } else {
-                // Giữ nguyên ảnh cũ nếu không có ảnh mới
-                unset($validated['anh_phim']);
-            }
-
-            // Cập nhật thông tin phim
-            $movie->update($validated);
-
-            // Cập nhật thể loại phim
-            if (isset($validated['loaiphim_ids'])) {
-                $movie->movie_genres()->sync($validated['loaiphim_ids']);
-            }
-
-            return response()->json([
-                'message' => 'Cập nhật phim thành công',
-                'data' => $movie->load('movie_genres'),
-                'image_url' => asset($movie->anh_phim),
-            ], 200);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'message' => 'Dữ liệu không hợp lệ',
-                'errors' => $e->errors()
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Có lỗi xảy ra khi cập nhật phim',
-                'error' => $e->getMessage()
-            ], 500);
-=======
 
         $request->validate([
             'ten_phim' => 'required|string|max:255',
@@ -263,7 +197,6 @@ class MovieController extends Controller
             $filename = $file->getClientOriginalName();
             $filePath = $file->storeAs('uploads/anh_phim', $filename, 'public');
             $imagePath = '/storage/' . $filePath;
->>>>>>> 061cbab0d92a33854a796f7edf5634aaf3a3cd41
         }
 
 
