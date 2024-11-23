@@ -86,7 +86,7 @@ Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])-
 
 //  phim ở home 1 trạng thái
 
-Route::get('movie-client', [MovieController::class, 'movieClient']);
+//Route::get('movie-client', [MovieController::class, 'movieClient']);
 
 // chi tiết theo id phim khi ấn vào phim ở home
 // 1
