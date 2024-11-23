@@ -174,7 +174,7 @@ class AuthController extends Controller
         return response()->json([
             'access-token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60, // Lấy TTL từ tệp cấu hình
+            'expires_in' => 604800, // TTL = 7 ngày (604800 giây)
             'auth' => auth()->user(),
         ]); 
     }
