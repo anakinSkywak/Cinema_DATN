@@ -1,0 +1,76 @@
+/* RoomData.css */
+.seat-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.seat {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: 50px;
+}
+
+.regular {
+    background-color: rgb(146, 144, 144);
+    color: white;
+}
+
+.vip {
+    background-color: gold; /* Màu vàng cho ghế VIP */
+}
+
+.double {
+    background-color: lightgreen; /* Màu xanh lá cho ghế đôi */
+}
+
+.selected {
+    background-color: lightblue; /* Màu xanh ra trời cho ghế đang bảo trì */
+}
+
+.legend {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 15px;
+}
+.action-btn button {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.action-btn button:hover {
+    opacity: 0.8;
+}
+
+.seat {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.seat:hover {
+    transform: scale(1.05);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
