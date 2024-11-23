@@ -33,7 +33,6 @@ class BookingController extends Controller
         return $seatNames;
     }
 
-
     // hàm tính tổng tiền với giá phim , đồ ăn , số lượng ghế , giá ghế
     public function tongTien($showtime, array $selectedSeats, $foodPrice = 0)
     {
@@ -195,7 +194,6 @@ class BookingController extends Controller
         }
         return implode(', ', $doAnList); 
     }
-
 
     // xu ly sau
     public function update(Request $request, string $id)

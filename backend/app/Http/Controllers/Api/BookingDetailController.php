@@ -12,13 +12,11 @@ use Illuminate\Support\Facades\DB;
 class BookingDetailController extends Controller
 {
 
-
     // show các đơn đã mua theo userid đó
     public function bookingDetail(Request $request)
     {
 
         $user = Auth::user();
-
         if (!$user) {
             return response()->json([
                 'message' => 'Vui lòng đăng nhập',
@@ -38,7 +36,6 @@ class BookingDetailController extends Controller
         ], 200);
     }
 
-
     // đổ all booking detail trong admin
     public function bookingDetailAll(Request $request)
     {
@@ -54,7 +51,6 @@ class BookingDetailController extends Controller
             'data' => $bookDetailall
         ], 200);
     }
-
 
     // tìm kiếm đơn theo tên khách hàng or email , số id đơn booking , ngày booking
     // gộp chung khi nhập input tìm kiểm đổ ra kết quả
@@ -102,14 +98,12 @@ class BookingDetailController extends Controller
     {
 
         $dataID = BookingDetail::find($id);
-
         if (!$dataID) {
             return response()->json([
                 'message' => 'Không có dữ liệu  theo id này',
             ], 404);
         }
 
-     
         $dataID->update(['trang_thai' => 1]);
 
         // trả về 
@@ -118,4 +112,6 @@ class BookingDetailController extends Controller
             'data' => $dataID
         ], 200);
     }
+
+
 }
