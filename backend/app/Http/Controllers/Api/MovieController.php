@@ -36,6 +36,24 @@ class MovieController extends Controller
         ], 200);
     }
 
+    public function bookingtick()
+    {
+        // call show all du lieu ra 
+        $movieall = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Đang Chiếu')->orderBy('id', 'DESC')->get();
+        //dd($data);
+        if ($movieall->isEmpty()) {
+
+            return response()->json([
+                'message' => 'Không có dữ liệu Movie nào'
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Hiện thị dữ liệu thành công',
+            'data' => $movieall
+        ], 200);
+    }
+
 
     // đổ all thể loại phim để chọn ghi thêm mới phim
     public function getMovieGenre()
@@ -375,7 +393,7 @@ class MovieController extends Controller
 
             // Lấy trạng thái của các ghế (đã đặt, bảo trì hoặc trống)
             $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats, $maintenanceSeats) {
-                // Xác định trạng thái của ghế
+                // Xác định tr��ng thái của ghế
                 if ($bookedSeats->contains($seat->id)) {
                     $status = 'đã đặt'; // Ghế đã được đặt
                 } elseif ($maintenanceSeats->contains($seat->id)) {
@@ -420,7 +438,7 @@ class MovieController extends Controller
             ], 404);
         }
 
-        // Kiểm tra xem showtime có thuộc về bộ phim không
+        // Kiểm tra xem showtime c thuộc về bộ phim không
         if ($showtime->phim_id != $movieID) {
             return response()->json([
                 'message' => 'Suất chiếu này không thuộc về phim này.'

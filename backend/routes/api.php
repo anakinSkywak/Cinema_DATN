@@ -34,17 +34,22 @@ use App\Http\Controllers\Api\AuthController; //  auth api
 
 // xác thực email
 Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
+    // giới hạn số lần gửi mail
     ->middleware(['throttle:6,1'])
     ->name('verifyEmail');
 
-// show all user
-Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
-// update user bên admin
-Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+//Route::middleware('auth:api', 'role:admin')->group(function () {
+    // show all user
+    Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
-// xóa user bên admin
-Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
+    // update user bên admin
+    Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+
+    // xóa user bên admin
+    Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
+//});
+
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     // Đăng ký người dùng mới
@@ -78,6 +83,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
+
+//  phim ở home 1 trạng thái
+
+//Route::get('movie-client', [MovieController::class, 'movieClient']);
 
 // chi tiết theo id phim khi ấn vào phim ở home
 // 1
@@ -113,12 +122,16 @@ Route::middleware('auth:api')->group(function () {
 
 
 
+//Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTicket']);
+
+
+
 Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
 Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
 Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
-// Ánh booking detail
+// Ánh booking detail all , tìm đơn của khách , xác nhận khách đến
 Route::get('booking-detail-all', [BookingDetailController::class, 'bookingDetailAll']);
 Route::get('search-booking-detail/{search}', [BookingDetailController::class, 'searchBookingDetail']);
 Route::put('confirm-booking-detail/{id}', [BookingDetailController::class, 'confirmArrival']);
