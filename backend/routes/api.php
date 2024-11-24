@@ -64,7 +64,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::get('profile', [AuthController::class, 'userProfile']);
         // Route để đăng ký thẻ hội viên mới
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+
         Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'getUserMembership']);
+        Route::post('/quay-thuong', [RotationsController::class, 'quayThuong']);
+        
         // Đăng xuất - vô hiệu hóa token
         Route::post('logout', [AuthController::class, 'logout']);
 
@@ -240,7 +243,7 @@ Route::put('/members/{id}/status', [MemberController::class, 'updateStatus']); /
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
+// Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
 
@@ -275,6 +278,7 @@ Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 //call api quay thuong
 // Route::get('/quay-thuong', [RotationsController::class, 'quayThuong'])->middleware('auth');
 Route::post('/quay-thuong', [RotationsController::class, 'quayThuong']);
+Route::middleware('auth:api')->get('/available-rotations', [HistoryRotationsController::class, 'getAvailableRotations']);
 
 
 
@@ -314,7 +318,6 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::post('/register-members/{registerMember}/process-payment', [PaymentController::class, 'processPaymentForRegister']);
-Route::get('payment/NCB-return1', [PaymentController::class, 'paymentReturn1']);
 
 // Route::middleware('auth:api')->get('/email/verification-status', function (Request $request) {
 //     return response()->json([
@@ -327,6 +330,4 @@ Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 
 
-// Route::get('memberships/{id}', [MembershipsController::class, 'show']);
-Route::middleware('auth:api')->get('auth/memberships/{id}', [MembershipsController::class, 'show']);
 

@@ -71,4 +71,8 @@ class Booking extends Model
     {
         return $this->belongsTo(Seat::class, 'ghengoi_id');
     }
+    public function historyRotations()
+    {
+        return $this->hasMany(HistoryRotation::class, 'user_id', 'user_id');
+    }
 }

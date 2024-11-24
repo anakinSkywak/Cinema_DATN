@@ -12,15 +12,12 @@ use Illuminate\Support\Facades\Validator;
 
 class RotationsController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
     public function quayThuong()
     {
-        if (!Auth::check()) { 
-            return response()->json(['message' => 'Bạn cần đăng nhập để quay thưởng'], 401);
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Bạn cần đăng nhập để tiếp tục'], 401);
         }
 
         //comment
@@ -92,43 +89,55 @@ class RotationsController extends Controller
 
     // Tạo mới một rotation
     public function store(Request $request)
-{
-    $request->validate([
-        'ten_phan_thuong' => 'required|string|max:150',
-        'muc_giam_gia' => 'nullable|numeric',
-        'mo_ta' => 'required|string|max:255',
-        'xac_xuat' => 'required|numeric|min:0|max:100',
-        'so_luong' => 'required|integer|min:1',
-        'so_luong_con_lai' => 'integer|min:0|max:' . $request->so_luong,
-        'trang_thai' => 'nullable|integer',
-    ]);
+    {
+        // Xác thực dữ liệu đầu vào
+        $request->validate([
+            'ten_phan_thuong' => 'required|string|max:150',
+            'muc_giam_gia' => 'nullable|numeric',
+            'mo_ta' => 'required|string|max:255',
+            'xac_xuat' => 'required|numeric|min:0|max:100',
+            'so_luong' => 'required|integer|min:1',
+            'so_luong_con_lai' => 'integer|min:0|max:' . $request->so_luong,
+            'trang_thai' => 'nullable|integer',
+        ]);
 
-    $rotation = Rotation::create($request->all());
+        // Lấy tổng xác suất của tất cả các vòng quay đã có
+        $totalXacXuat = Rotation::sum('xac_xuat');
 
-    return response()->json($rotation, 201);
-}
+        // Kiểm tra tổng xác suất có vượt quá 100 không
+        $newXacXuat = $request->xac_xuat;
+        if (($totalXacXuat + $newXacXuat) > 100) {
+            return response()->json(['message' => 'Tổng xác suất của tất cả các vòng quay không thể vượt quá 100%.'], 400);
+        }
 
-public function update(Request $request, $id)
-{
-    $rotation = Rotation::find($id);
-    if (!$rotation) {
-        return response()->json(['message' => 'Không tìm thấy phần thưởng'], 404);
+        // Tạo vòng quay mới nếu tổng xác suất hợp lệ
+        $rotation = Rotation::create($request->all());
+
+        return response()->json($rotation, 201);
     }
 
-    $request->validate([
-        'ten_phan_thuong' => 'string|max:150',
-        'muc_giam_gia' => 'nullable|numeric',
-        'mo_ta' => 'string|max:255',
-        'xac_xuat' => 'numeric|min:0|max:100',
-        'so_luong' => 'integer|min:1',
-        'so_luong_con_lai' => 'integer|min:0|max:' . ($request->so_luong ?? $rotation->so_luong),
-        'trang_thai' => 'nullable|integer',
-    ]);
 
-    $rotation->update($request->all());
+    public function update(Request $request, $id)
+    {
+        $rotation = Rotation::find($id);
+        if (!$rotation) {
+            return response()->json(['message' => 'Không tìm thấy phần thưởng'], 404);
+        }
 
-    return response()->json($rotation);
-}
+        $request->validate([
+            'ten_phan_thuong' => 'string|max:150',
+            'muc_giam_gia' => 'nullable|numeric',
+            'mo_ta' => 'string|max:255',
+            'xac_xuat' => 'numeric|min:0|max:100',
+            'so_luong' => 'integer|min:1',
+            'so_luong_con_lai' => 'integer|min:0|max:' . ($request->so_luong ?? $rotation->so_luong),
+            'trang_thai' => 'nullable|integer',
+        ]);
+
+        $rotation->update($request->all());
+
+        return response()->json($rotation);
+    }
 
 
     // Xóa rotation theo id

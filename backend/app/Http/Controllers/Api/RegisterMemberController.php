@@ -16,7 +16,7 @@ class RegisterMemberController extends Controller
     public function index()
     {
         // Lấy tất cả dữ liệu từ bảng RegisterMember
-        $data = RegisterMember::with('membership', 'member', 'payments')->get();
+        $data = RegisterMember::with('memberships', 'member', 'payments')->get();
 
         if ($data->isEmpty()) {
             return response()->json([
@@ -41,6 +41,13 @@ class RegisterMemberController extends Controller
         $member = Member::find($hoivien_id);
         if (!$member) {
             return response()->json(['message' => 'Hội viên không tồn tại!'], 404);
+        }
+        $existingRegistration = RegisterMember::where('user_id', $user->id)
+            ->first();
+
+        if ($existingRegistration) {
+            // Nếu người dùng đã đăng ký, trả về thông báo lỗi
+            return response()->json(['message' => 'Bạn đã đăng ký thẻ hội viên rồi!'], 400);
         }
 
         // Lấy thời gian từ request, nếu không có thì sử dụng thời gian mặc định của loại hội viên
@@ -159,7 +166,7 @@ class RegisterMemberController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Cập nhật đăng ký thành công',
+                'message' => 'Cập nhật đăng ký thành công, vui lòng thanh toán',
                 'data' => $registerMember,
             ], 200);
         } catch (\Exception $e) {
