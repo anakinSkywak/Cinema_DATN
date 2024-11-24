@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
+use App\Models\Food;
 use App\Models\Movie;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
 
 // chức năng thống kê
 class StatisticalController extends Controller
@@ -31,21 +33,54 @@ class StatisticalController extends Controller
     // thông kê doanh thu bán vé
     public function doanhThuBanVe()
     {
-        // Tính tổng doanh thu từ cột tong_tien
-        $tongDoanhThu = Payment::query()->sum('tong_tien');
+        // Chỉ tính doanh thu từ các thanh toán có trạng thái "Đã hoàn thành"
+        $trangThai = 'Đã hoàn thành';
+        $tongDoanhThu = Payment::query()
+            ->where('trang_thai', $trangThai)
+            ->sum('tong_tien');
 
-        if ($tongDoanhThu === null || $tongDoanhThu === 0) {
+        // Kiểm tra nếu doanh thu bằng 0
+        if ($tongDoanhThu === 0) {
             return response()->json([
-                'message' => "Không có doanh thu nào được ghi nhận",
+                'message' => "Không có doanh thu nào được ghi nhận cho trạng thái: $trangThai",
                 'data' => $tongDoanhThu
             ], 404);
         }
 
+        // Trả về doanh thu khi có dữ liệu
         return response()->json([
             'message' => "Thống kê doanh thu bán vé thành công",
-            'data' => $tongDoanhThu
+            'data' => $tongDoanhThu,
+            'trang_thai' => $trangThai
         ], 200);
     }
 
-    
+    // doanh thu đồ ăn 
+    public function doanhThuDoAn()
+    {
+        // Lấy danh sách ID thanh toán thành công
+        $trangThai = 'Đã hoàn thành';
+        $idThanhToanThanhCong = Payment::query()
+            ->where('trang_thai', $trangThai)
+            ->pluck('booking_id'); // Trả về một mảng các ID
+
+        // Lấy các booking kèm thông tin món ăn, lọc theo ID thanh toán thành công
+        $bookings = Booking::query()
+            ->with('food') // Quan hệ tới bảng foods
+            ->whereIn('id', $idThanhToanThanhCong) // Lọc booking theo payment_id
+            ->get();
+
+        // Tính tổng doanh thu
+        $tongTienDoAn = 0;
+        foreach ($bookings as $booking) {
+            if ($booking->food) {
+                $tongTienDoAn += $booking->so_luong_do_an * $booking->food->gia;
+            }
+        }
+
+        return response()->json([
+            'message' => 'Thống kê doanh thu đồ ăn thành công',
+            'tongTienDoAn' => $tongTienDoAn
+        ], 200);
+    }
 }
