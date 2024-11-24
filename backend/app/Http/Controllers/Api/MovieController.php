@@ -405,7 +405,9 @@ class MovieController extends Controller
                 return [
                     'id' => $seat->id,
                     'ten_ghe_ngoi' => $seat->so_ghe_ngoi, // Tên ghế (số ghế ngồi)
+                    'gia_ghe' => $seat->gia_ghe,
                     'trang_thai' => $status // Trạng thái ghế
+                    
                 ];
             });
 
