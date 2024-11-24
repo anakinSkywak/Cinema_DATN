@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 // chức năng thống kê
@@ -28,7 +29,23 @@ class StatisticalController extends Controller
     }
 
     // thông kê doanh thu bán vé
-    // public function doanhThu(){
-    //     $data = 
-    // }
+    public function doanhThuBanVe()
+    {
+        // Tính tổng doanh thu từ cột tong_tien
+        $tongDoanhThu = Payment::query()->sum('tong_tien');
+
+        if ($tongDoanhThu === null || $tongDoanhThu === 0) {
+            return response()->json([
+                'message' => "Không có doanh thu nào được ghi nhận",
+                'data' => $tongDoanhThu
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => "Thống kê doanh thu bán vé thành công",
+            'data' => $tongDoanhThu
+        ], 200);
+    }
+
+    
 }

@@ -435,3 +435,4 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
+Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
