@@ -54,13 +54,13 @@ class AuthController extends Controller
 
 
         // kiểm tra email có được xác thực không
-        // $user = auth()->user();
-        // if ($user->email_verified_at === null) {
-        //     auth()->logout(); // đăng xuất user
-        //     return response()->json([
-        //         'message' => 'Email của bạn không được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.'
-        //     ], 401);
-        // }
+        $user = auth()->user();
+        if ($user->email_verified_at === null) {
+            auth()->logout(); // đăng xuất user
+            return response()->json([
+                'message' => 'Email của bạn không được xác thực. Vui lòng kiểm tra email để xác thực tài khoản.'
+            ], 401);
+        }
 
         // nếu tất cả đúng thì trả về token
         return $this->createNewToken($token);
@@ -76,8 +76,9 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'so_dien_thoai' => 'required|string|max:10|unique:users',
             'password' => 'required|string|min:8',
-            'gioi_tinh' => 'required|in:nam,nu,khac',
-            'vai_tro' => 'required|in:user,admin,nhan_vien',
+            // ẩn các trường không cần thiết
+            // 'gioi_tinh' => 'required|in:nam,nu,khac',
+            // 'vai_tro' => 'required|in:user,admin,nhan_vien',
         ]);
 
         if ($validator->fails()) {
@@ -95,14 +96,14 @@ class AuthController extends Controller
 
             $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         
-            // Lưu OTP vào cache với thời gian sống là 5 phút
+            // Lưu cả email và OTP vào cache
+            Cache::put('verify_email_' . $otp, $request->email, now()->addMinutes(5));
             Cache::put('verify_otp_' . $request->email, $otp, now()->addMinutes(5));
 
-            // Gửi email chào mừng thay vì email xác thực
             Mail::to($user->email)->send(new WelcomeEmail($user, $otp));
 
             return response()->json([
-                'message' => 'Đăng ký tài khoản thành công!',
+                'message' => 'Đăng ký tài khoản thành công!, vui lòng kiểm tra email để xác thực tài khoản',
                 'user' => $user
             ], 201);
         } catch (\Exception $e) {
@@ -118,26 +119,45 @@ class AuthController extends Controller
     {
         try {
             $request->validate([
-                'email' => 'required|email',
                 'otp' => 'required|numeric'
             ]);
 
-            $user = User::where('email', $request->email)
-                        ->first();
-
-            if (!$user) {
+            // Lấy email từ cache dựa vào OTP
+            $email = Cache::get('verify_email_' . $request->otp);
+            if (!$email) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Invalid OTP or email'
+                    'message' => 'OTP không hợp lệ hoặc đã hết hạn'
                 ], 400);
             }
 
-            $user->email_verified_at = now();
+            // Kiểm tra OTP có khớp không
+            $cachedOTP = Cache::get('verify_otp_' . $email);
+            if (!$cachedOTP || $cachedOTP != $request->otp) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'OTP không hợp lệ'
+                ], 400);
+            }
+
+            $user = User::where('email', $email)->first();
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không tìm thấy người dùng'
+                ], 400);
+            }
+
+            $user->email_verified_at = Carbon::now();
             $user->save();
+
+            // Xóa cả hai cache sau khi xác thực thành công
+            Cache::forget('verify_email_' . $request->otp);
+            Cache::forget('verify_otp_' . $email);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Email verified successfully'
+                'message' => 'Email đã được xác thực thành công'
             ], 200);
 
         } catch (\Exception $e) {
@@ -154,9 +174,9 @@ class AuthController extends Controller
         return response()->json([
             'access-token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60, // Lấy TTL từ tệp cấu hình
+            'expires_in' => 604800, // TTL = 7 ngày (604800 giây)
             'auth' => auth()->user(),
-        ]);
+        ]); 
     }
 
     // hiển thị thông tin người dùng
@@ -170,6 +190,10 @@ class AuthController extends Controller
         if (!auth()->check()) {
             return response()->json(['error' => 'Bạn hiện chưa có tài khoản'], 401);
         }
+
+        // update anh
+
+
         return response()->json([
             'data' => [
                 'user' => auth()->user(),
