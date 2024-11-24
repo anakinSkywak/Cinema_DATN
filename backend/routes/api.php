@@ -30,7 +30,7 @@ use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
-
+use App\Http\Controllers\Api\StatisticalController;
 
 // xác thực email
 Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
@@ -433,3 +433,5 @@ Route::middleware('auth:api')->group(function () {
     Route::put('comments/{id}', [CommentController::class, 'update']);
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
+
+Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
