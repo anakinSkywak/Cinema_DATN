@@ -19,7 +19,7 @@ class RotationsController extends Controller
 
     public function quayThuong()
     {
-        if (!Auth::check()) {
+        if (!Auth::check()) { 
             return response()->json(['message' => 'Bạn cần đăng nhập để quay thưởng'], 401);
         }
 
