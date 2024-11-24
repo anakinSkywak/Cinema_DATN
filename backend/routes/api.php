@@ -86,71 +86,80 @@ Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])-
 
 
 
+// Client
+// phim 2 home front 2 dạng Đang Chiếu and Sắp Công Chiếu
 Route::get('movie-client', [MovieController::class, 'movieClient']);
 
 
+
 // chi tiết theo id phim khi ấn vào phim ở home
-// 1
+// 1  user
 //http://127.0.0.1:8000/api/movie-detail/31
 Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
-
-// 2
+ 
+// 2 user
 //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
 Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
 
-// 3
+// 3 user
 //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00
 Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getRoomsByShowtime']);
 
 
+
 Route::middleware('auth:api')->group(function () {
 
-
     // nhân viên book vé cho khách
+    //5
     //http://127.0.0.1:8000/api/book-ticket
     Route::post('book-ticket', [BookingController::class, 'Bookticket']);
 
-    // 4
+    // 4 user
     //http://127.0.0.1:8000/api/booking
     Route::post('booking', [BookingController::class, 'Booking']);
 
-    //5
+    //5 user
     //http://127.0.0.1:8000/api/payment/137/ncb
-
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
+    // nhân viên
+    //6
+    //http://127.0.0.1:8000/api/payment/137/thanh_toan_tien_tai_quay
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPaymentBookTicket']);
 
     // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
+    // dữ liệu ok
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 
-    // in bill  
-    //Route::get('/bill/{id}', [BillController::class, 'exportBill']);
     
 });
 
 
+
+// Nhân viên
+//1
 //http://127.0.0.1:8000/api/movie-book-all
 Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTicket']);
+//2
 //http://127.0.0.1:8000/api/movie-book-id/42
 Route::get('movie-book-id/{id}', [BookingTicketController::class, 'MovieByShowtimeID']);
+//3
 //http://127.0.0.1:8000/api/movie-book-id/42/showtime-date/2024-11-24
 Route::get('movie-book-id/{movieID}/showtime-date/{date}', [BookingTicketController::class, 'getShowtimesByDate']);
+//4
 //http://127.0.0.1:8000/api/movie-book-id/42/showtime-date/2024-11-24/08:00:00
 Route::get('movie-book-id/{movieID}/showtime-date/{date}/{time}', [BookingTicketController::class, 'getRoomsByShowtime']);
 
 
 
-//Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTicket']);
-
-
-
+// return user 
 Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
 Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
 Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
+// còn check tiếp tìm kiếm : nhân viên
 // Ánh booking detail all , tìm đơn của khách , xác nhận khách đến
 Route::get('booking-detail-all', [BookingDetailController::class, 'bookingDetailAll']);
 Route::get('search-booking-detail/{search}', [BookingDetailController::class, 'searchBookingDetail']);
