@@ -162,8 +162,7 @@ class PaymentController extends Controller
         if ($secureHash === $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
 
-                // Giao dịch thành công
-
+                
                 // Tìm giao dịch thanh toán dựa trên mã thanh toán
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
 

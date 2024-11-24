@@ -23,12 +23,37 @@ class BookingDetailController extends Controller
             ], 401);
         }
 
-        $bookDetails = DB::table('booking_details')
-            ->join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
-            ->join('payments', 'booking_details.payment_id', '=', 'payments.id')
-            ->where('bookings.user_id', $user->id)
-            ->select('booking_details.*', 'bookings.*', 'payments.*')
-            ->get();
+        $bookDetails = DB::table('booking_details')->join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
+            ->join('users', 'bookings.user_id', '=', 'users.id')->join('payments', 'booking_details.payment_id', '=', 'payments.id')->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('rooms', 'showtimes.room_id', '=', 'rooms.id')->join('movies', 'showtimes.phim_id', '=', 'movies.id')->where('bookings.user_id', $user->id)
+            ->select(
+                'booking_details.id',
+                'users.ho_ten',
+                'users.email',
+                'users.so_dien_thoai',
+                'bookings.ngay_mua',
+                'bookings.so_luong',
+                'movies.ten_phim',
+                'showtimes.ngay_chieu',
+                'showtimes.gio_chieu',
+                'rooms.ten_phong_chieu',
+                'bookings.ghe_ngoi',
+                'bookings.do_an',
+                'bookings.ma_giam_gia',
+                'bookings.ghi_chu',
+                'bookings.tong_tien_thanh_toan',
+                'payments.tien_te',
+                'payments.ngay_thanh_toan',
+                'payments.phuong_thuc_thanh_toan',
+                'payments.trang_thai',
+
+            )->get();
+
+        if ($bookDetails->isNotEmpty()) {
+            return response()->json([
+                'message' => 'Bạn chưa có đơn booking vé phim nào',
+            ], 404);
+        }
 
         return response()->json([
             'message' => 'booking detail theo user id',
@@ -64,6 +89,7 @@ class BookingDetailController extends Controller
                 'users.ho_ten',
                 'users.email',
                 'users.so_dien_thoai',
+                'bookings.ngay_mua',
                 'bookings.so_luong',
                 'movies.ten_phim',
                 'showtimes.ngay_chieu',
@@ -75,6 +101,7 @@ class BookingDetailController extends Controller
                 'bookings.ghi_chu',
                 'bookings.tong_tien_thanh_toan',
                 'payments.phuong_thuc_thanh_toan',
+                'payments.ngay_thanh_toan',
                 'payments.trang_thai',
                 //'bookings.tong_tien',
             )->where('users.ho_ten', 'LIKE', "%{$search}%")
@@ -112,6 +139,4 @@ class BookingDetailController extends Controller
             'data' => $dataID
         ], 200);
     }
-
-
 }
