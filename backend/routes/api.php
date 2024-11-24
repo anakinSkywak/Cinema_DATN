@@ -113,6 +113,8 @@ Route::middleware('auth:api')->group(function () {
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
+    Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPaymentBookTicket']);
+
     // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 

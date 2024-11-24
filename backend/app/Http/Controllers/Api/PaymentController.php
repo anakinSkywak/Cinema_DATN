@@ -20,6 +20,59 @@ class PaymentController extends Controller
 {
 
 
+    // nhân viên
+    public function createPaymentBookTicket($bookingId, $method)
+    {
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Chưa đăng nhập phải đăng nhập'
+            ], 401);
+        }
+
+        $booking = Booking::find($bookingId);
+        if (!$booking) {
+            return response()->json(['message' => 'No booking id'], 404);
+        }
+
+        
+        $money = $booking->tong_tien_thanh_toan;
+
+        $payment = new Payment();
+        $payment->booking_id = $booking->id;
+        $payment->tong_tien = $money;
+        $payment->tien_te = 'VND'; 
+        $payment->phuong_thuc_thanh_toan = $method;
+        $payment->ma_thanh_toan = $booking->id;
+        $payment->trang_thai = 'Đã Hoàn Thành';
+        $payment->ngay_thanh_toan = Carbon::now();
+        $payment->save();
+
+        switch ($method) {
+            case 'thanh_toan_tien_tai_quay':
+                return $this->paymentBookTicketNow($booking, $payment);
+            default:
+                return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
+        }
+    }
+    // nhân viên
+    public function paymentBookTicketNow($booking , $payment){
+
+        BookingDetail::insert([
+            'booking_id' => $booking->id,   
+            'payment_id' => $payment->id,
+        ]);
+
+        Booking::where('id', $booking->id)->update(['trang_thai' => 2]);
+
+        return response()->json([
+            'message' => 'Mua vé và tạo vé thanh toán trực tiếp cho khách ok',
+           
+        ]);
+    }
+
+
     // đưa đến from chọn phương thức thanh toán
     public function createPayment($bookingId, $method)
     {
@@ -65,7 +118,7 @@ class PaymentController extends Controller
         }
     }
 
-
+   
     public function paymentNCB($booking, $money, $payment)
     {
 

@@ -256,7 +256,7 @@ class BookingController extends Controller
             'thongtinchieu_id' => $request->thongtinchieu_id,
             'so_luong' => count($selectedSeats),
             'ngay_mua' => Carbon::now(),
-            'trang_thai' => 2,  // Book hộ khách 2 thanh toán ok = tiền mặt , ck khách trả trực tiếp
+            'trang_thai' => 0, // chua thanh toan
             'ghe_ngoi' => implode(', ', $seatNames),
             'do_an' => $doAnString,
             'ma_giam_gia' => $request->ma_giam_gia,
