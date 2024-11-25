@@ -65,6 +65,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         //call api CouponCodeTaken T
         Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
         Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+        Route::post('/contacts', [ContactController::class, 'store'])->name('contacts.store');
+
         // Đăng xuất - vô hiệu hóa token
         Route::post('logout', [AuthController::class, 'logout']);
 
