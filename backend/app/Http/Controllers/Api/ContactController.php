@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Contact;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class ContactController extends Controller
 {
@@ -15,66 +16,32 @@ class ContactController extends Controller
         return response()->json($contacts);
     }
 
-    // Lấy thông tin một contact theo ID
-    public function show($id)
-    {
-        $contact = Contact::find($id);
-        if ($contact) {
-            return response()->json($contact);
-        } else {
-            return response()->json(['message' => 'Không tìm thấy contact'], 404);
-        }
-    }
-
-    // Lấy danh sách contact theo user_id
-    public function getByUserId($user_id)
-    {
-        $contacts = Contact::where('user_id', $user_id)->get();
-
-        if ($contacts->isEmpty()) {
-            return response()->json(['message' => 'Không tìm thấy contact cho user này'], 404);
-        }
-
-        return response()->json($contacts);
-    }
-
-
     // Tạo một contact mới
     public function store(Request $request)
     {
-        $request->validate([
-            'noidung' => 'required|string|max:255',
-            'user_id' => 'required|exists:users,id',
-        ]);
-
-        $contact = Contact::create([
-            'noidung' => $request->noidung,
-            'user_id' => $request->user_id,
-        ]);
-
-        return response()->json($contact, 201);
-    }
-
-    // Cập nhật thông tin contact
-    public function update(Request $request, $id)
-    {
-        $contact = Contact::find($id);
-
-        if (!$contact) {
-            return response()->json(['message' => 'Không tìm thấy contact'], 404);
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        if (!Auth::check()) {
+            return response()->json(['message' => 'Bạn cần đăng nhập để liên hệ'], 401);
         }
-
-        $request->validate([
-            'noidung' => 'string|max:255',
-            'user_id' => 'exists:users,id',
+    
+        $user = Auth::user(); // Lấy thông tin người dùng đang đăng nhập
+    
+        // Xác thực dữ liệu đầu vào
+        $validated = $request->validate([
+            'noidung' => 'required|string',
         ]);
-
-        $contact->update([
-            'noidung' => $request->noidung ?? $contact->noidung,
-            'user_id' => $request->user_id ?? $contact->user_id,
+    
+        // Tạo contact mới
+        $contact = Contact::create([
+            'noidung' => $validated['noidung'],
+            'user_id' => $user->id, // Dùng id của người dùng đã đăng nhập
         ]);
-
-        return response()->json($contact);
+    
+        // Trả về phản hồi JSON
+        return response()->json([
+            'message' => 'Thông tin đã được gửi thành công.',
+            'data' => $contact
+        ], 201); // 201: Created
     }
 
     // Xóa contact
@@ -83,7 +50,7 @@ class ContactController extends Controller
         $contact = Contact::find($id);
 
         if (!$contact) {
-            return response()->json(['message' => 'Không tìm thấy contact'], 404);
+            return response()->json(['message' => 'Không tìm thấy phàn hồi '], 404);
         }
 
         $contact->delete();
