@@ -16,11 +16,17 @@ class RotationsController extends Controller
     public function quayThuong()
     {
         $user = auth()->user();
+
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!$user) {
             return response()->json(['message' => 'Bạn cần đăng nhập để tiếp tục'], 401);
         }
 
-        //comment
+        // Kiểm tra xem người dùng có còn lượt quay không
+        if ($user->so_luot_quay <= 0) {
+            return response()->json(['message' => 'Bạn không còn lượt quay.'], 403);
+        }
+
         // Lấy các vòng quay có thể quay (trạng thái = 1)
         $rotations = Rotation::where('trang_thai', 1)->get();
 
@@ -50,7 +56,11 @@ class RotationsController extends Controller
             $selectedRotation->so_luong_con_lai -= 1;
             $selectedRotation->save();
 
-            // Lưu lịch sử
+            // Giảm lượt quay của người dùng sau khi quay
+            $user->so_luot_quay -= 1;
+            $user->save();
+
+            // Lưu lịch sử quay
             HistoryRotation::create([
                 'user_id' => Auth::id(),
                 'vongquay_id' => $selectedRotation->id,
@@ -68,6 +78,7 @@ class RotationsController extends Controller
             return response()->json(['message' => 'Không có phần thưởng nào hoặc số lượng phần thưởng đã hết.'], 404);
         }
     }
+
 
     // Lấy danh sách tất cả các rotations
     public function index()
