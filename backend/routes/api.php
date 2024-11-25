@@ -293,7 +293,8 @@ Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // 
 //cal api contacts T
 Route::get('contacts', [ContactController::class, 'index']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
-Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
+Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
+    ->name('contacts.details');
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('contacts/{id}', [ContactController::class, 'destroy']);

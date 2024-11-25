@@ -10,12 +10,34 @@ use Illuminate\Support\Facades\Auth;
 class ContactController extends Controller
 {
     // Lấy danh sách tất cả các contact
-    public function index()
+    // public function index()
+    // {
+    //     $contacts = Contact::with('user:id,name,email') // Nếu muốn hiển thị thêm thông tin người gửi
+    //         ->get();
+    
+    //     return response()->json([
+    //         'message' => 'Danh sách contact.',
+    //         'data' => $contacts
+    //     ]);
+    // }
+    public function getContactDetails()
     {
-        $contacts = Contact::all();
-        return response()->json($contacts);
+        $contacts = Contact::with('user:id,ho_ten,email,so_dien_thoai')
+            ->get()
+            ->map(function ($contact) {
+                return [
+                    'ho_ten' => $contact->user->ho_ten ?? null,
+                    'email' => $contact->user->email ?? null,
+                    'so_dien_thoai' => $contact->user->so_dien_thoai ?? null,
+                    'noidung' => $contact->noidung,
+                ];
+            });
+    
+        return response()->json([
+            'message' => 'Danh sách contact kèm thông tin người dùng.',
+            'data' => $contacts
+        ]);
     }
-
     // Tạo một contact mới
     public function store(Request $request)
     {
