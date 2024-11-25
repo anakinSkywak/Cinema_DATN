@@ -10,14 +10,8 @@ class RegisterMember extends Model
     use HasFactory;
 
     // Các trường có thể điền vào một cách an toàn
-    protected $fillable = [
-        'user_id',
-        'hoivien_id',
-        'tong_tien',
-        'ngay_dang_ky',
-        'ngay_het_han', // Thêm trường ngày hết hạn vào mảng fillable
-        'trang_thai',
-    ];
+    protected $fillable = ['user_id', 'hoivien_id', 'tong_tien', 'ngay_dang_ky', 'ngay_het_han', 'trang_thai'];
+
 
     // Quan hệ với User
     public function user()  
@@ -34,7 +28,7 @@ class RegisterMember extends Model
     // Quan hệ với Membership
     public function memberships()
     {
-        return $this->hasMany(Membership::class); // Đảm bảo có quan hệ với class Membership
+        return $this->hasMany(memberships::class, 'dangkyhoivien_id', 'id'); // Chỉ định khóa ngoại là 'dangkyhoivien_id' trong bảng 'memberships'
     }
 
     // Quan hệ với Payment

@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\MemberShipsController;
 use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\BookingTicketController;
@@ -40,14 +41,14 @@ Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
 
 
 //Route::middleware('auth:api', 'role:admin')->group(function () {
-    // show all user
-    Route::get('showAllUser', [AuthController::class, 'showAllUser']);
+// show all user
+Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
-    // update user bên admin
-    Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+// update user bên admin
+Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
 
-    // xóa user bên admin
-    Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
+// xóa user bên admin
+Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
 //});
 
 
@@ -65,8 +66,12 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         //call api CouponCodeTaken T
         Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
         Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
-        Route::post('/contacts', [ContactController::class, 'store'])->name('contacts.store');
+        Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+        Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
+        Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'getUserMembership']);
 
+
+        Route::post('/quay-thuong', [RotationsController::class, 'quayThuong']);
         // Đăng xuất - vô hiệu hóa token
         Route::post('logout', [AuthController::class, 'logout']);
 
@@ -98,7 +103,7 @@ Route::get('movie-client', [MovieController::class, 'movieClient']);
 // 1  user
 //http://127.0.0.1:8000/api/movie-detail/31
 Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
- 
+
 // 2 user
 //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
 Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
@@ -133,8 +138,6 @@ Route::middleware('auth:api')->group(function () {
     // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
     // dữ liệu ok
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
-
-    
 });
 
 
@@ -261,62 +264,43 @@ Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
 
 
-Route::apiResource('members', MemberController::class);
-Route::apiResource('registermembers', RegisterMemberController::class);
-Route::apiResource('memberships', MemberShipsController::class);
-
-Route::apiResource('members', MemberController::class);
-Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
-Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
-Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
-Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
-
-// call api RegisterMemberController
-Route::apiResource('registerMembers', RegisterMemberController::class);
-Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-
-Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
-
-Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
-Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
-Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
-
-
 // call api MembershipController
-Route::apiResource('memberships', MembershipController::class);
-Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
-Route::post('memberships', [MembershipController::class, 'store']); // thêm bản ghi mới
-Route::get('memberships/{id}', [MembershipController::class, 'show']); // hiển thị theo id
-Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
-Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
+Route::apiResource('memberships', MembershipsController::class);
+Route::get('memberships', [MembershipsController::class, 'index']); // xuất all dữ liệu
+Route::post('memberships', [MembershipsController::class, 'store']); // thêm bản ghi mới
+// Route::get('memberships/{id}', [MembershipsController::class, 'show']); // hiển thị theo id
+Route::put('memberships/{id}', [MembershipsController::class, 'update']); // cập nhật theo id
+Route::delete('memberships/{id}', [MembershipsController::class, 'destroy']); // xóa theo id
 
 
 // call api MemberController
 Route::apiResource('members', MemberController::class);
-Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
-Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
-Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
+Route::middleware(['auth:api'])->get('members', [MemberController::class, 'index']); // xuất all dữ liệu
+Route::middleware(['auth:api'])->post('members', [MemberController::class, 'store']); // thêm bản ghi mới
+Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
+Route::middleware(['auth:api'])->put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
+
+Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
+
 
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
-Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
 
 
-// call api MembershipController
-Route::apiResource('memberships', MembershipController::class);
-Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
-Route::post('memberships', [MembershipController::class, 'store']); // thêm bản ghi mới
-Route::get('memberships/{id}', [MembershipController::class, 'show']); // hiển thị theo id
-Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
-Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
 
+
+
+//vòng quoay
+Route::get('rotations', [RotationsController::class, 'index']);
+Route::post('rotations', [RotationsController::class, 'store']);
+Route::get('rotations/{id}', [RotationsController::class, 'show']);
+Route::put('rotations/{id}', [RotationsController::class, 'update']);
+Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 
 
 //cal api contacts T
@@ -334,7 +318,26 @@ Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
 
-//call api countdown_vouchers T
+
+//call api quay thuong
+
+Route::middleware(['auth:api'])->post('/quay-thuong', [RotationsController::class, 'quayThuong']);
+Route::middleware('auth:api')->get('/available-rotations', [HistoryRotationsController::class, 'getAvailableRotations']);
+
+
+
+// Router cho lịch sử quay thưởng (History Rotations)
+Route::get('history-rotations', [HistoryRotationsController::class, 'index']); // Xuất tất cả lịch sử quay thưởng
+Route::get('addHistoryRotations', [HistoryRotationsController::class, 'addHistoryRotation']); // Đưa đến form thêm mới lịch sử quay thưởng (nếu cần)
+Route::post('storeHistoryRotations', [HistoryRotationsController::class, 'store']); // Thêm bản ghi lịch sử quay thưởng mới
+Route::get('history-rotations/{id}', [HistoryRotationsController::class, 'show']);  // Hiển thị lịch sử quay thưởng theo ID
+Route::get('editHistoryRotation/{id}', [HistoryRotationsController::class, 'editHistoryRotation']);  // Đưa đến trang chỉnh sửa
+Route::put('editHistoryRotation/{id}', [HistoryRotationsController::class, 'update']);  // Cập nhật lịch sử quay thưởng theo ID
+Route::delete('history-rotations/{id}', [HistoryRotationsController::class, 'delete']);  // Xóa lịch sử quay thưởng theo ID
+
+
+//call api countdown_vouchers
+
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
 Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
@@ -357,3 +360,7 @@ Route::middleware('auth:api')->group(function () {
     Route::put('comments/{id}', [CommentController::class, 'update']);
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
+
+
+Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
+Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
