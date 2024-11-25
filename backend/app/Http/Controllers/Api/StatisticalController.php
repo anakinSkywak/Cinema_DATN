@@ -111,10 +111,9 @@ class StatisticalController extends Controller
     {
         // Lấy tất cả các booking liên quan đến phim
         $bookings = Booking::join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
-        ->where('showtimes.phim_id', $id)
-        ->select('bookings.*', 'showtimes.id as showtime_id')  // Alias cho showtimes.id
-        ->get();
-            // $bookings = Booking::all();
+            ->where('showtimes.phim_id', $id)
+            ->select('bookings.*', 'showtimes.id as showtime_id')  // Alias cho showtimes.id
+            ->get();
 
         // Kiểm tra nếu không có booking nào
         if ($bookings->isEmpty()) {
@@ -127,17 +126,16 @@ class StatisticalController extends Controller
         // Lấy danh sách ID booking
         $bookingIds = $bookings->pluck('id');
 
-        // Tính tổng doanh thu từ bảng payments'
-
+        // Tính tổng doanh thu từ bảng payments
         $trangThai = 'Đã hoàn thành';
         $tongDoanhThu = Payment::query()
-            ->where('trang_thai', $trangThai)
-            // ->whereIn('id', $bookingIds) // Sử dụng whereIn để kiểm tra danh sách ID
-            ->sum('tong_tien');
+            ->whereIn('booking_id', $bookingIds) // Sử dụng whereIn để kiểm tra danh sách ID
+            ->where('trang_thai', $trangThai) // Kiểm tra trạng thái thanh toán
+            ->sum('tong_tien'); // Tính tổng doanh thu
 
         return response()->json([
             'message' => 'Thống kê doanh thu phim thành công',
-            'data' => $tongDoanhThu,
+            'data' => $tongDoanhThu, // Trả về tổng doanh thu
         ], 200);
     }
 }
