@@ -105,4 +105,39 @@ class StatisticalController extends Controller
             'data' => $voucherThongKe,
         ], 200);
     }
+
+    // nhập id phim để xem doanh thu
+    public function thongKeDoanhThuPhim($id)
+    {
+        // Lấy tất cả các booking liên quan đến phim
+        $bookings = Booking::join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+        ->where('showtimes.phim_id', $id)
+        ->select('bookings.*', 'showtimes.id as showtime_id')  // Alias cho showtimes.id
+        ->get();
+            // $bookings = Booking::all();
+
+        // Kiểm tra nếu không có booking nào
+        if ($bookings->isEmpty()) {
+            return response()->json([
+                'message' => 'Không tìm thấy doanh thu cho phim này',
+                'data' => 0,
+            ], 404);
+        }
+
+        // Lấy danh sách ID booking
+        $bookingIds = $bookings->pluck('id');
+
+        // Tính tổng doanh thu từ bảng payments'
+
+        $trangThai = 'Đã hoàn thành';
+        $tongDoanhThu = Payment::query()
+            ->where('trang_thai', $trangThai)
+            // ->whereIn('id', $bookingIds) // Sử dụng whereIn để kiểm tra danh sách ID
+            ->sum('tong_tien');
+
+        return response()->json([
+            'message' => 'Thống kê doanh thu phim thành công',
+            'data' => $tongDoanhThu,
+        ], 200);
+    }
 }
