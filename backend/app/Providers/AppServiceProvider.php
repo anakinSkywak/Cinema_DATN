@@ -6,6 +6,8 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Support\Facades\URL;
+use Carbon\Carbon;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,17 +25,14 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-        VerifyEmail::toMailUsing(function (object $notifiable, string $url) {
-            $frontendUrl = config('app.frontend_url', 'http://localhost:5173');
-            $verificationUrl = str_replace(url('/'), $frontendUrl, $url);
-            
+        VerifyEmail::toMailUsing(function ($notifiable, string $otp) {
             return (new MailMessage)
                 ->subject('Xác minh địa chỉ email của bạn')
                 ->greeting('Chào bạn!')
                 ->line('Cảm ơn bạn đã đăng ký tài khoản với chúng tôi. Vui lòng xác minh địa chỉ email của bạn để hoàn tất quá trình đăng ký.')
-                ->action('Xác minh địa chỉ email', $verificationUrl)
+                ->line('OTP: ' . $otp)
                 ->line('Nếu bạn không đăng ký tài khoản này, bạn có thể bỏ qua email này.')
-                ->line('Trân trọng,')
+                ->line('Trân trọng,')   
                 ->line(config('app.name'));
         });
         

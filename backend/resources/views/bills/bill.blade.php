@@ -128,6 +128,11 @@
         section, footer {
             font-size: 12px;
         }
+        .qr-code {
+            width: 100px;  /* or your desired size */
+            display: block;
+            margin: 0 auto; /* for center alignment */
+        }
     </style>
 </head>
 
@@ -201,10 +206,15 @@
         <p>
             Paid by : <span>{{ $data->payment->phuong_thuc_thanh_toan }}</span>
         </p>
+        <div style="text-align: center; margin: 10px auto;">
+            <img width="300" class="qr-code" src="{{ $qrcode }}" alt="QR Code">
+        </div>
         <p style="text-align:center">
             Thank you for your visit!
         </p>
     </section>
+
+    
     <footer style="text-align:center">
         <p>Technology Partner Dotworld Technologies</p>
         <p>www.dotworld.in</p>

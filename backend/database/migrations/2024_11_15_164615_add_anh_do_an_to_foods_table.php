@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
+        Schema::table('foods', function (Blueprint $table) {
             //
-            $table->dropColumn('ghengoi_id');
+            $table->string('anh_do_an', 255)->nullable();
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('bookings', function (Blueprint $table) {
+        Schema::table('foods', function (Blueprint $table) {
             //
         });
     }

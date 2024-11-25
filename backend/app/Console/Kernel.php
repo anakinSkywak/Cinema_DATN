@@ -13,6 +13,8 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
+        // cập nhật trạng thái của ngày bên săn mã giảm giá 
+        $schedule->command('countdown:update-status')->dailyAt('00:00'); // Chạy mỗi ngày lúc 00:00
     }
 
     /**
@@ -24,4 +26,5 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+    
 }

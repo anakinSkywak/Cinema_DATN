@@ -13,17 +13,14 @@ class SeatController extends Controller
 
     public function index()
     {
-        // call api xuất all seats 
         $seatall = Seat::all();
-
-        // check rỗng nếu không có dữ liệu trả về thông báo
+        
         if ($seatall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu nào của ghế!',
             ], 404);
         }
-
-        // trả về dữ liệu
+        
         return response()->json([
             'message' => 'Lấy All dữ liệu rạp phim thành công',
             'data' => $seatall,
@@ -35,7 +32,6 @@ class SeatController extends Controller
     {
         // Đổ all phòng ra khi thêm
         $roomall = Room::all();
-
         if ($roomall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phòng, hãy thêm phòng'
@@ -51,17 +47,17 @@ class SeatController extends Controller
     public function store(Request $request)
     {
         // Thêm mới ghế ngồi 
-        // Xác thực dữ liệu đầu vào của ghế
         $validated = $request->validate([
-            'room_id' => 'required|exists:rooms,id', // xác định phòng khi thêm
+            'room_id' => 'required|exists:rooms,id',
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
             'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
             'seats.*.loai_ghe_ngoi' => 'required|string|max:255',
             'seats.*.gia_ghe' => 'required|numeric',
         ]);
 
-        // Mảng ghế ngồi rỗng
+
         $seatCreate = [];
+        $totalSeatAddNew = 0;
 
         // Lặp qua từng ghế để thêm ghế ngồi
         foreach ($validated['seats'] as $seatConfig) {
@@ -75,7 +71,15 @@ class SeatController extends Controller
 
             // Lưu tất cả ghế ngồi vào mảng kết quả
             $seatCreate = array_merge($seatCreate, $seats);
+
+            // Đếm tổng số ghế và thêm vào cột tong_ghe_phong của bảng rooms
+            $totalSeatAddNew += count($seats);
         }
+
+        // Cập nhật số ghế trong bảng rooms
+        $room = Room::find($validated['room_id']);
+        $room->tong_ghe_phong += $totalSeatAddNew;
+        $room->save();
 
         return response()->json([
             'message' => 'Thêm mới ghế ngồi thành công',
@@ -110,16 +114,15 @@ class SeatController extends Controller
         return $seats;
     }
 
-
+    
     public function show(string $id)
     {
-        // Show seat theo id
+    
         $seatID = Seat::find($id);
-
         if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này',
-            ], 404); // 404 nếu không có dữ liệu
+            ], 404); 
         }
 
         return response()->json([
@@ -131,46 +134,39 @@ class SeatController extends Controller
 
     public function editSeat(string $id)
     {
-        // show seat theo id
-        $seatID = Seat::find($id);
 
+        $seatID = Seat::find($id);
         if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này',
-            ], 404); // 404 ko có dữ liệu 
+            ], 404); 
         }
 
         return response()->json([
             'message' => 'Lấy thông tin Seat theo ID thành công',
             'data' => $seatID,
-        ], 200);  // 200 có dữ liệu trả về
+        ], 200); 
     }
-
-
 
     public function update(Request $request, string $id)
     {
         // Cập nhật seat theo id 
         $seatID = Seat::find($id);
 
-        // Kiểm tra nếu không tìm thấy dữ liệu
         if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này!',
             ], 404);
         }
 
-        // Kiểm tra và xác thực các trường khi cập nhật
         $validated = $request->validate([
             'so_ghe_ngoi' => 'required|string|max:250',
             'loai_ghe_ngoi' => 'required|string|max:250',
             'gia_ghe' => 'required|numeric',
         ]);
 
-        // Cập nhật dữ liệu
         $seatID->update($validated);
 
-        // Trả về kết quả
         return response()->json([
             'message' => 'Cập nhật dữ liệu Seat theo id thành công',
             'data' => $seatID
@@ -179,10 +175,8 @@ class SeatController extends Controller
 
     public function delete(string $id)
     {
-        // Xóa seat theo id
-        $seatID = Seat::find($id);
 
-        // Kiểm tra xem có dữ liệu không
+        $seatID = Seat::find($id);
         if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu seat theo id này!',
@@ -195,5 +189,6 @@ class SeatController extends Controller
             'message' => 'Xóa seat theo id thành công'
         ], 200);
     }
+
 
 }

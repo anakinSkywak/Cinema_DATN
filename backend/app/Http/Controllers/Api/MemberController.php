@@ -15,6 +15,10 @@ class MemberController extends Controller
     public function index(Request $request)
     {
         // Lấy tất cả dữ liệu từ bảng Member
+        if (auth()->user()->vai_tro !== 'admin') {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
+        }
+
         $data = Member::all();
 
         // Kiểm tra nếu không có dữ liệu
@@ -31,6 +35,9 @@ class MemberController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->user()->vai_tro !== 'admin') {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
+        }
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
@@ -48,6 +55,7 @@ class MemberController extends Controller
 
     public function show($id)
     {
+      
         $dataID = Member::find($id);
 
         if (!$dataID) {
@@ -59,6 +67,10 @@ class MemberController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (auth()->user()->vai_tro !== 'admin') {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
+        }
+
         $dataID = Member::find($id);
 
         if (!$dataID) {

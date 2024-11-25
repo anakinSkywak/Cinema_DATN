@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-        Schema::dropIfExists('theaters ');
+        Schema::table('rooms', function (Blueprint $table) {
+            //
+            $table->integer('tong_ghe_phong')->default(0)->nullable()->change();
+        });
     }
 
     /**
@@ -20,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('rooms', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -171,6 +171,10 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+
+        // Ánh làm login k giới hạn token
+        //Laravel\Passport\PassportServiceProvider::class
+
     ])->toArray(),
 
     /*
@@ -192,6 +196,7 @@ return [
     'charset' => 'UTF-8',
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    'Auth' => Illuminate\Support\Facades\Auth::class,
 
 
 ];

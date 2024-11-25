@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Mail\BookingPaymentSuccessMail;
 use Auth;
 use Carbon\Carbon;
 use App\Models\Booking;
@@ -16,10 +17,64 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Endroid\QrCode\Writer\PngWriter;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 
 class PaymentController extends Controller
 {
+
+
+    // nhân viên
+    public function createPaymentBookTicket($bookingId, $method)
+    {
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Chưa đăng nhập phải đăng nhập'
+            ], 401);
+        }
+
+        $booking = Booking::find($bookingId);
+        if (!$booking) {
+            return response()->json(['message' => 'No booking id'], 404);
+        }
+
+        
+        $money = $booking->tong_tien_thanh_toan;
+
+        $payment = new Payment();
+        $payment->booking_id = $booking->id;
+        $payment->tong_tien = $money;
+        $payment->tien_te = 'VND'; 
+        $payment->phuong_thuc_thanh_toan = $method;
+        $payment->ma_thanh_toan = $booking->id;
+        $payment->trang_thai = 'Đã Hoàn Thành';
+        $payment->ngay_thanh_toan = Carbon::now();
+        $payment->save();
+
+        switch ($method) {
+            case 'thanh_toan_tien_tai_quay':
+                return $this->paymentBookTicketNow($booking, $payment);
+            default:
+                return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
+        }
+    }
+    // nhân viên
+    public function paymentBookTicketNow($booking , $payment){
+
+        BookingDetail::insert([
+            'booking_id' => $booking->id,   
+            'payment_id' => $payment->id,
+        ]);
+
+        Booking::where('id', $booking->id)->update(['trang_thai' => 2]);
+
+        return response()->json([
+            'message' => 'Mua vé và tạo vé thanh toán trực tiếp cho khách ok',
+           
+        ]);
+    }
 
 
     // đưa đến from chọn phương thức thanh toán
@@ -54,18 +109,10 @@ class PaymentController extends Controller
         $payment->ngay_thanh_toan = Carbon::now();
         $payment->save();
 
-
         // 'credit_card','paypal','cash','bank_transfer','vietqr','vnpay','viettel_money','payoo','mastercard','visa','ncb','jcb'
-
         switch ($method) {
             case 'ncb':
                 return $this->paymentNCB($booking, $money, $payment);
-            case 'vietqr':
-                return $this->paymentVIETQR($booking, $money, $payment);
-            case 'viettel_monney':
-                return $this->paymentVIETTELMONEY($booking, $money, $payment);
-            case 'payoo':
-                return $this->paymentPAYOO($booking, $money, $payment);
             case 'mastercard':
                 return $this->paymentMasterCard($booking, $money, $payment); //MasterCard
             case 'visa':
@@ -75,14 +122,14 @@ class PaymentController extends Controller
         }
     }
 
-
+   
     public function paymentNCB($booking, $money, $payment)
     {
         // Cấu hình của VNPAY
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_ReturnUrl = "http://localhost:5173/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
+        $vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
         //$vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
@@ -172,8 +219,7 @@ class PaymentController extends Controller
         if ($secureHash === $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
 
-                // Giao dịch thành công
-
+                
                 // Tìm giao dịch thanh toán dựa trên mã thanh toán
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
 
@@ -189,16 +235,21 @@ class PaymentController extends Controller
                 $booking = Booking::find($inputData['vnp_TxnRef']);
 
                 if ($booking) {
-
-                    $booking->trang_thai = 2; // Cập nhật trạng thái thành công ở booking
+                    $booking->trang_thai = 2;
                     $booking->save();
                 }
 
                 BookingDetail::insert([
                     'booking_id' => $booking->id,
-                    'payment_id' => $payment->id
+                    'payment_id' => $payment->id,
+                    //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
+                // thêm 1 lượt quay khi đặt và trả tiền vé ok để quay trưởng
+                User::where('id' , $booking->user_id)->increment('so_luot_quay', 1);
+
+
+                Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return response()->json(['message' => 'Thanh toán thành công']);
             } else {
@@ -224,7 +275,7 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        $vnp_ReturnUrl = "http://localhost:5173/api/payment/Visa-return"; // URL xử lý sau khi thanh toán
+        $vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
         //$vnp_ReturnUrl = "http://localhost:8000/api/payment/Visa-return"; // URL xử lý sau khi thanh toán
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
@@ -340,6 +391,7 @@ class PaymentController extends Controller
                     'payment_id' => $payment->id
                 ]);
 
+                Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return response()->json(['message' => 'Thanh toán thành công']);
             } else {
@@ -365,7 +417,7 @@ class PaymentController extends Controller
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
         //$vnp_ReturnUrl = "http://localhost:8000/api/payment/MasterCard-return"; // URL xử lý sau khi thanh toán
-        $vnp_ReturnUrl = "http://localhost:5173/api/payment/MasterCard-return"; // URL xử lý sau khi thanh toán
+        $vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
@@ -480,6 +532,7 @@ class PaymentController extends Controller
                     'payment_id' => $payment->id
                 ]);
 
+                Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return response()->json(['message' => 'Thanh toán thành công']);
             } else {
@@ -497,7 +550,7 @@ class PaymentController extends Controller
     }
 
 
-    private function getVnpayErrorMessage($code)
+    public function getVnpayErrorMessage($code)
     {
         $errors = [
             '01' => 'Giao dịch đã tồn tại',
@@ -510,27 +563,14 @@ class PaymentController extends Controller
         return $errors[$code] ?? 'Lỗi không xác định';
     }
 
-    public function paymentVIETQR($booking, $money, $payment) {}
-    public function vietqrReturn(Request $request) {}
-
-
-    public function paymentVIETTELMONEY($booking, $money, $payment) {}
-    public function viettelmoneyReturn(Request $request) {}
-
-
-    public function paymentPAYOO($booking, $money, $payment) {}
-    public function payooReturn(Request $request) {}
-
-
-
     public function createPayment1($registerMemberId, $method)
     {
-        // $user = auth()->user();
-        // if (!$user) {
-        //     return response()->json([
-        //         'message' => 'Chưa đăng nhập phải đăng nhập'
-        //     ], 401);
-        // }
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Chưa đăng nhập phải đăng nhập'
+            ], 401);
+        }
 
         $registerMember = RegisterMember::find($registerMemberId); 
         if (!$registerMember) {

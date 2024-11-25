@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('storage_moviegenres', function (Blueprint $table) {
+        Schema::table('movies', function (Blueprint $table) {
             //
-            $table->dropForeign(['phim_id']);
-            //
-           
+            $table->string('anh_phim', 255)->change();
+            $table->string('dao_dien', 255)->change();
+            $table->string('dien_vien', 255)->change();
+            $table->string('trailer', 255)->change();
         });
     }
 
@@ -24,7 +25,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('storage_moviegenres', function (Blueprint $table) {
+        Schema::table('movies', function (Blueprint $table) {
             //
         });
     }
