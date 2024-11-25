@@ -8,6 +8,7 @@ use App\Models\Payment;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Voucher;
 
 // chức năng thống kê
 class StatisticalController extends Controller
@@ -50,8 +51,7 @@ class StatisticalController extends Controller
         // Trả về doanh thu khi có dữ liệu
         return response()->json([
             'message' => "Thống kê doanh thu bán vé thành công",
-            'data' => $tongDoanhThu,
-            'trang_thai' => $trangThai
+            'data' => $tongDoanhThu
         ], 200);
     }
 
@@ -80,7 +80,29 @@ class StatisticalController extends Controller
 
         return response()->json([
             'message' => 'Thống kê doanh thu đồ ăn thành công',
-            'tongTienDoAn' => $tongTienDoAn
+            'data' => $tongTienDoAn
+        ], 200);
+    }
+
+    // thông kê số lượng voucher người dùng lấy được
+    public function thongKeSoLuongVoucher()
+    {
+        // Lấy danh sách voucher
+        $vouchers = Voucher::query()->get(['muc_giam_gia', 'so_luong', 'so_luong_da_su_dung']);
+
+        // Duyệt qua từng voucher và tính số lượng còn lại
+        $voucherThongKe = $vouchers->map(function ($voucher) {
+            return [
+                'muc_giam_gia' => $voucher->muc_giam_gia,
+                'so_luong' => $voucher->so_luong,
+                'so_luong_da_su_dung' => $voucher->so_luong_da_su_dung ?? 0,
+                'so_luong_con_lai' => $voucher->so_luong - ($voucher->so_luong_da_su_dung ?? 0),
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Thống kê số lượng voucher thành công',
+            'data' => $voucherThongKe,
         ], 200);
     }
 }
