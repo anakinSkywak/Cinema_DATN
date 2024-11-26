@@ -298,6 +298,8 @@ Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);
+
 //call api rotations T
 Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
 Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id

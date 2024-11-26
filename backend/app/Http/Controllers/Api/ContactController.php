@@ -3,23 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Contact;
+use App\Mail\ContactsMail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
-    // Lấy danh sách tất cả các contact
-    // public function index()
-    // {
-    //     $contacts = Contact::with('user:id,name,email') // Nếu muốn hiển thị thêm thông tin người gửi
-    //         ->get();
-    
-    //     return response()->json([
-    //         'message' => 'Danh sách contact.',
-    //         'data' => $contacts
-    //     ]);
-    // }
     public function getContactDetails()
     {
         $contacts = Contact::with('user:id,ho_ten,email,so_dien_thoai')
@@ -90,5 +81,26 @@ class ContactController extends Controller
     
         // Phản hồi thành công
         return response()->json(['message' => 'Xóa phản hồi thành công'], 200);
+    }
+    public function sendResponse($contactId)
+    {
+        // Lấy thông tin contact
+        $contact = Contact::with('user:id,ho_ten,email,so_dien_thoai')
+                          ->find($contactId);
+    
+        if (!$contact) {
+            return response()->json(['message' => 'Không tìm thấy phản hồi'], 404);
+        }
+    
+        // Phản hồi từ admin
+        $admin_reply = "Cảm ơn bạn đã gửi phản hồi. Chúng tôi sẽ xem xét và xử lý vấn đề của bạn trong thời gian sớm nhất.";
+    
+        // Gửi email cho người dùng
+        Mail::to($contact->user->email)->send(new ContactsMail([
+            'ho_ten' => $contact->user->ho_ten,
+            'noidung' => $contact->noidung,
+        ], $admin_reply));
+    
+        return response()->json(['message' => 'Đã gửi phản hồi qua email'], 200);
     }
 }
