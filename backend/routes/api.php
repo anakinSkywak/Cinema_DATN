@@ -306,10 +306,13 @@ Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 //cal api contacts T
 Route::get('contacts', [ContactController::class, 'index']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
-Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
+Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
+    ->name('contacts.details');
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
-Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
+Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);
+
 //call api rotations T
 Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
 Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
