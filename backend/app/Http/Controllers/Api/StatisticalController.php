@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
 use App\Models\Food;
+use App\Models\Room;
 use App\Models\Movie;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -66,18 +67,18 @@ class StatisticalController extends Controller
     }
 
 
-//  nhập thời gian để thống kê doanh thu theo thời gian
+    //  nhập thời gian để thống kê doanh thu theo thời gian
     public function doanhThuDoAn(Request $request)
     {
         // Lấy trạng thái thanh toán và tham số thời gian từ request
         $trangThai = 'Đã hoàn thành';
         $startDate = $request->input('start_date'); // Ngày bắt đầu
         $endDate = $request->input('end_date'); // Ngày kết thúc
-    
+
         // Truy vấn các booking_id từ bảng payments
         $query = Payment::query()
             ->where('trang_thai', $trangThai);
-    
+
         // Lọc theo khoảng thời gian nếu có tham số
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [
@@ -89,16 +90,16 @@ class StatisticalController extends Controller
         } elseif ($endDate) { // Chỉ có ngày kết thúc
             $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
         }
-    
+
         // Lấy danh sách ID booking từ các thanh toán thành công
         $idThanhToanThanhCong = $query->pluck('booking_id');
-    
+
         // Truy vấn các booking kèm thông tin món ăn
         $bookings = Booking::query()
             ->with('food') // Quan hệ với bảng foods
             ->whereIn('id', $idThanhToanThanhCong) // Lọc booking theo các ID đã thanh toán thành công
             ->get();
-    
+
         // Tính tổng doanh thu từ đồ ăn
         $tongTienDoAn = 0;
         foreach ($bookings as $booking) {
@@ -106,13 +107,13 @@ class StatisticalController extends Controller
                 $tongTienDoAn += $booking->so_luong_do_an * $booking->food->gia;
             }
         }
-    
+
         return response()->json([
             'message' => 'Thống kê doanh thu đồ ăn thành công',
             'data' => $tongTienDoAn
         ], 200);
     }
-    
+
 
     // thông kê số lượng voucher người dùng lấy được
     public function thongKeSoLuongVoucher()
@@ -144,13 +145,13 @@ class StatisticalController extends Controller
         $startDate = $request->input('start_date'); // Ngày bắt đầu
         $endDate = $request->input('end_date'); // Ngày kết thúc
         $trangThai = 'Đã hoàn thành';
-    
+
         // Lấy tất cả các booking liên quan đến phim
         $bookings = Booking::join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
             ->where('showtimes.phim_id', $id)
             ->select('bookings.*', 'showtimes.id as showtime_id')
             ->get();
-    
+
         // Kiểm tra nếu không có booking nào
         if ($bookings->isEmpty()) {
             return response()->json([
@@ -158,15 +159,15 @@ class StatisticalController extends Controller
                 'data' => 0,
             ], 404);
         }
-    
+
         // Lấy danh sách ID booking
         $bookingIds = $bookings->pluck('id');
-    
+
         // Truy vấn tổng doanh thu từ bảng payments
         $query = Payment::query()
             ->whereIn('booking_id', $bookingIds) // Lọc theo booking_id
             ->where('trang_thai', $trangThai); // Lọc trạng thái thanh toán
-    
+
         // Lọc theo thời gian nếu có tham số
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [
@@ -178,14 +179,52 @@ class StatisticalController extends Controller
         } elseif ($endDate) {
             $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
         }
-    
+
         // Tính tổng doanh thu
         $tongDoanhThu = $query->sum('tong_tien');
-    
+
         return response()->json([
             'message' => 'Thống kê doanh thu phim thành công',
             'data' => $tongDoanhThu, // Trả về tổng doanh thu
         ], 200);
     }
-    
+
+    // Doanh thu theo từng phòng chiếu.
+
+    public function doanhThuPhongChieu(Request $request, $id)
+    {
+        // Lấy tham số ngày/tháng/năm từ request
+        $startDate = $request->input('start_date'); // Ngày bắt đầu
+        $endDate = $request->input('end_date'); // Ngày kết thúc
+        $trangThai = 'Đã hoàn thành';
+
+        // Lọc các thanh toán liên quan đến room_id
+        $query = Payment::query()
+            ->join('bookings', 'payments.booking_id', '=', 'bookings.id')
+            ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('rooms', 'showtimes.room_id', '=', 'rooms.id')
+            ->where('rooms.id', $id) // Lọc theo phòng chiếu
+            ->where('payments.trang_thai', $trangThai); // Lọc trạng thái thanh toán
+
+        // Thêm lọc thời gian nếu có tham số
+        if ($startDate && $endDate) {
+            $query->whereBetween('payments.created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        } elseif ($startDate) {
+            $query->where('payments.created_at', '>=', Carbon::parse($startDate)->startOfDay());
+        } elseif ($endDate) {
+            $query->where('payments.created_at', '<=', Carbon::parse($endDate)->endOfDay());
+        }
+
+        // Tính tổng doanh thu
+        $tongDoanhThu = $query->sum('payments.tong_tien');
+
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê doanh thu phòng chiếu thành công',
+            'data' => $tongDoanhThu,
+        ], 200);
+    }
 }

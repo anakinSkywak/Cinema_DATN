@@ -434,8 +434,10 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
 
+// việt làm thống kê
 Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
 Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
 Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
 Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVoucher']);
 Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
+Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
