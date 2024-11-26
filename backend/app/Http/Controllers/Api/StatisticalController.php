@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use App\Models\Food;
 use App\Models\Movie;
+use App\Models\Booking;
 use App\Models\Payment;
+use App\Models\Voucher;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\Voucher;
 
 // chức năng thống kê
 class StatisticalController extends Controller
@@ -31,19 +32,37 @@ class StatisticalController extends Controller
         ], 200);
     }
 
-    // thông kê doanh thu bán vé
-    public function doanhThuBanVe()
-    {
-        // Chỉ tính doanh thu từ các thanh toán có trạng thái "Đã hoàn thành"
-        $trangThai = 'Đã hoàn thành';
-        $tongDoanhThu = Payment::query()
-            ->where('trang_thai', $trangThai)
-            ->sum('tong_tien');
+    // thông kê doanh thu bán vé, theo ngày,tuần,tháng,năm
 
-        // Kiểm tra nếu doanh thu bằng 0
+    public function doanhThuBanVe(Request $request)
+    {
+        // Lấy trạng thái thanh toán và thời gian từ request
+        $trangThai = 'Đã hoàn thành';
+        $startDate = $request->input('start_date'); // Ngày bắt đầu
+        $endDate = $request->input('end_date'); // Ngày kết thúc
+
+        // Tạo truy vấn cơ bản
+        $query = Payment::query()->where('trang_thai', $trangThai);
+
+        // Nếu người dùng nhập ngày bắt đầu hoặc kết thúc
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        } elseif ($startDate) { // Chỉ nhập ngày bắt đầu
+            $query->where('created_at', '>=', Carbon::parse($startDate)->startOfDay());
+        } elseif ($endDate) { // Chỉ nhập ngày kết thúc
+            $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
+        }
+
+        // Tính tổng doanh thu
+        $tongDoanhThu = $query->sum('tong_tien');
+
+        // Kiểm tra nếu không có doanh thu
         if ($tongDoanhThu === 0) {
             return response()->json([
-                'message' => "Không có doanh thu nào được ghi nhận cho trạng thái: $trangThai",
+                'message' => "Không có doanh thu nào được ghi nhận trong khoảng thời gian bạn yêu cầu.",
                 'data' => $tongDoanhThu
             ], 404);
         }
@@ -54,6 +73,8 @@ class StatisticalController extends Controller
             'data' => $tongDoanhThu
         ], 200);
     }
+
+
 
     // doanh thu đồ ăn 
     public function doanhThuDoAn()
