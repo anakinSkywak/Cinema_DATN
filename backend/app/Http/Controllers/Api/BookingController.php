@@ -33,7 +33,6 @@ class BookingController extends Controller
         return $seatNames;
     }
 
-
     // hàm tính tổng tiền với giá phim , đồ ăn , số lượng ghế , giá ghế
     public function tongTien($showtime, array $selectedSeats, $foodPrice = 0)
     {
@@ -196,6 +195,93 @@ class BookingController extends Controller
         return implode(', ', $doAnList); 
     }
 
+    // nhan viên book vé cho khách
+    public function Bookticket(Request $request){
+        
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);
+        }
+
+        $request->validate([
+            'thongtinchieu_id' => 'required|exists:showtimes,id',
+            'ghe_ngoi' => 'required|array|min:1',
+            'ghe_ngoi.*' => 'required|exists:seats,id',
+            'doan' => 'nullable|array',
+            'doan.*.doan_id' => 'nullable|exists:foods,id',
+            'doan.*.so_luong_do_an' => 'nullable|numeric|min:1',
+            'ma_giam_gia' => 'nullable|string|max:255',
+            'ghi_chu' => 'nullable|string|max:255',
+        ]);
+
+        $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
+
+        if (!$showtime) {
+            return response()->json(['message' => 'Suất chiếu không tồn tại.'], 404);
+        }
+
+        $selectedSeats = $request->ghe_ngoi;
+        $seatNames = $this->getNameSeat($selectedSeats);
+
+        $doAnDetails = [];
+        $tongTienDoAn = 0;
+        if (!empty($request->doan)) {
+            foreach ($request->doan as $doan) {
+                $food = Food::find($doan['doan_id']);
+                if ($food) {
+
+                    $doAnDetails[] = ['ten_do_an' => $food->ten_do_an, 'so_luong_do_an' => $doan['so_luong_do_an']];
+                    $tongTienDoAn += $food->gia * $doan['so_luong_do_an'];
+                }
+            }
+        }
+
+        $doAnString = $this->formatDoAnString($doAnDetails);
+
+        // Tính tổng tiền
+        $tongTien = $this->tongTien($showtime, $selectedSeats, $tongTienDoAn);
+
+        // Kiểm tra và áp dụng mã giảm giá nếu có
+        if ($request->ma_giam_gia) {
+            $result = $this->tinhTienVoucher($request->ma_giam_gia, $tongTien);
+            if (isset($result['error'])) {
+                return response()->json($result, 400);
+            }
+            $tongTien = $result['tong_tien_sau_giam'];
+        }
+
+        // Tạo Booking
+        $booking = Booking::create([
+            'user_id' => $user->id, // theo user auth của nhân viên or cột nhập tên khách hàng and sdt khách ở bên front
+            'thongtinchieu_id' => $request->thongtinchieu_id,
+            'so_luong' => count($selectedSeats),
+            'ngay_mua' => Carbon::now(),
+            'trang_thai' => 0, // chua thanh toan
+            'ghe_ngoi' => implode(', ', $seatNames),
+            'do_an' => $doAnString,
+            'ma_giam_gia' => $request->ma_giam_gia,
+            'ghi_chu' => $request->ghi_chu,
+            'tong_tien' => $tongTien,
+            'tong_tien_thanh_toan' => $tongTien,
+        ]);
+
+        // Cập nhật trạng thái ghế
+        foreach ($selectedSeats as $seatId) {
+            DB::table('seat_showtime_status')->updateOrInsert(
+                [
+                    'ghengoi_id' => $seatId,
+                    'thongtinchieu_id' => $request->thongtinchieu_id,
+                    'gio_chieu' => $showtime->gio_chieu
+                ],
+                ['trang_thai' => 1]
+            );
+        }
+
+        return response()->json([
+            'message' => 'Tạo Booking thành công, vui lòng thanh toán.',
+            'data' => $booking,
+        ], 200);
+    }
 
     // xu ly sau
     public function update(Request $request, string $id)

@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-        Schema::dropIfExists('theaters ');
+        Schema::table('movies', function (Blueprint $table) {
+            //
+            $table->string('noi_dung', 5000)->change();
+        });
     }
 
     /**
@@ -20,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('movies', function (Blueprint $table) {
+            //
+        });
     }
 };
