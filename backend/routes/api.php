@@ -126,7 +126,7 @@ Route::middleware('auth:api')->group(function () {
     // nhân viên
     //6
     //http://127.0.0.1:8000/api/payment/137/thanh_toan_tien_tai_quay
-    Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPaymentBookTicket']);
+    Route::post('paymentBookTicket/{bookingId}/{method}', [PaymentController::class, 'createPaymentBookTicket']);
 
     // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
     // dữ liệu ok
