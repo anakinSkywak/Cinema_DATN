@@ -438,4 +438,4 @@ Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
 Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
 Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
 Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVoucher']);
-Route::post('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
+Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);

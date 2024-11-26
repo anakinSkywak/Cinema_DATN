@@ -31,7 +31,6 @@ class StatisticalController extends Controller
             'data' => $data
         ], 200);
     }
-
     // thông kê doanh thu bán vé, theo ngày,tuần,tháng,năm
 
     public function doanhThuBanVe(Request $request)
@@ -138,14 +137,20 @@ class StatisticalController extends Controller
     }
 
     // nhập id phim để xem doanh thu
-    public function thongKeDoanhThuPhim($id)
+
+    public function thongKeDoanhThuPhim(Request $request, $id)
     {
+        // Lấy tham số ngày/tháng/năm từ request
+        $startDate = $request->input('start_date'); // Ngày bắt đầu
+        $endDate = $request->input('end_date'); // Ngày kết thúc
+        $trangThai = 'Đã hoàn thành';
+    
         // Lấy tất cả các booking liên quan đến phim
         $bookings = Booking::join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
             ->where('showtimes.phim_id', $id)
-            ->select('bookings.*', 'showtimes.id as showtime_id')  // Alias cho showtimes.id
+            ->select('bookings.*', 'showtimes.id as showtime_id')
             ->get();
-
+    
         // Kiểm tra nếu không có booking nào
         if ($bookings->isEmpty()) {
             return response()->json([
@@ -153,20 +158,34 @@ class StatisticalController extends Controller
                 'data' => 0,
             ], 404);
         }
-
+    
         // Lấy danh sách ID booking
         $bookingIds = $bookings->pluck('id');
-
-        // Tính tổng doanh thu từ bảng payments
-        $trangThai = 'Đã hoàn thành';
-        $tongDoanhThu = Payment::query()
-            ->whereIn('booking_id', $bookingIds) // Sử dụng whereIn để kiểm tra danh sách ID
-            ->where('trang_thai', $trangThai) // Kiểm tra trạng thái thanh toán
-            ->sum('tong_tien'); // Tính tổng doanh thu
-
+    
+        // Truy vấn tổng doanh thu từ bảng payments
+        $query = Payment::query()
+            ->whereIn('booking_id', $bookingIds) // Lọc theo booking_id
+            ->where('trang_thai', $trangThai); // Lọc trạng thái thanh toán
+    
+        // Lọc theo thời gian nếu có tham số
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        } elseif ($startDate) {
+            $query->where('created_at', '>=', Carbon::parse($startDate)->startOfDay());
+        } elseif ($endDate) {
+            $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
+        }
+    
+        // Tính tổng doanh thu
+        $tongDoanhThu = $query->sum('tong_tien');
+    
         return response()->json([
             'message' => 'Thống kê doanh thu phim thành công',
             'data' => $tongDoanhThu, // Trả về tổng doanh thu
         ], 200);
     }
+    
 }
