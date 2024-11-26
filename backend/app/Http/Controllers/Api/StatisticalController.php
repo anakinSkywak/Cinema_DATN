@@ -59,14 +59,6 @@ class StatisticalController extends Controller
         // Tính tổng doanh thu
         $tongDoanhThu = $query->sum('tong_tien');
 
-        // Kiểm tra nếu không có doanh thu
-        if ($tongDoanhThu === 0) {
-            return response()->json([
-                'message' => "Không có doanh thu nào được ghi nhận trong khoảng thời gian bạn yêu cầu.",
-                'data' => $tongDoanhThu
-            ], 404);
-        }
-
         // Trả về doanh thu khi có dữ liệu
         return response()->json([
             'message' => "Thống kê doanh thu bán vé thành công",
@@ -75,35 +67,53 @@ class StatisticalController extends Controller
     }
 
 
-
-    // doanh thu đồ ăn 
-    public function doanhThuDoAn()
+//  nhập thời gian để thống kê doanh thu theo thời gian
+    public function doanhThuDoAn(Request $request)
     {
-        // Lấy danh sách ID thanh toán thành công
+        // Lấy trạng thái thanh toán và tham số thời gian từ request
         $trangThai = 'Đã hoàn thành';
-        $idThanhToanThanhCong = Payment::query()
-            ->where('trang_thai', $trangThai)
-            ->pluck('booking_id'); // Trả về một mảng các ID
-
-        // Lấy các booking kèm thông tin món ăn, lọc theo ID thanh toán thành công
+        $startDate = $request->input('start_date'); // Ngày bắt đầu
+        $endDate = $request->input('end_date'); // Ngày kết thúc
+    
+        // Truy vấn các booking_id từ bảng payments
+        $query = Payment::query()
+            ->where('trang_thai', $trangThai);
+    
+        // Lọc theo khoảng thời gian nếu có tham số
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($startDate)->startOfDay(),
+                Carbon::parse($endDate)->endOfDay()
+            ]);
+        } elseif ($startDate) { // Chỉ có ngày bắt đầu
+            $query->where('created_at', '>=', Carbon::parse($startDate)->startOfDay());
+        } elseif ($endDate) { // Chỉ có ngày kết thúc
+            $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
+        }
+    
+        // Lấy danh sách ID booking từ các thanh toán thành công
+        $idThanhToanThanhCong = $query->pluck('booking_id');
+    
+        // Truy vấn các booking kèm thông tin món ăn
         $bookings = Booking::query()
-            ->with('food') // Quan hệ tới bảng foods
-            ->whereIn('id', $idThanhToanThanhCong) // Lọc booking theo payment_id
+            ->with('food') // Quan hệ với bảng foods
+            ->whereIn('id', $idThanhToanThanhCong) // Lọc booking theo các ID đã thanh toán thành công
             ->get();
-
-        // Tính tổng doanh thu
+    
+        // Tính tổng doanh thu từ đồ ăn
         $tongTienDoAn = 0;
         foreach ($bookings as $booking) {
             if ($booking->food) {
                 $tongTienDoAn += $booking->so_luong_do_an * $booking->food->gia;
             }
         }
-
+    
         return response()->json([
             'message' => 'Thống kê doanh thu đồ ăn thành công',
             'data' => $tongTienDoAn
         ], 200);
     }
+    
 
     // thông kê số lượng voucher người dùng lấy được
     public function thongKeSoLuongVoucher()
