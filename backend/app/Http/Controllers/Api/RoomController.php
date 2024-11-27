@@ -19,7 +19,7 @@ class RoomController extends Controller
         $rooms = Room::all();
 
         if ($rooms->isEmpty()) {
-            return response()->json(['message' => 'Không có dữ liệu rạp phim!'], 404);
+            return response()->json(['message' => 'Không có dữ liệu room '], 404);
         }
 
         return response()->json([
@@ -34,7 +34,6 @@ class RoomController extends Controller
     {
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
-            //'tong_ghe_phong' => 'required|integer',
         ]);
 
         $room = Room::create($validated);
@@ -64,7 +63,7 @@ class RoomController extends Controller
     // đưa đến trang edit với thông tin edit đó và Theater để thay đổi rạp nếu muốn
     public function editRoom(string $id)
     {
-        // show room theo id
+        
         $roomID = Room::find($id);
 
         if (!$roomID) {
@@ -74,7 +73,7 @@ class RoomController extends Controller
         return response()->json([
             'message' => 'Lấy thông tin Room theo ID thành công',
             'data' => [
-                'room' => $roomID, // phong theo id
+                'room' => $roomID,
             ],
         ], 200);
     }
@@ -82,7 +81,6 @@ class RoomController extends Controller
 
     public function update(Request $request, string $id)
     {
-        // cap nhat room theo id 
         $room = Room::find($id);
 
         if (!$room) {
@@ -91,7 +89,6 @@ class RoomController extends Controller
 
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
-            //'tong_ghe_phong' => 'required|integer',
         ]);
 
         $room->update($validated);
@@ -116,13 +113,13 @@ class RoomController extends Controller
         return response()->json(['message' => 'Xóa Room theo id thành công'], 200);
     }
 
-    
+
     // show all ghế theo phòng đó để xem all ghế và 1 số chức năng phụ
     public function allSeatRoom(string $id)
     {
 
         $roomID = Room::find($id);
-       
+
         if (!$roomID) {
             return response()->json([
                 'message' => 'Phòng không tồn tại',
@@ -130,7 +127,6 @@ class RoomController extends Controller
         }
         // show all ghế theo phòng đó theo id
         $allSeatRoom = DB::table('seats')->where('room_id', $roomID->id)->get();
-
 
         return response()->json([
             'message' => 'đổ toàn bộ ghế theo id room ok',
@@ -140,11 +136,12 @@ class RoomController extends Controller
 
 
     // chức năng bảo trì tắt ghế ko cho thuê nếu gặp sự cố 
-    public function baoTriSeat(string $id){
+    public function baoTriSeat(string $id)
+    {
         // 0 la co the thue
         // 1 la da bi thue het thoi gian chieu phim set thanh 0 
         // 2 la cap nhat dang lỗi hoặc đang bảo trì ko cho thuê 
-        
+
         $seatID = Seat::find($id);
         if (!$seatID) {
             return response()->json([
@@ -154,7 +151,6 @@ class RoomController extends Controller
 
         // cập nhật trạng thái là 2 bảo trị lỗi
         $seatID->update(['trang_thai' => 2]);
-        
 
         return response()->json([
             'message' => 'Tắt ghế để bảo trì ghế theo id này ok',
@@ -165,11 +161,12 @@ class RoomController extends Controller
 
     // tắt bảo trì ghế update lại trạng thái thành 0 có thể thuê
     // chức năng bảo trì tắt ghế ko cho thuê nếu gặp sự cố 
-    public function tatbaoTriSeat(string $id){
+    public function tatbaoTriSeat(string $id)
+    {
         // 0 la co the thue
         // 1 la da bi thue het thoi gian chieu phim set thanh 0 
         // 2 la cap nhat dang lỗi hoặc đang bảo trì ko cho thuê 
-        
+
         $seatID = Seat::find($id);
         if (!$seatID) {
             return response()->json([
@@ -179,7 +176,6 @@ class RoomController extends Controller
 
         // cập nhật trạng thái là 2 bảo trị lỗi
         $seatID->update(['trang_thai' => 0]);
-        
 
         return response()->json([
             'message' => 'Bỏ bảo trì ghế ok có thể booking',
@@ -187,5 +183,5 @@ class RoomController extends Controller
         ], 200);
     }
 
-
+    
 }

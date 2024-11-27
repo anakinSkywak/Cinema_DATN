@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('booking_id')->references('id')->on('bookings');
             $table->decimal('tong_tien', 12,3);
-            $table->enum('phuong_thuc_thanh_toan', ['credit_card', 'paypal', 'cash', 'bank_transfer']); // Phương thức thanh toán
+            $table->enum('phuong_thuc_thanh_toan', ['vnpay', 'paypal', 'cash', 'bank_transfer']); // Phương thức thanh toán
             $table->string('ma_thanh_toan', 255)->unique();
             $table->dateTime('ngay_thanh_toan');
             $table->tinyInteger('trang_thai')->default(0)->nullable();

@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('storage_moviegenres', function (Blueprint $table) {
+        Schema::table('payments', function (Blueprint $table) {
             //
-            $table->dropForeign(['phim_id']);
-            //
-           
+            $table->enum('phuong_thuc_thanh_toan', ['credit_card','paypal','cash','bank_transfer','vietqr','vnpay','viettel_money','payoo','mastercard','visa','ncb','jcb' , 'thanh_toan_tien_tai_quay' , 'tien_mat'])->change(); 
         });
     }
 
@@ -24,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('storage_moviegenres', function (Blueprint $table) {
+        Schema::table('payments', function (Blueprint $table) {
             //
         });
     }

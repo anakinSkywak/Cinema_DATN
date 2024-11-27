@@ -28,27 +28,29 @@ use App\Http\Controllers\Api\MemberShipsController;
 use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\StatisticalController;
+use App\Http\Controllers\Api\BookingTicketController;
 
 // xác thực email
 Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
-// giới hạn số lần gửi mail
+    // giới hạn số lần gửi mail
     ->middleware(['throttle:6,1'])
     ->name('verifyEmail');
 
 
-Route::middleware('auth:api', 'role:admin')->group(function(){
-        // show all user
-    Route::get('showAllUser', [AuthController::class, 'showAllUser']);
+//Route::middleware('auth:api', 'role:admin')->group(function () {
+// show all user
+Route::get('showAllUser', [AuthController::class, 'showAllUser']);
 
-    // update user bên admin
-    Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
+// update user bên admin
+Route::put('updateUser/{id}', [AuthController::class, 'updateUser']);
 
-    // xóa user bên admin
-    Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
-});
+// xóa user bên admin
+Route::delete('deleteUser/{id}', [AuthController::class, 'deleteUser']);
+//});
 
 
 Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
@@ -65,6 +67,12 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         //call api CouponCodeTaken T
         Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
         Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+        Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+        Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
+        Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'getUserMembership']);
+
+
+        Route::post('/quay-thuong', [RotationsController::class, 'quayThuong']);
         // Đăng xuất - vô hiệu hóa token
         Route::post('logout', [AuthController::class, 'logout']);
 
@@ -84,346 +92,269 @@ Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 
 
+
+
+// Client
+// phim 2 home front 2 dạng Đang Chiếu and Sắp Công Chiếu
+Route::get('movie-client', [MovieController::class, 'movieClient']);
+
+
+
 // chi tiết theo id phim khi ấn vào phim ở home
-// 1
+// 1  user
+//http://127.0.0.1:8000/api/movie-detail/31
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
 
-Route::middleware('auth:api')->group(function(){
+// 2 user
+//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
+Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
 
-    //http://127.0.0.1:8000/api/movie-detail/31
-    Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
-    
-    // 2
-    //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
-    Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
-    
-    // 3
-    //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00
-    Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getRoomsByShowtime']);
-});
+// 3 user
+//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00
+Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getRoomsByShowtime']);
+
 
 
 Route::middleware('auth:api')->group(function () {
 
-    // 4
+    // nhân viên book vé cho khách
+    //5
+    //http://127.0.0.1:8000/api/book-ticket
+    Route::post('book-ticket', [BookingController::class, 'Bookticket']);
+
+    // 4 user
     //http://127.0.0.1:8000/api/booking
     Route::post('booking', [BookingController::class, 'Booking']);
 
-    //5
+    //5 user
     //http://127.0.0.1:8000/api/payment/137/ncb
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
-    // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
-    Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
+    // nhân viên
+    //6
+    //http://127.0.0.1:8000/api/payment/137/thanh_toan_tien_tai_quay
+    Route::post('paymentBookTicket/{bookingId}/{method}', [PaymentController::class, 'createPaymentBookTicket']);
 
-    // in bill  
-    //Route::get('/bill/{id}', [BillController::class, 'exportBill']);
+    // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
+    // dữ liệu ok
+    Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
 });
 
 
 
+// Nhân viên
+//1
+//http://127.0.0.1:8000/api/movie-book-all
+Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTicket']);
+//2
+//http://127.0.0.1:8000/api/movie-book-id/42
+Route::get('movie-book-id/{id}', [BookingTicketController::class, 'MovieByShowtimeID']);
+//3
+//http://127.0.0.1:8000/api/movie-book-id/42/showtime-date/2024-11-24
+Route::get('movie-book-id/{movieID}/showtime-date/{date}', [BookingTicketController::class, 'getShowtimesByDate']);
+//4
+//http://127.0.0.1:8000/api/movie-book-id/42/showtime-date/2024-11-24/08:00:00
+Route::get('movie-book-id/{movieID}/showtime-date/{date}/{time}', [BookingTicketController::class, 'getRoomsByShowtime']);
+
+
+
+// return user 
 Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
 Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
 Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
-// Ánh booking detail
+// còn check tiếp tìm kiếm : nhân viên
+// Ánh booking detail all , tìm đơn của khách , xác nhận khách đến
 Route::get('booking-detail-all', [BookingDetailController::class, 'bookingDetailAll']);
 Route::get('search-booking-detail/{search}', [BookingDetailController::class, 'searchBookingDetail']);
 Route::put('confirm-booking-detail/{id}', [BookingDetailController::class, 'confirmArrival']);
 
 
 //Ánh call api rooms
-
-// việt phần quyền admin
+Route::get('rooms', [RoomController::class, 'index']);
+Route::post('storeRoom', [RoomController::class, 'store']);
 Route::get('showRoom/{id}', [RoomController::class, 'show']);
 Route::get('editRoom/{id}', [RoomController::class, 'editRoom']);
+Route::put('updatetRoom/{id}', [RoomController::class, 'update']);
+Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);
 Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
-Route::middleware('auth:api', 'role:admin')->group(function () {
-    Route::post('storeRoom', [RoomController::class, 'store']);
-    Route::put('updatetRoom/{id}', [RoomController::class, 'update']);
-    Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);
-    Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
-    Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
-});
-
-// việt phần quyền nhân viên và admin
-Route::middleware('auth:api', 'role:admin|nhan_vien')->group(function () {
-    Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
-    Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
-});
-
-// việt phần quyền user, nhân viên và admin
-Route::middleware('auth:api')->group(function () {
-    Route::get('rooms', [RoomController::class, 'index']);
-});
+Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
+Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
-
-// việt phần quyền user, nhân viên và admin
 Route::get('seats', [SeatController::class, 'index']);
+Route::get('addSeat', [SeatController::class, 'addSeat']);
+Route::post('storeSeat', [SeatController::class, 'store']);
 Route::get('showSeat/{id}', [SeatController::class, 'show']);
-Route::middleware('auth:api')->group(function () {
-    // việt phần quyền admin
-    Route::middleware('role:admin')->group(function () {
-        Route::get('addSeat', [SeatController::class, 'addSeat']);
-        Route::post('storeSeat', [SeatController::class, 'store']);
-        Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
-        Route::put('updateSeat/{id}', [SeatController::class, 'update']);
-        Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
-    });
+Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
+Route::put('updateSeat/{id}', [SeatController::class, 'update']);
+Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
 
-});
 
 // Ánh : call api moviegenres
 Route::get('moviegenres', [MoviegenreController::class, 'index']);
+Route::post('storeMoviegenre', [MoviegenreController::class, 'store']);
 Route::get('showMoviegenre/{id}', [MoviegenreController::class, 'show']);
-Route::middleware('auth:api')->group(function(){
-    // tất cả các role đều truy cập d
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('storeMoviegenre', [MoviegenreController::class, 'store']);
-        Route::get('editMoviegenre/{id}', [MoviegenreController::class, 'edit']);
-        Route::put('updateMoviegenre/{id}', [MoviegenreController::class, 'update']);
-        Route::delete('moviegenre/{id}', [MoviegenreController::class, 'delete']);
-    });
-});
+Route::get('editMoviegenre/{id}', [MoviegenreController::class, 'edit']);
+Route::put('updateMoviegenre/{id}', [MoviegenreController::class, 'update']);
+Route::delete('moviegenre/{id}', [MoviegenreController::class, 'delete']);
 
+
+//Ánh call api movie
 Route::get('movies', [MovieController::class, 'index']);
+Route::get('addMovie', [MovieController::class, 'getMovieGenre']);
+Route::post('storeMovie', [MovieController::class, 'store']);
 Route::get('showMovie/{id}', [MovieController::class, 'show']);
+Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
+Route::post('updateMovie/{id}', [MovieController::class, 'update']);
+Route::delete('movies/{id}', [MovieController::class, 'delete']);
 Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
 Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']);
-Route::middleware('auth:api')->group(function(){
-    // tất cả các role đều truy cập dc
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('storeMovie', [MovieController::class, 'store']);
-        Route::get('editMovie/{id}', [MovieController::class, 'showEditID']);
-        Route::post('updateMovie/{id}', [MovieController::class, 'update']);
-        Route::delete('movies/{id}', [MovieController::class, 'delete']);
-    });
-});
 
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
-    //Ánh call api showtime
-    Route::get('showtimes', [ShowtimeController::class, 'index']);
-    Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
-Route::middleware('auth:api')->group(function(){
-    // tất cả các role đều truy cập dc
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
-        Route::post('storeShowtime', [ShowtimeController::class, 'store']);
-        Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
-        Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
-        Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
-    });
-});
-
+Route::get('showtimes', [ShowtimeController::class, 'index']);
+Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
+Route::post('storeShowtime', [ShowtimeController::class, 'store']);
+Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
+Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
+Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
+Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
 
 
 // Ánh : call api Foods
-    // tất cả các role đều truy cập dc
-    Route::get('foods', [FoodController::class, 'index']);
-    Route::get('showFood/{id}', [FoodController::class, 'show']);
-Route::middleware('auth:api')->group(function(){
- 
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('storeFood', [FoodController::class, 'store']);
-        Route::get('editFood/{id}', [FoodController::class, 'edit']);
-        Route::put('updateFood/{id}', [FoodController::class, 'update']);
-        Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);
-        Route::put('stopFood/{id}', [FoodController::class, 'stopFood']);
-        Route::put('openFood/{id}', [FoodController::class, 'openFood']);
-    });
-});
-
-
+Route::get('foods', [FoodController::class, 'index']);
+Route::post('storeFood', [FoodController::class, 'store']);
+Route::get('showFood/{id}', [FoodController::class, 'show']);
+Route::get('editFood/{id}', [FoodController::class, 'edit']);
+Route::post('updateFood/{id}', [FoodController::class, 'update']);
+Route::delete('deleteFood/{id}', [FoodController::class, 'delete']);
+Route::put('stopFood/{id}', [FoodController::class, 'stopFood']);
+Route::put('openFood/{id}', [FoodController::class, 'openFood']);
 
 
 // Ánh : call api vouchers 
-    // tất cả các role đều truy cập dc
-
-    Route::get('vouchers', [VoucherController::class, 'index']);
-    Route::get('showVoucher/{id}', [VoucherController::class, 'show']);
-Route::middleware('auth:api')->group(function(){
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('storeVoucher', [VoucherController::class, 'store']);
-        Route::get('editVoucher/{id}', [VoucherController::class, 'edit']);
-        Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);
-        Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);
-    });
-});
+Route::get('vouchers', [VoucherController::class, 'index']);
+Route::post('storeVoucher', [VoucherController::class, 'store']);
+Route::get('showVoucher/{id}', [VoucherController::class, 'show']);
+Route::get('editVoucher/{id}', [VoucherController::class, 'edit']);
+Route::put('updateVoucher/{id}', [VoucherController::class, 'update']);
+Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);
 
 
-// Ánh : call api type_blogs T
-    // tất cả các role đều truy cập dc
-
-    Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
-    Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
-Route::middleware('auth:api')->group(function(){
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
-        Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
-        Route::delete('type_blogs/{id}', [TypeBlogController::class, 'delete']);  // xoa theo id
-    });
-});
-
-// route blog
-    // tất cả các role đều truy cập dc
-    Route::get('blogs', [BlogController::class, 'index']); // xuat all
-    Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
-
-Route::middleware('auth:api')->group(function(){
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
-        Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
-        Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
-    });
-});
 
 
-// route members
-    // tất cả các role đều truy cập dc
-    Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
-    Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
 
-Route::middleware('auth:api')->group(function(){
-
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
-        Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
-        Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
-    });
-});
-
-
-// call api RegisterMemberController
-    // tất cả các role đều truy cập dc
-    Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-    Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
-Route::middleware('auth:api')->group(function(){
+// call api type_blogs T
+// Route::apiResource('type_blogs', TypeBlogController::class);
+Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
+Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
+Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
+Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);  // xoa theo id
+// call api BlogController T
+Route::get('blogs', [BlogController::class, 'index']); // xuat all
+Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
+Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
+Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
+Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
 
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
-        Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
-        Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
-    });
-});
+
 
 // call api MembershipController
-    // tất cả các role đều truy cập dc
-    Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
-    Route::get('memberships/{id}', [MembershipController::class, 'show']); // hiển thị theo id
-Route::middleware('auth:api')->group(function(){
-
-
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('memberships', [MembershipController::class, 'store']); // thêm bản ghi mới
-        Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
-        Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
-    });
-});
-
-
+Route::apiResource('memberships', MembershipsController::class);
+Route::get('memberships', [MembershipsController::class, 'index']); // xuất all dữ liệu
+Route::post('memberships', [MembershipsController::class, 'store']); // thêm bản ghi mới
+// Route::get('memberships/{id}', [MembershipsController::class, 'show']); // hiển thị theo id
+Route::put('memberships/{id}', [MembershipsController::class, 'update']); // cập nhật theo id
+Route::delete('memberships/{id}', [MembershipsController::class, 'destroy']); // xóa theo id
 
 
 // call api MemberController
+Route::apiResource('members', MemberController::class);
+Route::middleware(['auth:api'])->get('members', [MemberController::class, 'index']); // xuất all dữ liệu
+Route::middleware(['auth:api'])->post('members', [MemberController::class, 'store']); // thêm bản ghi mới
+Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
+Route::middleware(['auth:api'])->put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
+Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
-// Route::get('members', [MemberController::class, 'index']); // xuất all dữ liệu
-// Route::post('members', [MemberController::class, 'store']); // thêm bản ghi mới
-// Route::get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-// Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
-// Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
+Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
+
 
 // call api RegisterMemberController
-// Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
-// Route::post('registerMembers', [RegisterMemberController::class, 'store']); // thêm bản ghi mới
-// Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
-// Route::put('registerMembers/{id}', [RegisterMemberController::class, 'update']); // cập nhật theo id
-// Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
+Route::apiResource('registerMembers', RegisterMemberController::class);
+Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
+Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
+Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
 
 
-// // call api MembershipController
-// Route::get('memberships', [MembershipController::class, 'index']); // xuất all dữ liệu
-// Route::post('memberships', [MembershipController::class, 'store']); // thêm bản ghi mới
-// Route::get('memberships/{id}', [MembershipController::class, 'show']); // hiển thị theo id
-// Route::put('memberships/{id}', [MembershipController::class, 'update']); // cập nhật theo id
-// Route::delete('memberships/{id}', [MembershipController::class, 'destroy']); // xóa theo id
+
+
+
+//vòng quoay
+Route::get('rotations', [RotationsController::class, 'index']);
+Route::post('rotations', [RotationsController::class, 'store']);
+Route::get('rotations/{id}', [RotationsController::class, 'show']);
+Route::put('rotations/{id}', [RotationsController::class, 'update']);
+Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
+
 
 //cal api contacts T
-    // tất cả các role đều truy cập dc
-    Route::get('contacts', [ContactController::class, 'index']);
-    Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
-    Route::get('contacts/{id}', [ContactController::class, 'show']);
-Route::middleware('auth:api')->group(function(){
-
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('contacts', [ContactController::class, 'store']);
-        Route::put('contacts/{id}', [ContactController::class, 'update']);
-        Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
-    });
-});
-
+Route::get('contacts', [ContactController::class, 'index']);
+Route::get('contacts/{id}', [ContactController::class, 'show']);
+Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
+    ->name('contacts.details');
+Route::post('contacts', [ContactController::class, 'store']);
+Route::put('contacts/{id}', [ContactController::class, 'update']);
+Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);
 
 //call api rotations T
-    // tất cả các role đều truy cập dc
-    Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
-    Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
-Route::middleware('auth:api')->group(function(){
+Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
+Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
+Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
+Route::put('/rotations/{id}', [RotationsController::class, 'update']);
+Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
 
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
-        Route::put('rotations/{id}', [RotationsController::class, 'update']);
-        Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
-    });
-});
 
-//call api countdown_vouchers T
-    // tất cả các role đều truy cập dc
-    Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
-    Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
-Route::middleware('auth:api')->group(function(){
+//call api quay thuong
+
+Route::middleware(['auth:api'])->post('/quay-thuong', [RotationsController::class, 'quayThuong']);
+Route::middleware('auth:api')->get('/available-rotations', [HistoryRotationsController::class, 'getAvailableRotations']);
 
 
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
-        Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
-        Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
-    });
-});
 
-Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+// Router cho lịch sử quay thưởng (History Rotations)
+Route::get('history-rotations', [HistoryRotationsController::class, 'index']); // Xuất tất cả lịch sử quay thưởng
+Route::get('addHistoryRotations', [HistoryRotationsController::class, 'addHistoryRotation']); // Đưa đến form thêm mới lịch sử quay thưởng (nếu cần)
+Route::post('storeHistoryRotations', [HistoryRotationsController::class, 'store']); // Thêm bản ghi lịch sử quay thưởng mới
+Route::get('history-rotations/{id}', [HistoryRotationsController::class, 'show']);  // Hiển thị lịch sử quay thưởng theo ID
+Route::get('editHistoryRotation/{id}', [HistoryRotationsController::class, 'editHistoryRotation']);  // Đưa đến trang chỉnh sửa
+Route::put('editHistoryRotation/{id}', [HistoryRotationsController::class, 'update']);  // Cập nhật lịch sử quay thưởng theo ID
+Route::delete('history-rotations/{id}', [HistoryRotationsController::class, 'delete']);  // Xóa lịch sử quay thưởng theo ID
+
+
+//call api countdown_vouchers
+
+Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
+Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
+Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
+Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
+Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+
 
 //call api moment
-Route::middleware('auth:api')->group(function(){
-    // tất cả các role đều truy cập dc
-    Route::get('moments', [MomentController::class, 'index']);
-    Route::get('moments/{id}', [MomentController::class, 'show']);
-
-    // chỉ có role admin
-    Route::middleware('role:admin')->group(function(){
-        Route::post('moments', [MomentController::class, 'store']);
-        Route::put('moments/{id}', [MomentController::class, 'update']);
-        Route::delete('moments/{id}', [MomentController::class, 'destroy']);
-    });
-});
-
-
+Route::get('moments', [MomentController::class, 'index']);
+Route::post('moments', [MomentController::class, 'store']);
+Route::get('moments/{id}', [MomentController::class, 'show']);
+Route::put('moments/{id}', [MomentController::class, 'update']);
+Route::delete('moments/{id}', [MomentController::class, 'destroy']);
 
 
 Route::middleware('auth:api')->group(function () {
@@ -444,3 +375,6 @@ Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPh
 Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
 Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
 Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
+
+Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
+Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
