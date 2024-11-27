@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\MomentController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
@@ -25,13 +26,13 @@ use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\MemberShipsController;
-use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\Api\BookingDetailController;
-use App\Http\Controllers\Api\RegisterMemberController;
-use App\Http\Controllers\Api\HistoryRotationsController;
-use App\Http\Controllers\API\CountdownVoucherController;
-use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\BookingTicketController;
+use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\Api\CouponCodeTakenController;
+use App\Http\Controllers\API\CountdownVoucherController;
+use App\Http\Controllers\Api\HistoryRotationsController;
+use App\Http\Controllers\Api\AuthController; //  auth api 
 
 // xác thực email
 Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
@@ -320,6 +321,10 @@ Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
 Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
+
+Route::get('coupons', [CouponsController::class, 'index']);
+Route::post('coupons', [CouponsController::class, 'store']);
+Route::get('coupons/{id}', [CouponsController::class, 'show']);
 
 
 //call api quay thuong

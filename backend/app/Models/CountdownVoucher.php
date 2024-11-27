@@ -20,15 +20,15 @@ class CountdownVoucher extends Model
     ];
     protected static function booted()
     {
-        static::creating(function ($voucher) {
-            if (is_null($voucher->so_luong_con_lai)) {
-                $voucher->so_luong_con_lai = $voucher->so_luong;
+        static::creating(function ($coupons) {
+            if (is_null($coupons->so_luong_con_lai)) {
+                $coupons->so_luong_con_lai = $coupons->so_luong;
             }
         });
     }
-    public function voucher()
+    public function coupons()
     {
-        return $this->belongsTo(Voucher::class, 'magiamgia_id');
+        return $this->belongsTo(Coupon::class, 'magiamgia_id');
     }
     public function couponCodeTakens()
     {
