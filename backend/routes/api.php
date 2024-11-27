@@ -261,7 +261,7 @@ Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);  // xo
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
 Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
 Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
-Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
+Route::post('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
 Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
 
