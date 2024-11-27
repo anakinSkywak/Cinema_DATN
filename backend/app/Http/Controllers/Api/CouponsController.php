@@ -68,4 +68,54 @@ class CouponsController extends Controller
             'data' => $coupon,
         ], 200);
     }
+    /**
+     * Cập nhật thông tin một Coupon.
+     */
+    public function update(Request $request, string $id)
+    {
+        $coupon = Coupon::find($id); // Tìm Coupon theo ID
+
+        if (!$coupon) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Coupon theo ID này',
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'ma_giam_gia' => 'sometimes|required|string|max:255',
+            'muc_giam_gia' => 'sometimes|required|numeric|min:0',
+            'mota' => 'sometimes|required|string|max:255',
+            'so_luong' => 'sometimes|required|integer|min:1',
+            'so_luong_da_su_dung' => 'nullable|integer|min:0',
+            'gia_don_toi_thieu' => 'nullable|numeric|min:0',
+            'trang_thai' => 'nullable|boolean',
+        ]);
+
+        $coupon->update($validated); // Cập nhật dữ liệu
+
+        return response()->json([
+            'message' => 'Cập nhật dữ liệu mã giảm giá thành công',
+            'data' => $coupon,
+        ], 200);
+    }
+
+    /**
+     * Xóa một Coupon.
+     */
+    public function destroy(string $id)
+    {
+        $coupon = Coupon::find($id); // Tìm Coupon theo ID
+
+        if (!$coupon) {
+            return response()->json([
+                'message' => 'Không có dữ liệu Coupon theo ID này',
+            ], 404);
+        }
+
+        $coupon->delete(); // Xóa Coupon
+
+        return response()->json([
+            'message' => 'Xóa mã giảm giá thành công',
+        ], 200);
+    }
 }

@@ -321,10 +321,12 @@ Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
 Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
-
+// call api cho tạo ra mã giảm giá (*coupons)
 Route::get('coupons', [CouponsController::class, 'index']);
 Route::post('coupons', [CouponsController::class, 'store']);
 Route::get('coupons/{id}', [CouponsController::class, 'show']);
+Route::put('coupons/{id}', [CouponsController::class, 'update']);
+Route::delete('coupons/{id}', [CouponsController::class, 'destroy']);
 
 
 //call api quay thuong
