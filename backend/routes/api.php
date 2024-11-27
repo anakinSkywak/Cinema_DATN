@@ -278,7 +278,7 @@ Route::apiResource('members', MemberController::class);
 Route::middleware(['auth:api'])->get('members', [MemberController::class, 'index']); // xuất all dữ liệu
 Route::middleware(['auth:api'])->post('members', [MemberController::class, 'store']); // thêm bản ghi mới
 Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-Route::middleware(['auth:api'])->put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
+Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
 Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
