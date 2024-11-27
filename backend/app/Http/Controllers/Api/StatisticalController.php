@@ -10,6 +10,8 @@ use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
+use App\Models\RegisterMember;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 // chức năng thống kê
@@ -225,6 +227,26 @@ class StatisticalController extends Controller
         return response()->json([
             'message' => 'Thống kê doanh thu phòng chiếu thành công',
             'data' => $tongDoanhThu,
+        ], 200);
+    }
+
+    // phân loại người dùng
+
+    public function phanLoaiNguoiDung()
+    {
+        // Đếm tổng số người dùng đã đăng ký
+        $tongNguoiDung = RegisterMember::query()->count();
+
+        // Phân loại người dùng dựa trên loại hội viên
+        $phanLoai = RegisterMember::join('members', 'members.id', '=', 'register_members.hoivien_id')
+            ->select('members.loai_hoi_vien', DB::raw('COUNT(register_members.hoivien_id) as so_luong'))
+            ->groupBy('members.loai_hoi_vien') // Nhóm theo loại hội viên
+            ->get();
+
+        return response()->json([
+            'message' => 'Phân loại người dùng thành công',
+            'tongNguoiDangKy' => $tongNguoiDung,
+            'data' => $phanLoai, // Danh sách loại hội viên và số lượng
         ], 200);
     }
 }
