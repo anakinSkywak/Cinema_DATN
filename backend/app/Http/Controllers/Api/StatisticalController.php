@@ -276,9 +276,22 @@ class StatisticalController extends Controller
 
     // thống kê theo hình thức thanh toán
 
-    // public function hinhThucThanhToan(){
+    public function hinhThucThanhToan(){
 
-    //     // tien mặt
-    //     $tienMat = Payment::query()->where('trang_thai', 'Đang chờ xử lý')->count();
-    // }
+        // tien mặt
+
+        $tienMat = Payment::query()->where('phuong_thuc_thanh_toan', 'cash')->count();
+
+        $tongThanhToan =  Payment::query()->count('phuong_thuc_thanh_toan');
+
+        $thanhToanOnline = $tongThanhToan - $tienMat;
+
+        return response()->json([
+            'message' => 'Thống kê hình thức thanh toán thành công',
+            'data' => [
+                'tienMat'=> $tienMat,
+                'thanhToanOnline' => $thanhToanOnline
+            ],
+        ], 200);
+    }
 }

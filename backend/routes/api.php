@@ -443,3 +443,4 @@ Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhT
 Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
 Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
 Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
+Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
