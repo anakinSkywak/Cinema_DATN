@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Models\RegisterMember;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\BookingDetail;
 
 // chức năng thống kê
 class StatisticalController extends Controller
@@ -249,4 +250,35 @@ class StatisticalController extends Controller
             'data' => $phanLoai, // Danh sách loại hội viên và số lượng
         ], 200);
     }
+
+    // thống kê số lượng vé 
+    public function tinhTrangVe()
+    {
+        // Thống kê số lượng vé theo từng trạng thái
+        $dangXuLy = Payment::query()->where('trang_thai', 'Đang chờ xử lý')->count();
+        $thanhCong = Payment::query()->where('trang_thai', 'Đã hoàn thành')->count();
+        $khongthanhCong = Payment::query()->where('trang_thai', 'Không thành công')->count();
+        $hoanLai = Payment::query()->where('trang_thai', 'Đã hoàn lại')->count();
+        $huy = Payment::query()->where('trang_thai', 'Hủy')->count();
+
+        // 'Đang chờ xử lý','Đã hoàn thành','Không thành công','Đã hoàn lại','Đã hủy'
+        return response()->json([
+            'message' => 'Thống kê tình trạng vé thành công',
+            'data' => [
+                'dangXuLy' => $dangXuLy,
+                'thanhCong' => $thanhCong,
+                'khongthanhcong' => $khongthanhCong,
+                'hoanlai' => $hoanLai,
+                'huy' => $huy,
+            ],
+        ], 200);
+    }
+
+    // thống kê theo hình thức thanh toán
+
+    // public function hinhThucThanhToan(){
+
+    //     // tien mặt
+    //     $tienMat = Payment::query()->where('trang_thai', 'Đang chờ xử lý')->count();
+    // }
 }

@@ -442,3 +442,4 @@ Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVo
 Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
 Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
 Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
+Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
