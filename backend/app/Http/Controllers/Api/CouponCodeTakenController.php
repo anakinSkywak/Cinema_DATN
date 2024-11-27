@@ -28,14 +28,14 @@ class CouponCodeTakenController extends Controller
         $coupons = DB::table('coupon_code_takens')  // Bảng coupon_code_takens
             ->join('countdown_vouchers', 'coupon_code_takens.countdownvoucher_id', '=', 'countdown_vouchers.id') // Kết nối với countdown_vouchers
             ->join('users', 'coupon_code_takens.user_id', '=', 'users.id')  // Kết nối với bảng users
-            ->join('vouchers', 'countdown_vouchers.magiamgia_id', '=', 'vouchers.id') // Kết nối với bảng vouchers
+            ->join('coupons', 'countdown_vouchers.magiamgia_id', '=', 'coupons.id') // Kết nối với bảng coupons (thay vì vouchers)
             ->where('coupon_code_takens.user_id', $user->id)  // Lọc theo user_id
             ->select(
                 'users.ho_ten as user_name',  // Tên người dùng
-                'vouchers.ma_giam_gia',  // Mã giảm giá
-                'vouchers.muc_giam_gia',  // Mức giảm giá
-                'vouchers.gia_don_toi_thieu',  //  giá tối thiểu để áp dụng mã 
-                'vouchers.mota',  // Mô tả mã giảm giá
+                'coupons.ma_giam_gia',  // Mã giảm giá
+                'coupons.muc_giam_gia',  // Mức giảm giá
+                'coupons.gia_don_toi_thieu',  //  giá tối thiểu để áp dụng mã 
+                'coupons.mota',  // Mô tả mã giảm giá
                 'coupon_code_takens.ngay_nhan',  // Ngày nhận
                 'coupon_code_takens.ngay_het_han', // Ngày hết hạn
                 DB::raw('IF(coupon_code_takens.ngay_het_han < "' . $currentDate . '" , "Hết hạn", "Còn hạn") as status') // Kiểm tra nếu mã đã hết hạn
