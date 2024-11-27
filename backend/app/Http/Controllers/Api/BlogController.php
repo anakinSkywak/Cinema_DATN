@@ -24,20 +24,27 @@ class BlogController extends Controller
             'loaibaiviet_id' => 'required|exists:type_blogs,id',
             'tieu_de' => 'required|string|max:255',
             'anh_bai_viet' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'noi_dung' => 'required|string|max:255',
+            'noi_dung' => 'required|string',
             'ngay_viet' => 'required|date',
         ]);
 
         // Lưu file ảnh
         if ($request->hasFile('anh_bai_viet')) {
-            $path = $request->file('anh_bai_viet')->store('blogs', 'public');
-            $validated['anh_bai_viet'] = 'storage/' . $path; // Lưu đường dẫn ảnh
+            $file = $request->file('anh_bai_viet');
+            $filename = time() . '_' . $file->getClientOriginalName(); // Thêm timestamp vào tên file
+            $filePath = $file->storeAs('uploads/blogs', $filename, 'public'); // Lưu file vào thư mục public/uploads/blogs
+            $validated['anh_bai_viet'] = '/storage/' . $filePath; // Tạo đường dẫn lưu vào DB
         }
 
         // Tạo blog mới
         $blog = Blog::create($validated);
 
-        return response()->json(['status' => 'thành công', 'data' => $blog]);
+        return response()->json([
+            'status' => 'thành công',
+            'message' => 'Blog được tạo thành công!',
+            'data' => $blog,
+            'image_url' => asset($validated['anh_bai_viet']),
+        ], 201); // Trả mã HTTP 201 (Created)
     }
 
     // Lấy chi tiết blog
