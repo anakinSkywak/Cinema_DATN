@@ -281,7 +281,7 @@ Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, '
 Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
-Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+Route::get('/membersa/types', [MemberController::class, 'listRegisterMembersForUser']); //lấy thẻ hội viên để đk
 Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
 
 
@@ -291,7 +291,7 @@ Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xu
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
 
-
+Route::middleware(['auth:api'])->get('/register-member', [RegisterMemberController::class, 'listRegisterMembersForUser']);
 
 
 

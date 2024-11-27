@@ -175,6 +175,26 @@ class RegisterMemberController extends Controller
             return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau'], 500);
         }
     }
+    public function listRegisterMembersForUser()
+    {
+        // Lấy thông tin người dùng đã đăng nhập
+        $user = auth()->user(); // Giả sử bạn đang sử dụng Laravel Auth
+
+        // Tìm tất cả các đăng ký hội viên của người dùng
+        $registerMembers = RegisterMember::with('member')
+            ->where('user_id', $user->id) // Giả sử bạn đang lưu user_id trong bảng RegisterMember
+            ->get();
+
+        // Kiểm tra xem người dùng có đăng ký hội viên nào không
+        if ($registerMembers->isEmpty()) {
+            return response()->json(['message' => 'Bạn chưa đăng ký hội viên nào'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Danh sách đăng ký hội viên của bạn',
+            'data' => $registerMembers,
+        ], 200);
+    }
 
 
 

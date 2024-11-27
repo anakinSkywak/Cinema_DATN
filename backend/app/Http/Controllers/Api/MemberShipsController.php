@@ -78,14 +78,6 @@ class MemberShipsController extends Controller
         return response()->json(['message' => 'Hiển thị thông tin thẻ hội viên thành công', 'data' => $membership], 200);
     }
 
-
-
-
-
-
-
-
-
     public function getUserMembership()
     {
         // Kiểm tra nếu người dùng đã đăng nhập
