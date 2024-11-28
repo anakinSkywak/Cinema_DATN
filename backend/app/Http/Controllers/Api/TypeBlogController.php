@@ -86,23 +86,63 @@ class TypeBlogController extends Controller
             ], 404);
         }
     }
-    // Cập nhật loại bài viết
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'ten_loai_bai_viet' => 'required|string|max:255',
+// Cập nhật loại bài viết
+public function update(Request $request, $id)
+{
+    try {
+        // Xác thực dữ liệu đầu vào
+        $validated = $request->validate([
+            'ten_loai_bai_viet' => 'required|string|max:255', // Trường 'ten_loai_bai_viet' là bắt buộc, phải là chuỗi, tối đa 255 ký tự
+            'anh' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Trường 'anh' là tùy chọn, nếu có phải là ảnh (jpeg, png, jpg, gif), dung lượng tối đa 2MB
         ]);
 
+        // Tìm loại bài viết theo id
         $typeBlog = TypeBlog::find($id);
 
         if (!$typeBlog) {
-            return response()->json(['message' => 'Loại bài viết không tồn tại'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Loại bài viết không tồn tại',
+            ], 404);
         }
 
-        $typeBlog->update($request->all());
+        // Kiểm tra nếu có ảnh mới
+        if ($request->hasFile('anh')) {
+            // Xóa ảnh cũ nếu có
+            if ($typeBlog->anh) {
+                $oldImagePath = public_path($typeBlog->anh);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath); // Xóa ảnh cũ
+                }
+            }
 
-        return response()->json($typeBlog);
+            // Lưu ảnh mới
+            $file = $request->file('anh');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/type_blogs', $fileName, 'public');
+            $validated['anh'] = '/storage/' . $filePath;
+        }
+
+        // Cập nhật dữ liệu
+        $typeBlog->update($validated);
+
+        // Trả về phản hồi thành công
+        return response()->json([
+            'success' => true,
+            'message' => 'Loại bài viết đã được cập nhật thành công!',
+            'data' => $typeBlog,
+            'image_url' => asset($validated['anh'] ?? $typeBlog->anh),
+        ], 200);
+
+    } catch (\Exception $e) {
+        // Xử lý lỗi
+        return response()->json([
+            'success' => false,
+            'message' => 'Đã xảy ra lỗi khi cập nhật loại bài viết.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
     // Xóa loại bài viết
     public function destroy($id)

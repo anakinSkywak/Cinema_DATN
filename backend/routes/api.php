@@ -256,7 +256,7 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);
 Route::get('type_blogs', [TypeBlogController::class, 'index']); // xuat all
 Route::post('type_blogs', [TypeBlogController::class, 'store']); // them ban ghi moi
 Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  // show theo id
-Route::put('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
+Route::post('type_blogs/{id}', [TypeBlogController::class, 'update']);  // cap nhat theo id
 Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);  // xoa theo id
 // call api BlogController T
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
