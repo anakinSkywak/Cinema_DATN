@@ -37,7 +37,7 @@ class TypeBlogController extends Controller
                 'ten_loai_bai_viet' => 'required|string|max:255', // Trường 'ten_loai_bai_viet' là bắt buộc, phải là chuỗi, tối đa 255 ký tự
                 'anh' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Trường 'anh' là bắt buộc, phải là ảnh (jpeg, png, jpg, gif), dung lượng tối đa 2MB
             ]);
-    
+
             // Kiểm tra xem có file ảnh nào được tải lên hay không
             if ($request->hasFile('anh')) {
                 $file = $request->file('anh'); // Lấy file từ request
@@ -45,13 +45,13 @@ class TypeBlogController extends Controller
                 $filePath = $file->storeAs('uploads/type_blogs', $fileName, 'public'); // Lưu file vào thư mục 'uploads/type_blogs' trong 'storage/app/public'
                 $validated['anh'] = '/storage/' . $filePath; // Tạo đường dẫn URL công khai để truy cập file
             }
-    
+
             // Thêm ngày hiện tại vào dữ liệu
             $validated['ngay'] = now()->toDateString(); // Lấy ngày hiện tại theo định dạng YYYY-MM-DD
-    
+
             // Tạo một bản ghi mới trong bảng 'type_blogs' với dữ liệu đã xác thực
             $typeBlog = TypeBlog::create($validated);
-    
+
             // Trả về phản hồi thành công (HTTP 201) kèm theo dữ liệu của loại bài viết mới
             return response()->json([
                 'success' => true, // Biến thể hiện trạng thái thành công
@@ -72,15 +72,20 @@ class TypeBlogController extends Controller
     // Hiển thị chi tiết loại bài viết
     public function show($id)
     {
-        $typeBlog = TypeBlog::find($id);
+        try {
+            $typeBlog = TypeBlog::findOrFail($id);
 
-        if (!$typeBlog) {
-            return response()->json(['message' => 'Loại bài viết không tồn tại'], 404);
+            return response()->json([
+                'status' => true,
+                'data' => $typeBlog,
+            ], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Loại bài viết không tồn tại',
+            ], 404);
         }
-
-        return response()->json($typeBlog);
     }
-
     // Cập nhật loại bài viết
     public function update(Request $request, $id)
     {
