@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
-use App\Models\Voucher;
+use App\Models\Coupon; // Thay đổi từ Voucher thành Coupon
 use Illuminate\Http\Request;
 use App\Models\CountdownVoucher;
 use App\Http\Controllers\Controller;
@@ -19,7 +19,7 @@ class CountdownVoucherController extends Controller
         CountdownVoucher::where('ngay', '=', $today)->update(['trang_thai' => 0]); // Đang hoạt động
         CountdownVoucher::where('ngay', '>', $today)->update(['trang_thai' => 0]); // Chưa bắt đầu
 
-        $countdownVouchers = CountdownVoucher::with('voucher')->get();
+        $countdownVouchers = CountdownVoucher::with('coupon')->get(); // Thay đổi voucher thành coupon
 
         return response()->json($countdownVouchers);
     }
@@ -27,7 +27,7 @@ class CountdownVoucherController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'magiamgia_id' => 'required|exists:vouchers,id',
+            'magiamgia_id' => 'required|exists:coupons,id', // Thay đổi từ vouchers sang coupons
             'ngay' => 'required|date|after_or_equal:today', // Ngày phải là hôm nay hoặc trong tương lai
             'thoi_gian_bat_dau' => 'required|date_format:H:i:s',
             'thoi_gian_ket_thuc' => 'required|date_format:H:i:s|after:thoi_gian_bat_dau',
@@ -35,12 +35,12 @@ class CountdownVoucherController extends Controller
             'trang_thai' => 'nullable|integer|in:0,1',
         ]);
         
-        // Lấy số lượng từ bảng 'vouchers' dựa trên 'magiamgia_id'
-        $voucher = Voucher::find($validated['magiamgia_id']);
+        // Lấy số lượng từ bảng 'coupons' dựa trên 'magiamgia_id'
+        $coupon = Coupon::find($validated['magiamgia_id']); // Thay đổi từ Voucher::find thành Coupon::find
         
-        if ($validated['so_luong'] > $voucher->so_luong) {
+        if ($validated['so_luong'] > $coupon->so_luong) {
             return response()->json([
-                'message' => 'Số lượng trong countdown voucher không thể lớn hơn số lượng trong voucher.',
+                'message' => 'Số lượng trong countdown voucher không thể lớn hơn số lượng trong coupon.',
             ], 400);
         }
         
@@ -81,14 +81,14 @@ class CountdownVoucherController extends Controller
 
     public function show($id)
     {
-        $countdownVoucher = CountdownVoucher::with('voucher')->findOrFail($id);
+        $countdownVoucher = CountdownVoucher::with('coupon')->findOrFail($id); // Thay đổi voucher thành coupon
         return response()->json($countdownVoucher);
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'magiamgia_id' => 'required|exists:vouchers,id',
+            'magiamgia_id' => 'required|exists:coupons,id', // Thay đổi từ vouchers sang coupons
             'ngay' => 'required|date|after_or_equal:today', // Ngày phải là hôm nay hoặc tương lai
             'thoi_gian_bat_dau' => 'required|date_format:H:i:s',
             'thoi_gian_ket_thuc' => 'required|date_format:H:i:s|after:thoi_gian_bat_dau',
@@ -97,11 +97,11 @@ class CountdownVoucherController extends Controller
             'trang_thai' => 'nullable|integer|in:0,1',
         ]);
     
-        // Lấy số lượng từ bảng 'vouchers'
-        $voucher = Voucher::find($validated['magiamgia_id']);
-        if ($validated['so_luong'] > $voucher->so_luong) {
+        // Lấy số lượng từ bảng 'coupons'
+        $coupon = Coupon::find($validated['magiamgia_id']); // Thay đổi từ Voucher::find thành Coupon::find
+        if ($validated['so_luong'] > $coupon->so_luong) {
             return response()->json([
-                'message' => 'Số lượng trong countdown voucher không thể lớn hơn số lượng trong voucher.',
+                'message' => 'Số lượng trong countdown voucher không thể lớn hơn số lượng trong coupon.',
             ], 400);
         }
     

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\MomentController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\CouponsController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\VoucherController;
 use App\Http\Controllers\Api\ShowtimeController;
@@ -25,13 +26,15 @@ use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
 use App\Http\Controllers\Api\MemberShipsController;
-use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\Api\BookingDetailController;
-use App\Http\Controllers\Api\RegisterMemberController;
-use App\Http\Controllers\Api\HistoryRotationsController;
-use App\Http\Controllers\API\CountdownVoucherController;
-use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\BookingTicketController;
+use App\Http\Controllers\Api\RegisterMemberController;
+use App\Http\Controllers\Api\CouponCodeTakenController;
+use App\Http\Controllers\API\CountdownVoucherController;
+use App\Http\Controllers\Api\HistoryRotationsController;
+use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\StatisticalController;
+
 
 // xác thực email
 Route::post('/email/verify-otp', [AuthController::class, 'verifyEmail'])
@@ -259,7 +262,7 @@ Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);  // xo
 Route::get('blogs', [BlogController::class, 'index']); // xuat all
 Route::post('blogs', [BlogController::class, 'store']); // them ban ghi moi
 Route::get('blogs/{id}', [BlogController::class, 'show']);  // show theo id
-Route::put('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
+Route::post('blogs/{id}', [BlogController::class, 'update']);  // cap nhat theo id
 Route::delete('blogs/{id}', [BlogController::class, 'delete']);  // xoa theo id
 
 
@@ -308,10 +311,13 @@ Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 //cal api contacts T
 Route::get('contacts', [ContactController::class, 'index']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
-Route::get('/contacts/user/{user_id}', [ContactController::class, 'getByUserId']);
+Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
+    ->name('contacts.details');
 Route::post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
-Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
+Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
+Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);
+
 //call api rotations T
 Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
 Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
@@ -319,6 +325,12 @@ Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
 Route::put('/rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
 
+// call api cho tạo ra mã giảm giá (*coupons)
+Route::get('coupons', [CouponsController::class, 'index']);
+Route::post('coupons', [CouponsController::class, 'store']);
+Route::get('coupons/{id}', [CouponsController::class, 'show']);
+Route::put('coupons/{id}', [CouponsController::class, 'update']);
+Route::delete('coupons/{id}', [CouponsController::class, 'destroy']);
 
 
 //call api quay thuong
@@ -363,6 +375,16 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('comments/{id}', [CommentController::class, 'destroy']);
 });
 
+// việt làm thống kê
+Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
+Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
+Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
+Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVoucher']);
+Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
+Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
+Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
+Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
+Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 // Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);

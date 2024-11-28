@@ -3,19 +3,33 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Contact;
+use App\Mail\ContactsMail;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
-    // Lấy danh sách tất cả các contact
-    public function index()
+    public function getContactDetails()
     {
-        $contacts = Contact::all();
-        return response()->json($contacts);
+        $contacts = Contact::with('user:id,ho_ten,email,so_dien_thoai')
+            ->get()
+            ->map(function ($contact) {
+                return [
+                    'id' => $contact->id,
+                    'ho_ten' => $contact->user->ho_ten ?? null,
+                    'email' => $contact->user->email ?? null,
+                    'so_dien_thoai' => $contact->user->so_dien_thoai ?? null,
+                    'noidung' => $contact->noidung,
+                ];
+            });
+    
+        return response()->json([
+            'message' => 'Danh sách contact kèm thông tin người dùng.',
+            'data' => $contacts
+        ]);
     }
-
     // Tạo một contact mới
     public function store(Request $request)
     {
@@ -37,23 +51,56 @@ class ContactController extends Controller
             'user_id' => $user->id, // Dùng id của người dùng đã đăng nhập
         ]);
     
-        // Trả về phản hồi JSON
+        // Trả về phản hồi JSON với thông tin người dùng
         return response()->json([
             'message' => 'Thông tin đã được gửi thành công.',
-            'data' => $contact
+            'data' => [
+                'contact' => $contact,
+                'user' => [
+                    'ho_ten' => $user->ho_ten,
+                    'email' => $user->email,
+                    'so_dien_thoai' => $user->so_dien_thoai,
+                ]
+            ]
         ], 201); // 201: Created
     }
 
     // Xóa contact
     public function destroy($id)
     {
+        // Tìm contact theo ID
         $contact = Contact::find($id);
-
+    
+        // Nếu không tìm thấy contact, trả về lỗi 404
         if (!$contact) {
-            return response()->json(['message' => 'Không tìm thấy phàn hồi '], 404);
+            return response()->json(['message' => 'Không tìm thấy phản hồi'], 404);
         }
-
+    
+        // Xóa contact (hoặc soft delete nếu cần)
         $contact->delete();
-        return response()->json(['message' => 'Xóa contact thành công']);
+    
+        // Phản hồi thành công
+        return response()->json(['message' => 'Xóa phản hồi thành công'], 200);
+    }
+    public function sendResponse($contactId)
+    {
+        // Lấy thông tin contact
+        $contact = Contact::with('user:id,ho_ten,email,so_dien_thoai')
+                          ->find($contactId);
+    
+        if (!$contact) {
+            return response()->json(['message' => 'Không tìm thấy phản hồi'], 404);
+        }
+    
+        // Phản hồi từ admin
+        $admin_reply = "Cảm ơn bạn đã gửi phản hồi. Chúng tôi sẽ xem xét và xử lý vấn đề của bạn trong thời gian sớm nhất.";
+    
+        // Gửi email cho người dùng
+        Mail::to($contact->user->email)->send(new ContactsMail([
+            'ho_ten' => $contact->user->ho_ten,
+            'noidung' => $contact->noidung,
+        ], $admin_reply));
+    
+        return response()->json(['message' => 'Đã gửi phản hồi qua email'], 200);
     }
 }
