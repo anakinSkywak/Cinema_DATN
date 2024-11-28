@@ -66,6 +66,7 @@ class RotationsController extends Controller
                 'vongquay_id' => $selectedRotation->id,
                 'ket_qua' => $selectedRotation->ten_phan_thuong,
                 'ngay_quay' => Carbon::now(),
+                'ngay_het_han' => Carbon::now()->addDays(7),
                 'trang_thai' => 1
             ]);
 

@@ -105,45 +105,51 @@ class RegisterMemberController extends Controller
 
 
 
-    public function update(Request $request, $id, $hoivien_id)
+    public function update(Request $request, $hoivien_id)
     {
-        // Tìm đăng ký hội viên
-        $registerMember = RegisterMember::find($id);
-
-        if (!$registerMember) {
-            return response()->json(['message' => 'Không tìm thấy đăng ký hội viên'], 404);
+        // Lấy người dùng hiện tại
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Người dùng chưa đăng nhập'], 401);
         }
-
+    
+        // Tìm đăng ký hội viên của người dùng
+        $registerMember = RegisterMember::where('user_id', $user->id)->first();
+    
+        if (!$registerMember) {
+            return response()->json(['message' => 'Không tìm thấy đăng ký hội viên của người dùng'], 404);
+        }
+    
         // Tìm loại hội viên mới
         $newMember = Member::find($hoivien_id);
         $currentMember = $registerMember->member;
-
+    
         if (!$newMember) {
             return response()->json(['message' => 'Loại hội viên không tồn tại'], 404);
         }
-
+    
         // Lấy thời gian từ request (mặc định là thời gian của loại hội viên mới nếu không cung cấp)
         $requestedTime = $request->input('thoi_gian', $newMember->thoi_gian);
-
+    
         // Kiểm tra thời gian hợp lệ
         if (!is_numeric($requestedTime) || $requestedTime <= 0) {
             return response()->json(['message' => 'Thời gian không hợp lệ'], 400);
         }
-
+    
         // Tính giá và áp dụng giảm giá nếu nâng cấp
         $currentPrice = $currentMember->gia ?? 0;
         $newPrice = $newMember->gia ?? 0;
-
+    
         $tong_tien_moi = $newPrice * $requestedTime;
-
+    
         if ($newPrice > $currentPrice) {
             $tong_tien_moi *= 0.8; // Giảm 20% khi nâng cấp
         }
-
+    
         // Xử lý ngày hết hạn
         $ngayDangKy = Carbon::now();
         $ngayHetHan = Carbon::parse($registerMember->ngay_het_han);
-
+    
         if ($ngayHetHan->greaterThan($ngayDangKy)) {
             $ngayHetHan = ($currentMember->id === $newMember->id)
                 ? $ngayHetHan->addMonths($requestedTime)
@@ -151,7 +157,7 @@ class RegisterMemberController extends Controller
         } else {
             $ngayHetHan = $ngayDangKy->copy()->addMonths($requestedTime);
         }
-
+    
         // Cập nhật thông tin đăng ký
         DB::beginTransaction();
         try {
@@ -162,9 +168,9 @@ class RegisterMemberController extends Controller
                 'ngay_dang_ky' => $ngayDangKy,
                 'ngay_het_han' => $ngayHetHan,
             ]);
-
+    
             DB::commit();
-
+    
             return response()->json([
                 'message' => 'Cập nhật đăng ký thành công, vui lòng thanh toán',
                 'data' => $registerMember,
@@ -175,6 +181,7 @@ class RegisterMemberController extends Controller
             return response()->json(['message' => 'Có lỗi xảy ra, vui lòng thử lại sau'], 500);
         }
     }
+    
     public function listRegisterMembersForUser()
     {
         // Lấy thông tin người dùng đã đăng nhập

@@ -12,8 +12,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('memberships', function (Blueprint $table) {
-            $table->string('so_the')->nullable()->after('ngay_dang_ky'); // Thêm cột số thẻ
-            $table->date('ngay_het_han')->nullable()->after('ngay_dang_ky');   // Thêm cột ngày hết hạn
+            $table->string('so_the')->nullable()->after('ngay_dang_ky');
+            $table->date('ngay_het_han')->nullable()->after('ngay_dang_ky');  
         });
     }
 
