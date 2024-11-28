@@ -144,17 +144,43 @@ public function update(Request $request, $id)
     }
 }
 
-    // Xóa loại bài viết
-    public function destroy($id)
-    {
+// Xóa loại bài viết
+public function destroy($id)
+{
+    try {
+        // Tìm loại bài viết theo id
         $typeBlog = TypeBlog::find($id);
 
         if (!$typeBlog) {
-            return response()->json(['message' => 'Loại bài viết không tồn tại'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Loại bài viết không tồn tại',
+            ], 404);
         }
 
+        // Kiểm tra và xóa ảnh nếu có
+        if ($typeBlog->anh) {
+            $oldImagePath = public_path($typeBlog->anh);
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath); // Xóa ảnh
+            }
+        }
+
+        // Xóa loại bài viết
         $typeBlog->delete();
 
-        return response()->json(['message' => 'Loại bài viết đã được xóa']);
+        // Trả về phản hồi thành công
+        return response()->json([
+            'success' => true,
+            'message' => 'Loại bài viết đã được xóa thành công!',
+        ], 200);
+    } catch (\Exception $e) {
+        // Xử lý lỗi
+        return response()->json([
+            'success' => false,
+            'message' => 'Đã xảy ra lỗi khi xóa loại bài viết.',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 }
