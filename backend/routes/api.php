@@ -70,8 +70,9 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
         Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+        Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
         Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
-        Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'getUserMembership']);
+        Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'show']);
 
 
         Route::post('/quay-thuong', [RotationsController::class, 'quayThuong']);
@@ -272,6 +273,7 @@ Route::apiResource('memberships', MembershipsController::class);
 Route::get('memberships', [MembershipsController::class, 'index']); // xuất all dữ liệu
 Route::post('memberships', [MembershipsController::class, 'store']); // thêm bản ghi mới
 // Route::get('memberships/{id}', [MembershipsController::class, 'show']); // hiển thị theo id
+Route::middleware('auth:api')->get('/membership/{id}', [MembershipsController::class, 'show']);
 Route::put('memberships/{id}', [MembershipsController::class, 'update']); // cập nhật theo id
 Route::delete('memberships/{id}', [MembershipsController::class, 'destroy']); // xóa theo id
 
@@ -281,7 +283,7 @@ Route::apiResource('members', MemberController::class);
 Route::middleware(['auth:api'])->get('members', [MemberController::class, 'index']); // xuất all dữ liệu
 Route::middleware(['auth:api'])->post('members', [MemberController::class, 'store']); // thêm bản ghi mới
 Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
-Route::middleware(['auth:api'])->put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
+Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 
 Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
@@ -294,7 +296,7 @@ Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xu
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
 
-
+Route::middleware(['auth:api'])->get('/register-member', [RegisterMemberController::class, 'listRegisterMembersForUser']);
 
 
 
@@ -385,4 +387,4 @@ Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
 Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
-Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
+// Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);

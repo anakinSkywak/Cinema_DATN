@@ -9,24 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::table('memberships', function (Blueprint $table) {
-            //
-            $table->string('so_the')->nullable(); // Thêm cột so_the
-            $table->date('ngay_het_han')->nullable(); // Thêm cột ngay_het_han kiểu DATE
+            $table->string('so_the')->nullable()->after('ngay_dang_ky');
+            $table->date('ngay_het_han')->nullable()->after('ngay_dang_ky');  
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::table('memberships', function (Blueprint $table) {
-            //
-            $table->dropColumn('so_the');
-            $table->dropColumn('ngay_het_han');
+            $table->dropColumn(['so_the', 'ngay_het_han']); // Xóa các cột nếu rollback
         });
     }
 };

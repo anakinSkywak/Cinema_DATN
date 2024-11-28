@@ -67,10 +67,7 @@ class MemberController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (auth()->user()->vai_tro !== 'admin') {
-            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
-        }
-
+        
         $dataID = Member::find($id);
 
         if (!$dataID) {
@@ -112,7 +109,7 @@ class MemberController extends Controller
 
         // Lấy tất cả các loại hội viên đang hoạt động
         $members = Member::select('id', 'loai_hoi_vien', 'gia', 'thoi_gian')
-            ->where('trang_thai', 1)
+            ->where('trang_thai', 0)
             ->get();
 
         // Kiểm tra nếu không có loại hội viên nào
