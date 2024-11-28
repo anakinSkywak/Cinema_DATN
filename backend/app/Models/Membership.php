@@ -6,7 +6,7 @@ use App\Models\RegisterMember;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Membership extends Model
+class Memberships extends Model
 {
     use HasFactory;
 
