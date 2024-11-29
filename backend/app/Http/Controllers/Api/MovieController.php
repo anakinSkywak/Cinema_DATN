@@ -398,21 +398,21 @@ class MovieController extends Controller
 
             // Lấy trạng thái của các ghế (đã đặt, bảo trì hoặc trống)
             $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats, $maintenanceSeats) {
-                // Xác định tr��ng thái của ghế
+              
                 if ($bookedSeats->contains($seat->id)) {
-                    $status = 'đã đặt'; // Ghế đã được đặt
+                    $status = 'Đã đặt'; // Ghế đã được đặt
                 } elseif ($maintenanceSeats->contains($seat->id)) {
-                    $status = 'bảo trì'; // Ghế đang bảo trì
+                    $status = 'Bảo trì'; // Ghế đang bảo trì
                 } else {
-                    $status = 'trống'; // Ghế còn lại là trống
+                    $status = 'Trống'; // Ghế còn lại là trống
                 }
 
                 return [
                     'id' => $seat->id,
-                    'ten_ghe_ngoi' => $seat->so_ghe_ngoi, // Tên ghế (số ghế ngồi)
+                    'ten_ghe_ngoi' => $seat->so_ghe_ngoi,
+                    'loai_ghe_ngoi' => $seat->loai_ghe_ngoi,
                     'gia_ghe' => $seat->gia_ghe,
-                    'trang_thai' => $status // Trạng thái ghế
-
+                    'trang_thai' => $status 
                 ];
             });
 
