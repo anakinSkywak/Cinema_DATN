@@ -14,10 +14,9 @@ class Voucher extends Model
     protected $table = 'vouchers';
 
     protected $fillable = [
-        'user_id',
         'ma_giam_gia',
         'muc_giam_gia',
-        'gia_don_toi_thieu',
+        'ngay_het_han',
         'mota',
         'so_luong',
         'so_luong_da_su_dung',
