@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Food;
+use App\Models\Payment;
 use App\Models\Seat;
 use App\Models\Showtime;
 use App\Models\Voucher;
@@ -36,7 +37,7 @@ class BookingController extends Controller
 
     
     }
-
+  
 
     // hàm  truy vấn ghế đã lấy để thêm tên ghế ngồi vào cột ghe_ngoi
     public function getNameSeat(array $selectedSeats)

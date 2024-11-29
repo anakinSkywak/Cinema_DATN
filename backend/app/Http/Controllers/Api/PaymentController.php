@@ -20,6 +20,24 @@ class PaymentController extends Controller
 {
 
 
+    public function index(){
+
+        $payment = Payment::all();
+
+        if($payment->isEmpty()){
+            return response()->json([
+                'message' => 'Không payment nào'
+            ] , 404);
+        }
+
+        return response()->json([
+            'message' => 'All payment',
+            'data' => $payment
+        ] , 200);
+
+    
+    }
+
     // nhân viên
     public function createPaymentBookTicket($bookingId, $method)
     {

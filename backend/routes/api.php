@@ -161,6 +161,7 @@ Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 // booking all bên admin
 Route::get('booking-all', [BookingController::class, 'index']);
+Route::get('payment-all', [PaymentController::class, 'index']);
 
 // còn check tiếp tìm kiếm : nhân viên
 // Ánh booking detail all , tìm đơn của khách , xác nhận khách đến
