@@ -24,7 +24,6 @@ class Booking extends Model
         'tong_tien_thanh_toan',
         'ngay_mua',
         'trang_thai',
-        'so_luong_do_an',
         'do_an',
         'ghe_ngoi',
         'magiamgia_id'

@@ -23,6 +23,8 @@ class BookingDetailController extends Controller
             ], 401);
         }
 
+        //dd($user);
+
         $bookDetails = DB::table('booking_details')->join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
             ->join('users', 'bookings.user_id', '=', 'users.id')->join('payments', 'booking_details.payment_id', '=', 'payments.id')->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
             ->join('rooms', 'showtimes.room_id', '=', 'rooms.id')->join('movies', 'showtimes.phim_id', '=', 'movies.id')->where('bookings.user_id', $user->id)
@@ -49,7 +51,9 @@ class BookingDetailController extends Controller
 
             )->get();
 
-        if ($bookDetails->isNotEmpty()) {
+        //dd($bookDetails);
+
+        if ($bookDetails->isEmpty()) {
             return response()->json([
                 'message' => 'Bạn chưa có đơn booking vé phim nào',
             ], 404);
