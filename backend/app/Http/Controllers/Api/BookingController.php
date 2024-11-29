@@ -19,6 +19,24 @@ use function PHPUnit\Framework\isEmpty;
 class BookingController extends Controller
 {
 
+    public function index(){
+
+        $booking = Booking::all();
+
+        if($booking->isEmpty()){
+            return response()->json([
+                'message' => 'Không có đơn booking nào'
+            ] , 404);
+        }
+
+        return response()->json([
+            'message' => 'All Booking',
+            'data' => $booking
+        ] , 200);
+
+    
+    }
+
 
     // hàm  truy vấn ghế đã lấy để thêm tên ghế ngồi vào cột ghe_ngoi
     public function getNameSeat(array $selectedSeats)

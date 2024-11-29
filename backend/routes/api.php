@@ -159,6 +159,9 @@ Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardRe
 Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
 
 
+// booking all bên admin
+Route::get('booking-all', [BookingController::class, 'index']);
+
 // còn check tiếp tìm kiếm : nhân viên
 // Ánh booking detail all , tìm đơn của khách , xác nhận khách đến
 Route::get('booking-detail-all', [BookingDetailController::class, 'bookingDetailAll']);
