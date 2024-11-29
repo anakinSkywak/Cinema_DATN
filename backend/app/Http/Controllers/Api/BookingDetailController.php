@@ -49,7 +49,7 @@ class BookingDetailController extends Controller
 
             )->get();
 
-        if ($bookDetails->isNotEmpty()) {
+        if ($bookDetails->isEmpty()) {
             return response()->json([
                 'message' => 'Bạn chưa có đơn booking vé phim nào',
             ], 404);
