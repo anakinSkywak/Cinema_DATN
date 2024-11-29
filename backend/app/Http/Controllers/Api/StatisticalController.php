@@ -276,7 +276,8 @@ class StatisticalController extends Controller
 
     // thống kê theo hình thức thanh toán
 
-    public function hinhThucThanhToan(){
+    public function hinhThucThanhToan()
+    {
 
         // tien mặt
 
@@ -289,9 +290,81 @@ class StatisticalController extends Controller
         return response()->json([
             'message' => 'Thống kê hình thức thanh toán thành công',
             'data' => [
-                'tienMat'=> $tienMat,
+                'tienMat' => $tienMat,
                 'thanhToanOnline' => $thanhToanOnline
             ],
+        ], 200);
+    }
+
+    // top người mua vé
+
+    public function topNguoiMuaVeNhieuNhat($limit = 5)
+    {
+        // Thống kê số lượng vé đã đặt của từng người
+        $data = BookingDetail::join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
+            ->join('users', 'bookings.user_id', '=', 'users.id')
+            ->select('users.ho_ten', 'users.email', DB::raw('COUNT(booking_details.booking_id) as total_tickets')) // tạo 1 cột total_tickets để tính tổng booking id có trong booking detail
+            ->groupBy('users.id', 'users.ho_ten', 'users.email') // Nhóm theo người dùng
+            ->orderBy('total_tickets', 'DESC') // Sắp xếp theo số lượng vé giảm dần
+            ->limit($limit) // Lấy top N người
+            ->get();
+
+        // Kiểm tra nếu không có dữ liệu
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu thống kê.',
+                'data' => [],
+            ], 404);
+        }
+
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê top người mua vé thành công',
+            'data' => $data,
+        ], 200);
+    }
+
+    // top phim có lượt đặt vé cao
+    public function topPhimLuotveCao($limit = 5){
+        $data = BookingDetail::join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
+        ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+        ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
+        ->select('movies.ten_phim', 'movies.anh_phim', DB::raw('COUNT(showtimes.phim_id) as total_tickets')) // tạo 1 cột total_tickets để tính tổng booking id có trong booking detail
+        ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim') // Nhóm theo người dùng
+        ->orderBy('total_tickets', 'DESC') // Sắp xếp theo số lượng vé giảm dần
+        ->limit($limit) // Lấy top N người
+        ->get();
+
+
+         // Kiểm tra nếu không có dữ liệu
+         if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu thống kê.',
+                'data' => [],
+            ], 404);
+        }
+
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê top vé phim thành công',
+            'data' => $data,
+        ], 200);
+    }
+
+    // doanh thu theo tháng
+    // đổ doanh thu tháng theo create at
+    public function doanhThuThang(){
+        $data = Payment::selectRaw('Month(created_at) as month, Year(created_at) as year, SUM(tong_tien) as total')
+                ->where('trang_thai', 'Đã hoàn thành')
+                ->groupByRaw('Year(created_at), Month(created_at)') // nhóm theo năm và tháng
+                ->orderByRaw('Year(created_at), Month(created_at)') // sắp xếp theo năm và tháng
+                ->get();
+
+
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê doanh thu theo tháng thành công',
+            'data' => $data,
         ], 200);
     }
 }
