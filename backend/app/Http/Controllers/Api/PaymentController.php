@@ -152,8 +152,8 @@ class PaymentController extends Controller
         //$vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
        // $vnp_ReturnUrl = "http://localhost:5173/api/payment/NCB-return";
 
-       $vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
-       //$vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
+       //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
+       $vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
         
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng

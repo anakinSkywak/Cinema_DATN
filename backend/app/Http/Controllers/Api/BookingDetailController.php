@@ -65,6 +65,11 @@ class BookingDetailController extends Controller
         ], 200);
     }
 
+    // tải bill về
+    public function exportBill(){
+        
+    }
+
     // đổ all booking detail trong admin
     public function bookingDetailAll(Request $request)
     {

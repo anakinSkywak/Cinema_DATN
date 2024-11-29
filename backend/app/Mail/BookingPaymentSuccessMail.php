@@ -50,6 +50,8 @@ class BookingPaymentSuccessMail extends Mailable
         ]);
 
         // Set font mặc định DejaVu Sans
+    
+        $pdf->setPaper('A7' , 'portrait');
         $pdf->setOption('defaultFont', 'dejavusans');
 
         // Tạo và tải file PDF
@@ -62,7 +64,7 @@ class BookingPaymentSuccessMail extends Mailable
                 'payment' => $this->payment,
                 'room' => $this->room,
                 'showtime' => $this->showtime,
-            ])->attachData($pdf->output(), 'thongtinchitietvephim.pdf', [
+            ])->attachData($pdf->output(), 've_xem_phim.pdf', [
                 'mime' => 'application/pdf',
             ]);
     }
