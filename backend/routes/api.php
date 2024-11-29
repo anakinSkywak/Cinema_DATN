@@ -163,9 +163,9 @@ Route::get('movie-book-id/{movieID}/showtime-date/{date}/{time}', [BookingTicket
 
 
 // return user 
-Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
-Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
-Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
+Route::get('payment/ncb-return', [PaymentController::class, 'NCBReturn']);
+Route::get('payment/mastercard-return', [PaymentController::class, 'mastercardReturn']);
+Route::get('payment/visa-return', [PaymentController::class, 'visaReturn']);
 
 
 // booking all bên admin
