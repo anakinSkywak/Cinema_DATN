@@ -133,4 +133,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         $this->notify(new VerifyEmail($otp));
     }
+    public function contacts()
+{
+    return $this->hasMany(Contact::class);
+}
 }
