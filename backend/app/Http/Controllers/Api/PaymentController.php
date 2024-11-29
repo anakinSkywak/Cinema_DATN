@@ -274,10 +274,7 @@ class PaymentController extends Controller
 
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
-                return response()->json([
-                    'message' => 'Thanh toán thành công',
-                    'redirect_url' => 'http://localhost:5173/profile' // url tra ve khi thanh toan ok
-                ]);
+                return redirect('http://localhost:5173/profile');
 
             } else {
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
@@ -426,10 +423,7 @@ class PaymentController extends Controller
 
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
-                return response()->json([
-                    'message' => 'Thanh toán thành công',
-                    'redirect_url' => 'http://localhost:5173/profile' // url tra ve khi thanh toan ok
-                ]);
+                return redirect('http://localhost:5173/profile');
             } else {
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
                 return response()->json([
@@ -576,10 +570,7 @@ class PaymentController extends Controller
 
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
-                return response()->json([
-                    'message' => 'Thanh toán thành công',
-                    'redirect_url' => 'http://localhost:5173/profile' // url tra ve khi thanh toan ok
-                ]);
+                return redirect('http://localhost:5173/profile');
             } else {
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
                 return response()->json([
