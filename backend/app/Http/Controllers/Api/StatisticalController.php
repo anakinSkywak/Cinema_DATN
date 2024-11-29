@@ -350,4 +350,21 @@ class StatisticalController extends Controller
             'data' => $data,
         ], 200);
     }
+
+    // doanh thu theo tháng
+    // đổ doanh thu tháng theo create at
+    public function doanhThuThang(){
+        $data = Payment::selectRaw('Month(created_at) as month, Year(created_at) as year, SUM(tong_tien) as total')
+                ->where('trang_thai', 'Đã hoàn thành')
+                ->groupByRaw('Year(created_at), Month(created_at)') // nhóm theo năm và tháng
+                ->orderByRaw('Year(created_at), Month(created_at)') // sắp xếp theo năm và tháng
+                ->get();
+
+
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê doanh thu theo tháng thành công',
+            'data' => $data,
+        ], 200);
+    }
 }
