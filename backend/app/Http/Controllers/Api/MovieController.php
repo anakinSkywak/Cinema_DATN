@@ -38,11 +38,11 @@ class MovieController extends Controller
     // movie ở hôm 2 trạng thái đang chiếu , sắo công chiếu
     public function movieClient()
     {
-       
-        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Đang Chiếu')->orderBy('id', 'DESC')->get();
 
-        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Sắp Công Chiếu')->orderBy('id', 'DESC')->get();
-        
+        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Đang Chiếu')->orderBy('id', 'DESC')->get();
+
+        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Sắp Công Chiếu')->orderBy('id', 'DESC')->get();
+
         if ($movie_chieu->isEmpty()) {
 
             return response()->json([
@@ -61,7 +61,7 @@ class MovieController extends Controller
             'message' => 'Hiện thị dữ liệu thành công',
             'movie_chieu' => $movie_chieu,
             'movie_sapchieu' => $movie_sap_chieu,
-            
+
         ], 200);
     }
 
@@ -286,7 +286,7 @@ class MovieController extends Controller
 
     public function movieDetail($movieID)
     {
-        
+
         $movieDetailID = Movie::with('movie_genres')->find($movieID);
 
         if (!$movieDetailID) {
@@ -301,14 +301,14 @@ class MovieController extends Controller
         })->map(function ($group) {
             return $group->first();
         });
-        
-       
+
+
         $getFoodAll = DB::table('foods')->select('id', 'ten_do_an', 'anh_do_an', 'gia', 'ghi_chu', 'trang_thai')->where('trang_thai', 0)->get();
 
-        if($getFoodAll->isEmpty()){
+        if ($getFoodAll->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đồ ăn nào - thêm đồ ăn',
-            ], 404); 
+            ], 404);
         }
 
         if ($showtimes->isEmpty()) {
@@ -409,11 +409,10 @@ class MovieController extends Controller
 
                 return [
                     'id' => $seat->id,
-
                     'ten_ghe_ngoi' => $seat->so_ghe_ngoi, // Tên ghế (số ghế ngồi)
-                   'gia_ghe' => $seat->gia_ghe,
+                    'gia_ghe' => $seat->gia_ghe,
                     'trang_thai' => $status // Trạng thái ghế
-                    
+
                 ];
             });
 
@@ -429,8 +428,6 @@ class MovieController extends Controller
             'roomsWithSeats' => $roomsWithSeats // Danh sách các phòng chiếu và ghế
         ], 200);
     }
-
-
 
 
 
@@ -481,5 +478,6 @@ class MovieController extends Controller
             'seats' => $seatsWithStatus
         ], 200);
     } // bỏ
+
 
 }

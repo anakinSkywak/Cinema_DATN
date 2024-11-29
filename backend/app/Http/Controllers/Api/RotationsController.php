@@ -66,6 +66,7 @@ class RotationsController extends Controller
                 'vongquay_id' => $selectedRotation->id,
                 'ket_qua' => $selectedRotation->ten_phan_thuong,
                 'ngay_quay' => Carbon::now(),
+                'ngay_het_han' => Carbon::now()->addDays(7),
                 'trang_thai' => 1
             ]);
 
@@ -102,14 +103,13 @@ class RotationsController extends Controller
     public function store(Request $request)
     {
         // Xác thực dữ liệu đầu vào
-        $request->validate([
+        $validatedData = $request->validate([
             'ten_phan_thuong' => 'required|string|max:150',
             'muc_giam_gia' => 'nullable|numeric',
             'mo_ta' => 'required|string|max:255',
             'xac_xuat' => 'required|numeric|min:0|max:100',
             'so_luong' => 'required|integer|min:1',
             'so_luong_con_lai' => 'integer|min:0|max:' . $request->so_luong,
-            'trang_thai' => 'nullable|integer',
         ]);
 
         // Lấy tổng xác suất của tất cả các vòng quay đã có
@@ -121,34 +121,41 @@ class RotationsController extends Controller
             return response()->json(['message' => 'Tổng xác suất của tất cả các vòng quay không thể vượt quá 100%.'], 400);
         }
 
-        // Tạo vòng quay mới nếu tổng xác suất hợp lệ
-        $rotation = Rotation::create($request->all());
+        // Tạo vòng quay mới với trạng thái mặc định là 1
+        $rotation = Rotation::create(array_merge($validatedData, ['trang_thai' => 1]));
 
         return response()->json($rotation, 201);
     }
 
 
+
     public function update(Request $request, $id)
     {
         $rotation = Rotation::find($id);
+
         if (!$rotation) {
             return response()->json(['message' => 'Không tìm thấy phần thưởng'], 404);
         }
 
-        $request->validate([
+        $validatedData = $request->validate([
             'ten_phan_thuong' => 'string|max:150',
             'muc_giam_gia' => 'nullable|numeric',
             'mo_ta' => 'string|max:255',
             'xac_xuat' => 'numeric|min:0|max:100',
             'so_luong' => 'integer|min:1',
             'so_luong_con_lai' => 'integer|min:0|max:' . ($request->so_luong ?? $rotation->so_luong),
-            'trang_thai' => 'nullable|integer',
         ]);
 
-        $rotation->update($request->all());
+        // Loại bỏ `trang_thai` để tránh ghi đè
+        $validatedData = array_filter($validatedData, function ($key) {
+            return $key !== 'trang_thai';
+        }, ARRAY_FILTER_USE_KEY);
+
+        $rotation->update($validatedData);
 
         return response()->json($rotation);
     }
+
 
 
     // Xóa rotation theo id
