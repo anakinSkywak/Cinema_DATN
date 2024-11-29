@@ -149,16 +149,10 @@ class PaymentController extends Controller
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
 
-<<<<<<< HEAD
-        //$vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
-       // $vnp_ReturnUrl = "http://localhost:5173/api/payment/NCB-return";
 
        //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
-       $vnp_ReturnUrl = "http://localhost:8000/api/payment/NCB-return"; // URL xử lý sau khi thanh toán
-=======
-       //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
        $vnp_ReturnUrl = "http://localhost:8000/api/payment/ncb-return"; // URL xử lý sau khi thanh toán
->>>>>>> main
+
         
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng

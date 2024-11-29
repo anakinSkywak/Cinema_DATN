@@ -14,61 +14,61 @@
         }
 
         .ticket {
-            /* width: 100%; */
-            max-width: 74mm; /* Chiều rộng A7 */
-            height: 105mm; /* Chiều cao A7 */
+            width: 100%;
+            max-width: 400px;
             margin: 0 auto;
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 10mm; /* Padding thêm để tạo không gian cho các phần tử */
+            padding: 20px;
             box-sizing: border-box;
         }
 
         .header {
             text-align: center;
             font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-size: 18px;
+            margin-bottom: 10px;
         }
 
         .sub-header {
             text-align: center;
-            font-size: 10px;
-            margin-bottom: 10px;
+            font-size: 14px;
+            
+            margin-bottom: 20px;
         }
 
         .row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
         .row span {
-            font-size: 9px;
+            font-size: 12px;
         }
 
         .content {
             border-top: 1px dashed #000;
             border-bottom: 1px dashed #000;
-            padding: 5px 0;
-            margin-bottom: 5px;
+            padding: 10px 0;
+            margin-bottom: 10px;
         }
 
         .barcode {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
         .barcode img {
-            width: 50mm; /* Đảm bảo barcode vừa vặn với kích thước vé */
+            width: 100px;
             height: auto;
         }
 
         .footer {
             text-align: center;
-            font-size: 8px;
-            margin-top: 10px;
+            font-size: 10px;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -79,12 +79,12 @@
         <div class="sub-header">Vé Vào Phòng Chiếu Phim</div>
 
         <div class="row">
-            <span>Rạp: CineBookingHub</span>
-           
+            <strong>Rạp:</strong>
+            <strong>CineBookingHub</strong>
         </div>
         <div class="row">
-            
-            <span>Địa chỉ: Tầng 1, Tòa Nhà Thương Mại 5, Xuân Phương, Nam Từ Liêm, Hà Nội</span>
+            <strong>Địa chỉ:</strong>
+            <span>Tầng 1, Tòa Nhà Thương Mại 5, Xuân Phương, Nam Từ Liêm, Hà Nội</span>
         </div>
 
         <div class="content">
@@ -128,15 +128,16 @@
                 <span>Ghi chú:</span>
                 <span>{{ $booking->ghi_chu }}</span>
             </div>
-            <div class="row">
-            <span>Tổng thanh toán:</span>
-            <span>{{ number_format($booking->tong_tien_thanh_toan) }} VND</span>
-        </div>
         </div>
 
-        
+        <div class="row">
+            <strong>Tổng thanh toán:</strong>
+            <strong>{{ number_format($booking->tong_tien_thanh_toan) }} VND</strong>
+        </div>
 
-       
+        <div class="barcode">
+            <img src="https://i.pinimg.com/originals/24/ab/ef/24abeff2113b322d7c2df86c24ddd797.jpg" alt="Barcode">
+        </div>
 
         <div class="footer">
             Ticket No. | Cảm ơn bạn đã chọn CineBookingHub!

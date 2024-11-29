@@ -51,7 +51,7 @@ class BookingPaymentSuccessMail extends Mailable
 
         // Set font mặc định DejaVu Sans
     
-        $pdf->setPaper('A7' , 'portrait');
+        $pdf->setPaper('A5' , 'portrait');
         $pdf->setOption('defaultFont', 'dejavusans');
 
         // Tạo và tải file PDF
