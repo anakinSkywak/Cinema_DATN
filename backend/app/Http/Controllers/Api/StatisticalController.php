@@ -276,7 +276,8 @@ class StatisticalController extends Controller
 
     // thống kê theo hình thức thanh toán
 
-    public function hinhThucThanhToan(){
+    public function hinhThucThanhToan()
+    {
 
         // tien mặt
 
@@ -289,9 +290,37 @@ class StatisticalController extends Controller
         return response()->json([
             'message' => 'Thống kê hình thức thanh toán thành công',
             'data' => [
-                'tienMat'=> $tienMat,
+                'tienMat' => $tienMat,
                 'thanhToanOnline' => $thanhToanOnline
             ],
+        ], 200);
+    }
+
+    // top người mua vé
+
+    public function topNguoiMuaVeNhieuNhat($limit = 5)
+    {
+        // Thống kê số lượng vé đã đặt của từng người
+        $data = BookingDetail::join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
+            ->join('users', 'bookings.user_id', '=', 'users.id')
+            ->select('users.ho_ten', 'users.email', DB::raw('COUNT(booking_details.booking_id) as total_tickets')) // tạo 1 cột total_tickets để tính tổng booking id có trong booking detail
+            ->groupBy('users.id', 'users.ho_ten', 'users.email') // Nhóm theo người dùng
+            ->orderBy('total_tickets', 'DESC') // Sắp xếp theo số lượng vé giảm dần
+            ->limit($limit) // Lấy top N người
+            ->get();
+
+        // Kiểm tra nếu không có dữ liệu
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu thống kê.',
+                'data' => [],
+            ], 404);
+        }
+
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê top người mua vé thành công',
+            'data' => $data,
         ], 200);
     }
 }

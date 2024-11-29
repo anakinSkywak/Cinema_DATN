@@ -370,6 +370,7 @@ Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPh
 Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
 Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
 Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
+Route::get('getTopDatve', [StatisticalController::class, 'topNguoiMuaVeNhieuNhat']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 // Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
