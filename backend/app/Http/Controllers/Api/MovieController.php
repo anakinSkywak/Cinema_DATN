@@ -38,11 +38,11 @@ class MovieController extends Controller
     // movie ở hôm 2 trạng thái đang chiếu , sắo công chiếu
     public function movieClient()
     {
-       
-        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Đang Chiếu')->orderBy('id', 'DESC')->get();
 
-        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim' , 'Sắp Công Chiếu')->orderBy('id', 'DESC')->get();
-        
+        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Đang Chiếu')->orderBy('id', 'DESC')->get();
+
+        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Sắp Công Chiếu')->orderBy('id', 'DESC')->get();
+
         if ($movie_chieu->isEmpty()) {
 
             return response()->json([
@@ -61,7 +61,7 @@ class MovieController extends Controller
             'message' => 'Hiện thị dữ liệu thành công',
             'movie_chieu' => $movie_chieu,
             'movie_sapchieu' => $movie_sap_chieu,
-            
+
         ], 200);
     }
 
@@ -286,7 +286,7 @@ class MovieController extends Controller
 
     public function movieDetail($movieID)
     {
-        
+
         $movieDetailID = Movie::with('movie_genres')->find($movieID);
 
         if (!$movieDetailID) {
@@ -301,14 +301,14 @@ class MovieController extends Controller
         })->map(function ($group) {
             return $group->first();
         });
-        
-       
+
+
         $getFoodAll = DB::table('foods')->select('id', 'ten_do_an', 'anh_do_an', 'gia', 'ghi_chu', 'trang_thai')->where('trang_thai', 0)->get();
 
-        if($getFoodAll->isEmpty()){
+        if ($getFoodAll->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đồ ăn nào - thêm đồ ăn',
-            ], 404); 
+            ], 404);
         }
 
         if ($showtimes->isEmpty()) {
@@ -412,7 +412,7 @@ class MovieController extends Controller
                     'ten_ghe_ngoi' => $seat->so_ghe_ngoi, // Tên ghế (số ghế ngồi)
                     'gia_ghe' => $seat->gia_ghe,
                     'trang_thai' => $status // Trạng thái ghế
-                    
+
                 ];
             });
 
@@ -428,5 +428,56 @@ class MovieController extends Controller
             'roomsWithSeats' => $roomsWithSeats // Danh sách các phòng chiếu và ghế
         ], 200);
     }
+
+
+
+    // bỏ
+    public function getSeatsByShowtime($movieID, $showtimeID)
+    {
+        // Truy vấn thông tin suất chiếu cụ thể (showtime)
+        $showtime = Showtime::with(['room'])->find($showtimeID);
+
+
+        if (!$showtime) {
+            return response()->json([
+                'message' => 'Không tìm thấy thông tin suất chiếu.'
+            ], 404);
+        }
+
+        // Kiểm tra xem showtime c thuộc về bộ phim không
+        if ($showtime->phim_id != $movieID) {
+            return response()->json([
+                'message' => 'Suất chiếu này không thuộc về phim này.'
+            ], 400);
+        }
+
+        // Lấy room_id từ showtime
+        $room_id = $showtime->room->id;
+
+        // Truy vấn tất cả ghế trong phòng chiếu của suất chiếu
+        $allSeats = Seat::where('room_id', $room_id)->get();
+
+        // Truy vấn trạng thái của ghế đã đặt
+        $bookedSeats = DB::table('seat_showtime_status')
+            ->where('thongtinchieu_id', $showtimeID) // Lấy trạng thái ghế cho showtime này
+            ->where('trang_thai', 1) // Ghế đã đặt
+            ->pluck('ghengoi_id'); // Lấy danh sách ghế đã đặt
+
+        // Lấy trạng thái của các ghế (đã đặt hoặc trống)
+        $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats) {
+            return [
+                'id' => $seat->id,
+                'ten_ghe_ngoi' => $seat->so_ghe_ngoi,
+                'trang_thai' => $bookedSeats->contains($seat->id) ? 'đã đặt' : 'trống'
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Lấy danh sách ghế và trạng thái ghế thành công.',
+            'showtime' => $showtime,
+            'seats' => $seatsWithStatus
+        ], 200);
+    } // bỏ
+
 
 }
