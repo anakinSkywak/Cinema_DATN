@@ -172,8 +172,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
 
-        // Ánh làm login k giới hạn token
-        //Laravel\Passport\PassportServiceProvider::class
+        Milon\Barcode\BarcodeServiceProvider::class,
 
     ])->toArray(),
 
@@ -191,6 +190,9 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,
         'Pdf' => Barryvdh\DomPDF\Facade\Pdf::class,
+        'DNS1D' => Milon\Barcode\Facades\DNS1DFacade::class,
+        'DNS2D' => Milon\Barcode\Facades\DNS2DFacade::class,
+
     ])->toArray(),
 
     'charset' => 'UTF-8',

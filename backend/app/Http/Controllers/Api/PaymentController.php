@@ -133,9 +133,9 @@ class PaymentController extends Controller
             case 'ncb':
                 return $this->paymentNCB($booking, $money, $payment);
             case 'mastercard':
-                return $this->paymentMasterCard($booking, $money, $payment); //MasterCard
+                return $this->paymentMasterCard($booking, $money, $payment);
             case 'visa':
-                return $this->paymentVISA($booking, $money, $payment); //VISA
+                return $this->paymentVISA($booking, $money, $payment); 
             default:
                 return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
         }
@@ -148,12 +148,8 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-
-
        //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
        $vnp_ReturnUrl = "http://localhost:8000/api/payment/ncb-return"; // URL xử lý sau khi thanh toán
-
-        
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
@@ -273,6 +269,11 @@ class PaymentController extends Controller
 
 
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
+
+                // return response()->json([
+                //     'message' => 'Thanh toán ok',
+                    
+                // ], 200);
 
                 return redirect('http://localhost:5173/profile');
 

@@ -20,24 +20,23 @@ use function PHPUnit\Framework\isEmpty;
 class BookingController extends Controller
 {
 
-    public function index(){
+    public function index()
+    {
 
         $booking = Booking::all();
 
-        if($booking->isEmpty()){
+        if ($booking->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đơn booking nào'
-            ] , 404);
+            ], 404);
         }
 
         return response()->json([
             'message' => 'All Booking',
             'data' => $booking
-        ] , 200);
-
-    
+        ], 200);
     }
-  
+
 
     // hàm  truy vấn ghế đã lấy để thêm tên ghế ngồi vào cột ghe_ngoi
     public function getNameSeat(array $selectedSeats)
@@ -131,9 +130,6 @@ class BookingController extends Controller
 
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
 
-        if (!$showtime) {
-            return response()->json(['message' => 'Suất chiếu không tồn tại.'], 404);
-        }
 
         $selectedSeats = $request->ghe_ngoi;
         $seatNames = $this->getNameSeat($selectedSeats);
@@ -168,6 +164,9 @@ class BookingController extends Controller
             $tongTien = $result['tong_tien_sau_giam'];
         }
 
+        $barcode = 'VE-' . substr(strval(rand(10000, 999999)), 0, 6);
+
+
         // Tạo Booking
         $booking = Booking::create([
             'user_id' => $user->id,
@@ -181,6 +180,7 @@ class BookingController extends Controller
             'ghi_chu' => $request->ghi_chu,
             'tong_tien' => $tongTien,
             'tong_tien_thanh_toan' => $tongTien,
+            'barcode' => $barcode, // ma barcode
         ]);
 
         // Cập nhật trạng thái ghế
@@ -211,12 +211,13 @@ class BookingController extends Controller
                 $doAnList[] = $doan['ten_do_an'] . ' (x' . $doan['so_luong_do_an'] . ')';
             }
         }
-        return implode(', ', $doAnList); 
+        return implode(', ', $doAnList);
     }
 
     // nhan viên book vé cho khách
-    public function Bookticket(Request $request){
-        
+    public function Bookticket(Request $request)
+    {
+
         $user = auth()->user();
         if (!$user) {
             return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);

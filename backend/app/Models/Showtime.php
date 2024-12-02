@@ -30,7 +30,7 @@ class Showtime extends Model
 
         return $this->belongsTo(Movie::class, 'phim_id');
     }
-
+    
 
     public function room()
     {

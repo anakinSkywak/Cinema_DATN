@@ -26,7 +26,8 @@ class Booking extends Model
         'trang_thai',
         'do_an',
         'ghe_ngoi',
-        'magiamgia_id'
+        'magiamgia_id',
+        'barcode',
 
     ];
 

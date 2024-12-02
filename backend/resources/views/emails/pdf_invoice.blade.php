@@ -7,7 +7,8 @@
     <title>Vé Xem Phim</title>
     <style>
         body {
-            font-family: 'DejaVu Sans', sans-serif; /* Font hỗ trợ tiếng Việt */
+            font-family: 'DejaVu Sans', sans-serif;
+            /* Font hỗ trợ tiếng Việt */
             background-color: #ffffff;
             margin: 0;
             padding: 0;
@@ -34,7 +35,7 @@
         .sub-header {
             text-align: center;
             font-size: 14px;
-            
+
             margin-bottom: 20px;
         }
 
@@ -76,7 +77,7 @@
 <body>
     <div class="ticket">
         <div class="header">CineBookingHub</div>
-        <div class="sub-header">Vé Vào Phòng Chiếu Phim</div>
+        <div class="sub-header">Vé Phim</div>
 
         <div class="row">
             <strong>Rạp:</strong>
@@ -135,14 +136,20 @@
             <strong>{{ number_format($booking->tong_tien_thanh_toan) }} VND</strong>
         </div>
 
-        <div class="barcode">
-            <img src="https://i.pinimg.com/originals/24/ab/ef/24abeff2113b322d7c2df86c24ddd797.jpg" alt="Barcode">
+        <div class="row" style="margin-top: 20px; white-space: nowrap;">
+            <p>Mã Barcode vé phim</p>
+
+            {!! $barcode !!}
+
+            <p>{{ $booking->barcode }}</p>
         </div>
 
         <div class="footer">
             Ticket No. | Cảm ơn bạn đã chọn CineBookingHub!
         </div>
     </div>
+
+
 </body>
 
 </html>
