@@ -714,81 +714,81 @@ class PaymentController extends Controller
     }
 
 
-    public function NCBReturn1(Request $request)
-    {
-        $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
+    // public function NCBReturn1(Request $request)
+    // {
+    //     $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
-        // Lấy dữ liệu đầu vào từ request
-        $inputData = $request->all();
-        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
+    //     // Lấy dữ liệu đầu vào từ request
+    //     $inputData = $request->all();
+    //     $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
 
-        // Kiểm tra vnp_SecureHash có tồn tại hay không
-        if (!$vnp_SecureHash) {
-            return response()->json(['message' => 'Thiếu dữ liệu vnp_SecureHash'], 400);
-        }
+    //     // Kiểm tra vnp_SecureHash có tồn tại hay không
+    //     if (!$vnp_SecureHash) {
+    //         return response()->json(['message' => 'Thiếu dữ liệu vnp_SecureHash'], 400);
+    //     }
 
-        // Loại bỏ vnp_SecureHash để tính toán lại hash
-        unset($inputData['vnp_SecureHash']);
-        ksort($inputData); // Sắp xếp dữ liệu theo key
-        $hashData = http_build_query($inputData, '', '&');
+    //     // Loại bỏ vnp_SecureHash để tính toán lại hash
+    //     unset($inputData['vnp_SecureHash']);
+    //     ksort($inputData); // Sắp xếp dữ liệu theo key
+    //     $hashData = http_build_query($inputData, '', '&');
 
-        // Tính toán hash để xác thực
-        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+    //     // Tính toán hash để xác thực
+    //     $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
 
-        // Xác thực hash và kiểm tra mã phản hồi
-        if ($secureHash === $vnp_SecureHash) {
-            if ($inputData['vnp_ResponseCode'] == '00') {
-                // Tìm bản ghi thanh toán
-                $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
-                if ($payment) {
-                    $payment->trang_thai = 'Đã hoàn thành'; // Cập nhật trạng thái thanh toán
-                    $payment->save();
-                } else {
-                    return response()->json(['message' => 'Không tìm thấy thông tin thanh toán'], 404);
-                }
+    //     // Xác thực hash và kiểm tra mã phản hồi
+    //     if ($secureHash === $vnp_SecureHash) {
+    //         if ($inputData['vnp_ResponseCode'] == '00') {
+    //             // Tìm bản ghi thanh toán
+    //             $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
+    //             if ($payment) {
+    //                 $payment->trang_thai = 'Đã hoàn thành'; // Cập nhật trạng thái thanh toán
+    //                 $payment->save();
+    //             } else {
+    //                 return response()->json(['message' => 'Không tìm thấy thông tin thanh toán'], 404);
+    //             }
 
-                // Tìm bản ghi đăng ký hội viên
-                $registerMember = RegisterMember::find($inputData['vnp_TxnRef']);
-                if ($registerMember) {
-                    $registerMember->trang_thai = 2; // Cập nhật trạng thái đăng ký
-                    $registerMember->save();
+    //             // Tìm bản ghi đăng ký hội viên
+    //             $registerMember = RegisterMember::find($inputData['vnp_TxnRef']);
+    //             if ($registerMember) {
+    //                 $registerMember->trang_thai = 2; // Cập nhật trạng thái đăng ký
+    //                 $registerMember->save();
 
-                    // Kiểm tra hoặc cập nhật bảng memberships
-                    $membership = MemberShips::where('dangkyhoivien_id', $registerMember->id)->first();
+    //                 // Kiểm tra hoặc cập nhật bảng memberships
+    //                 $membership = MemberShip::where('dangkyhoivien_id', $registerMember->id)->first();
 
-                    if ($membership) {
-                        $membership->ngay_dang_ky = $registerMember->ngay_dang_ky;
-                        $membership->ngay_het_han = $registerMember->ngay_het_han;
-                        $membership->save();
+    //                 if ($membership) {
+    //                     $membership->ngay_dang_ky = $registerMember->ngay_dang_ky;
+    //                     $membership->ngay_het_han = $registerMember->ngay_het_han;
+    //                     $membership->save();
 
-                        $message = "Membership với ID {$membership->id} đã được cập nhật.";
-                    } else {
-                        $newMembership = MemberShips::create([
-                            'dangkyhoivien_id' => $registerMember->id,
-                            'so_the' => 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT),
-                            'ngay_dang_ky' => $registerMember->ngay_dang_ky,
-                            'ngay_het_han' => $registerMember->ngay_het_han,
-                        ]);
+    //                     $message = "Membership với ID {$membership->id} đã được cập nhật.";
+    //                 } else {
+    //                     $newMembership = MemberShip::create([
+    //                         'dangkyhoivien_id' => $registerMember->id,
+    //                         'so_the' => 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT),
+    //                         'ngay_dang_ky' => $registerMember->ngay_dang_ky,
+    //                         'ngay_het_han' => $registerMember->ngay_het_han,
+    //                     ]);
 
-                        $message = "Membership mới được tạo với ID {$newMembership->id}.";
-                    }
+    //                     $message = "Membership mới được tạo với ID {$newMembership->id}.";
+    //                 }
 
-                    return response()->json(['message' => $message]);
-                } else {
-                    return response()->json(['message' => 'Không tìm thấy thông tin đăng ký hội viên'], 404);
-                }
-            } else {
-                // Thanh toán thất bại
-                return response()->json([
-                    'message' => 'Thanh toán thất bại',
-                    'error_code' => $inputData['vnp_ResponseCode'],
-                    'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
-                ], 400);
-            }
-        } else {
-            return response()->json(['message' => 'Xác thực secure hash thất bại'], 400);
-        }
-    }
+    //                 return response()->json(['message' => $message]);
+    //             } else {
+    //                 return response()->json(['message' => 'Không tìm thấy thông tin đăng ký hội viên'], 404);
+    //             }
+    //         } else {
+    //             // Thanh toán thất bại
+    //             return response()->json([
+    //                 'message' => 'Thanh toán thất bại',
+    //                 'error_code' => $inputData['vnp_ResponseCode'],
+    //                 'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
+    //             ], 400);
+    //         }
+    //     } else {
+    //         return response()->json(['message' => 'Xác thực secure hash thất bại'], 400);
+    //     }
+    // }
     public function paymentMasterCard1($registerMember, $money, $payment)
     {
         // Cấu hình của VNPAY
