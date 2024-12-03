@@ -192,6 +192,7 @@ Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);
 Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
 Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
+Route::delete('delete-all-seatbyroom/{id}' , [RoomController::class , 'deleteAllSeatByRoom']);
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 

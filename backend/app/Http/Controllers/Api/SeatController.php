@@ -11,6 +11,7 @@ class SeatController extends Controller
 {
 
 
+    // ghế all ( có thể dùng hoặc không )
     public function index()
     {
         $seatall = Seat::all();
@@ -34,45 +35,48 @@ class SeatController extends Controller
         $roomall = Room::all();
         if ($roomall->isEmpty()) {
             return response()->json([
-                'message' => 'Không có phòng, hãy thêm phòng'
+                'message' => 'Không có phòng, hãy thêm phòng !'
             ], 404);
         }
 
         return response()->json([
-            'message' => 'Xuất all phòng ok',
+            'message' => 'Xuất tất cả phòng có thành công',
             'data' => $roomall
         ], 200);
     }
 
     public function store(Request $request)
     {
-        // Thêm mới ghế ngồi 
+        
         $validated = $request->validate([
             'room_id' => 'required|exists:rooms,id',
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
             'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
-            'seats.*.loai_ghe_ngoi' => 'required|string|max:255',
-            'seats.*.gia_ghe' => 'required|numeric',
+            'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế 
+            'seats.*.gia_ghe' => 'required|numeric|min:0', // giá ghế s
         ]);
 
-
+       
+        // tạo mảng ghế rỗng
         $seatCreate = [];
+
+        // tổng số ghế = 0 
         $totalSeatAddNew = 0;
 
-        // Lặp qua từng ghế để thêm ghế ngồi
+        // lặp qua từng ghế để thêm ghế ngồi
         foreach ($validated['seats'] as $seatConfig) {
-            // Phân tích phạm vi ghế ngồi và tạo ghế
+            // phân tích phạm vi ghế ngồi và tạo ghế
             $range = explode('-', $seatConfig['range']);
             $starSeat = $range[0];
             $endSeat = $range[1];
 
-            // Tạo ghế dựa trên phạm vi đã phân tích
+            // tạo ghế dựa trên phạm vi đã phân tích
             $seats = $this->generateSeats($starSeat, $endSeat, $seatConfig['loai_ghe_ngoi'], $seatConfig['gia_ghe'], $validated['room_id']);
 
-            // Lưu tất cả ghế ngồi vào mảng kết quả
+            // lưu tất cả ghế ngồi vào mảng kết quả
             $seatCreate = array_merge($seatCreate, $seats);
 
-            // Đếm tổng số ghế và thêm vào cột tong_ghe_phong của bảng rooms
+            // đếm tổng số ghế và thêm vào cột tong_ghe_phong của bảng rooms
             $totalSeatAddNew += count($seats);
         }
 
@@ -189,6 +193,9 @@ class SeatController extends Controller
             'message' => 'Xóa seat theo id thành công'
         ], 200);
     }
+
+
+    
 
 
 }

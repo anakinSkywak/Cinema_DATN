@@ -200,4 +200,24 @@ class RoomController extends Controller
             'data' => $seatID
         ], 200);
     }
+
+    // xóa toàn bố ghế của phòng đó
+    public function deleteAllSeatByRoom(string $id)
+    {
+
+        $roomID = Room::find($id);
+        if (!$roomID) {
+            return response()->json([
+                'message' => 'Không có dữ liệu room này !',
+            ], 404);
+        }
+
+        // xóa toàn bộ ghế của phòng có id
+        $deleteAllSeatByRoom = Seat::where('room_id' , $id)->delete();
+
+        return response()->json([
+            'message' => 'Xóa toàn bộ ghế theo id phòng này thành công',
+            'delete_count' => $deleteAllSeatByRoom
+        ], 200);
+    }
 }
