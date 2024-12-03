@@ -214,10 +214,12 @@ class RoomController extends Controller
 
         // xóa toàn bộ ghế của phòng có id
         $deleteAllSeatByRoom = Seat::where('room_id' , $id)->delete();
+        
+        $resetNumbeChair = Room::where('id' , $id)->update(['tong_ghe_phong' => 0]);
 
         return response()->json([
             'message' => 'Xóa toàn bộ ghế theo id phòng này thành công',
-            'delete_count' => $deleteAllSeatByRoom
+            'delete_count' => $deleteAllSeatByRoom .' ghế đã xóa của phòng này', 
         ], 200);
     }
 }

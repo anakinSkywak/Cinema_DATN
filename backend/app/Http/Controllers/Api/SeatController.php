@@ -53,7 +53,7 @@ class SeatController extends Controller
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
             'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
             'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế 
-            'seats.*.gia_ghe' => 'required|numeric|min:0', // giá ghế s
+            'seats.*.gia_ghe' => 'required|numeric|min:0', // giá ghế 
         ]);
 
        
@@ -187,10 +187,19 @@ class SeatController extends Controller
             ], 404);
         }
 
+        // lấy thông tin phòng liên kết với ghế
+        $room = Room::find($seatID->room_id);
+
         $seatID->delete();
 
+        // khi xóa 1 ghế của phòng nào giảm đi 1 tong_ghe_phong của phòng đó
+        if($room){
+            $room->decrement('tong_ghe_phong');
+        }
+        
+
         return response()->json([
-            'message' => 'Xóa seat theo id thành công'
+            'message' => 'Xóa seat theo id thành công trừ đi 1 ghế trong Tổng Ghế Phòng của phòng theo ghế này',
         ], 200);
     }
 
