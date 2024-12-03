@@ -36,6 +36,14 @@ class RoomController extends Controller
             'ten_phong_chieu' => 'required|string|max:250',
         ]);
 
+        //check phòng chiếu trùng khi thêm
+        $checkNameRoom = Room::where('ten_phong_chieu', $validated['ten_phong_chieu'])->exists();
+        if ($checkNameRoom) {
+            return response()->json([
+                'message' => 'Tên phòng này đã tồn tại !',
+            ], 422); //  422 là yêu cầu không hợp lệ
+        }
+
         $room = Room::create($validated);
 
         return response()->json([
@@ -63,7 +71,7 @@ class RoomController extends Controller
     // đưa đến trang edit với thông tin edit đó và Theater để thay đổi rạp nếu muốn
     public function editRoom(string $id)
     {
-        
+
         $roomID = Room::find($id);
 
         if (!$roomID) {
@@ -86,10 +94,20 @@ class RoomController extends Controller
         if (!$room) {
             return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
+        
 
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
         ]);
+
+        // check nếu thay đổi tên phòng chiếu khác không được trùng với bản ghi id khác
+        // nhưng được phép cùng với id bản ghi hiện tại
+        $checkNameRoom = Room::where('ten_phong_chieu', $validated['ten_phong_chieu'])->where('id' , '!=' , $id)->exists();
+        if ($checkNameRoom) {
+            return response()->json([
+                'message' => 'Tên phòng này đã tồn tại !',
+            ], 422); //  422 là yêu cầu không hợp lệ
+        }
 
         $room->update($validated);
 
@@ -182,6 +200,4 @@ class RoomController extends Controller
             'data' => $seatID
         ], 200);
     }
-
-    
 }

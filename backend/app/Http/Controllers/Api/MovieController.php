@@ -137,7 +137,7 @@ class MovieController extends Controller
 
             return response()->json([
                 'message' => 'Tên phim này đã tồn tại rồi',
-            ], 409); // 409 lỗi xung đột
+            ], 422); //  422 là yêu cầu không hợp lệ
         }
 
         // check giá vé phải không âm và không phải chuỗi kỹ tự 
@@ -307,6 +307,17 @@ class MovieController extends Controller
                 'message' => 'Trailer phải là URL hợp lệ.',
             ], 442); // 422 yêu cầu không hợp lệ
         }
+
+        // check nếu thay đổi tên phòng chiếu khác không được trùng với bản ghi id khác
+        // nhưng được phép cùng với id bản ghi hiện tại
+        $checkNameMovie = Movie::where('ten_phim', $request['ten_phim'])->where('id' , '!=' , $id)->exists();
+        if ($checkNameMovie) {
+
+            return response()->json([
+                'message' => 'Tên phim này đã tồn tại rồi',
+            ], 422); //  422 là yêu cầu không hợp lệ
+        }
+
 
 
         $imagePath = $movie->anh_phim;

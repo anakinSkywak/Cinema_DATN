@@ -44,7 +44,7 @@ class MoviegenreController extends Controller
             return response()->json([
                 'message' => 'Tên thể loại phim này đã tồn tại !',
                 'data' => $checkGenre
-            ], 409); // 409 là xung đột 
+            ], 422); //  422 là yêu cầu không hợp lệ
         }
 
         $moviegenre = MovieGenre::create($validated);
@@ -111,8 +111,9 @@ class MoviegenreController extends Controller
             'ten_loai_phim' => 'required|string|max:255',
         ]);
 
-        // check nếu có thể loại này trong db chua 
-        $checkGenre = MovieGenre::where('ten_loai_phim', $validated['ten_loai_phim'])->exists();
+        // check nếu thay đổi tên phòng chiếu khác không được trùng với bản ghi id khác
+        // nhưng được phép cùng với id bản ghi hiện tại 
+        $checkGenre = MovieGenre::where('ten_loai_phim', $validated['ten_loai_phim'])->where('id' , '!=' , $id)->exists();
 
         if ($checkGenre) {
             return response()->json([
