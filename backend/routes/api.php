@@ -125,6 +125,9 @@ Route::middleware('auth:api')->group(function () {
     //http://127.0.0.1:8000/api/book-ticket
     Route::post('book-ticket', [BookingController::class, 'Bookticket']);
 
+    // khóa ghế khi user chọn ghế và đến trang chọn đồ ăn
+    Route::post('seat-lock', [BookingController::class, 'lockSeat']);
+
     // 4 user
     //http://127.0.0.1:8000/api/booking
     Route::post('booking', [BookingController::class, 'Booking']);
@@ -285,7 +288,7 @@ Route::get('rotations', [RotationsController::class, 'index']);
 Route::post('rotations', [RotationsController::class, 'store']);
 Route::get('rotations/{id}', [RotationsController::class, 'show']);
 Route::put('rotations/{id}', [RotationsController::class, 'update']);
-Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);   
+Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 
 //call api countdown_vouchers T
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
@@ -294,17 +297,17 @@ Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show'
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
 // call api type_blogs T
-Route::get('type_blogs', [TypeBlogController::class, 'index']); 
-Route::post('type_blogs', [TypeBlogController::class, 'store']); 
-Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  
-Route::post('type_blogs/{id}', [TypeBlogController::class, 'update']);  
-Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']); 
+Route::get('type_blogs', [TypeBlogController::class, 'index']);
+Route::post('type_blogs', [TypeBlogController::class, 'store']);
+Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);
+Route::post('type_blogs/{id}', [TypeBlogController::class, 'update']);
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);
 // call api BlogController T
-Route::get('blogs', [BlogController::class, 'index']); 
-Route::post('blogs', [BlogController::class, 'store']); 
-Route::get('blogs/{id}', [BlogController::class, 'show']);  
+Route::get('blogs', [BlogController::class, 'index']);
+Route::post('blogs', [BlogController::class, 'store']);
+Route::get('blogs/{id}', [BlogController::class, 'show']);
 Route::post('blogs/{id}', [BlogController::class, 'update']);
-Route::delete('blogs/{id}', [BlogController::class, 'delete']);  
+Route::delete('blogs/{id}', [BlogController::class, 'delete']);
 //cal api contacts T
 Route::get('contacts/{id}', [ContactController::class, 'show']);
 Route::get('/contact-details', [ContactController::class, 'getContactDetails'])

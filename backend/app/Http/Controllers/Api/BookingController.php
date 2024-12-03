@@ -109,6 +109,8 @@ class BookingController extends Controller
         ];
     }
 
+    public function lockSeat(Request $request) {}
+
     // Hàm xử lý đặt vé với đồ ăn và tính tiền
     public function Booking(Request $request)
     {
@@ -147,10 +149,9 @@ class BookingController extends Controller
             }
         }
 
-        //dd($doAnDetails);
+
         $doAnString = $this->formatDoAnString($doAnDetails);
 
-        //dd($doAnString);
 
         // Tính tổng tiền
         $tongTien = $this->tongTien($showtime, $selectedSeats, $tongTienDoAn);
@@ -165,7 +166,6 @@ class BookingController extends Controller
         }
 
         $barcode = 'VE-' . substr(strval(rand(10000, 999999)), 0, 6);
-
 
         // Tạo Booking
         $booking = Booking::create([
@@ -189,7 +189,8 @@ class BookingController extends Controller
                 [
                     'ghengoi_id' => $seatId,
                     'thongtinchieu_id' => $request->thongtinchieu_id,
-                    'gio_chieu' => $showtime->gio_chieu
+                    'gio_chieu' => $showtime->gio_chieu,
+                    'ngay_chieu' => $showtime->ngay_chieu
                 ],
                 ['trang_thai' => 1]
             );
