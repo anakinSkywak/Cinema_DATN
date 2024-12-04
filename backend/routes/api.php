@@ -198,6 +198,7 @@ Route::delete('delete-all-seatbyroom/{id}' , [RoomController::class , 'deleteAll
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']);
 Route::get('addSeat', [SeatController::class, 'addSeat']);
+Route::post('storeOneSeat', [SeatController::class, 'storeOneSeat']);
 Route::post('storeSeat', [SeatController::class, 'store']);
 Route::get('showSeat/{id}', [SeatController::class, 'show']);
 Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);

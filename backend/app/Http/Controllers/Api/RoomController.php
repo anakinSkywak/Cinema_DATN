@@ -87,6 +87,7 @@ class RoomController extends Controller
     }
 
 
+    // cập nhật phòng với thông tin mới
     public function update(Request $request, string $id)
     {
         $room = Room::find($id);
@@ -94,7 +95,7 @@ class RoomController extends Controller
         if (!$room) {
             return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
-        
+
 
         $validated = $request->validate([
             'ten_phong_chieu' => 'required|string|max:250',
@@ -102,7 +103,7 @@ class RoomController extends Controller
 
         // check nếu thay đổi tên phòng chiếu khác không được trùng với bản ghi id khác
         // nhưng được phép cùng với id bản ghi hiện tại
-        $checkNameRoom = Room::where('ten_phong_chieu', $validated['ten_phong_chieu'])->where('id' , '!=' , $id)->exists();
+        $checkNameRoom = Room::where('ten_phong_chieu', $validated['ten_phong_chieu'])->where('id', '!=', $id)->exists();
         if ($checkNameRoom) {
             return response()->json([
                 'message' => 'Tên phòng này đã tồn tại !',
@@ -118,6 +119,7 @@ class RoomController extends Controller
     }
 
 
+    // xóa room theo id
     public function delete(string $id)
     {
         $room = Room::find($id);
@@ -140,16 +142,23 @@ class RoomController extends Controller
 
         if (!$roomID) {
             return response()->json([
-                'message' => 'Phòng không tồn tại',
+                'message' => 'Phòng không tồn tại !',
             ], 404);
         }
         // show all ghế theo phòng đó theo id
         $allSeatRoom = DB::table('seats')->where('room_id', $roomID->id)->get();
 
-        return response()->json([
-            'message' => 'đổ toàn bộ ghế theo id room ok',
-            'data' =>  $allSeatRoom
-        ], 200);
+        if ($allSeatRoom->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có ghế nào của phòng này !',
+                'data' =>  $allSeatRoom
+            ], 404);
+        } else {
+            return response()->json([
+                'message' => 'Đổ toàn bộ ghế theo id room thành công !',
+                'data' =>  $allSeatRoom
+            ], 200);
+        }
     }
 
 
@@ -201,7 +210,8 @@ class RoomController extends Controller
         ], 200);
     }
 
-    // xóa toàn bố ghế của phòng đó
+
+    // xóa toàn bố ghế của phòng đó theo id phòng
     public function deleteAllSeatByRoom(string $id)
     {
 
@@ -213,13 +223,15 @@ class RoomController extends Controller
         }
 
         // xóa toàn bộ ghế của phòng có id
-        $deleteAllSeatByRoom = Seat::where('room_id' , $id)->delete();
-        
-        $resetNumbeChair = Room::where('id' , $id)->update(['tong_ghe_phong' => 0]);
+        $deleteAllSeatByRoom = Seat::where('room_id', $id)->delete();
+
+        $resetNumbeChair = Room::where('id', $id)->update(['tong_ghe_phong' => 0]);
 
         return response()->json([
             'message' => 'Xóa toàn bộ ghế theo id phòng này thành công',
-            'delete_count' => $deleteAllSeatByRoom .' ghế đã xóa của phòng này', 
+            'delete_count' => $deleteAllSeatByRoom . ' ghế đã xóa của phòng này',
         ], 200);
     }
+
+    
 }

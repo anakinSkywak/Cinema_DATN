@@ -123,60 +123,22 @@ class MovieController extends Controller
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:5000',
-            'trailer' => 'required|string|max:255',
-            'gia_ve' => 'required',
+            'trailer' => 'required|string|url|max:255',
+            'gia_ve' => 'required|numeric|min:1',
             'hinh_thuc_phim' => 'required|string|max:255',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
-            'thoi_gian_phim' => 'required',
+            'thoi_gian_phim' => 'required|numeric|min:1',
         ]);
+
 
         // check tên phim đã có or tồn tại trong bảng chưa
         $checkNameMovie = Movie::where('ten_phim', $validated['ten_phim'])->exists();
         if ($checkNameMovie) {
 
             return response()->json([
-                'message' => 'Tên phim này đã tồn tại rồi',
+                'message' => 'Tên phim này đã tồn tại rồi !',
             ], 422); //  422 là yêu cầu không hợp lệ
-        }
-
-        // check giá vé phải không âm và không phải chuỗi kỹ tự 
-        $checkPriceMovie = $request->gia_ve;
-        if ($checkPriceMovie < 0) {
-            return response()->json([
-                'message' => 'Giá vé không được âm !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        if (!is_numeric($checkPriceMovie)) {
-            return response()->json([
-                'message' => 'Giá vé phải là số !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        // check thời gian phim phải là số , ko âm , ko phải chuỗi kỹ tự
-        $checkTimeMovie = $request->thoi_gian_phim;
-        if ($checkTimeMovie < 0) {
-            return response()->json([
-                'message' => 'Thời gian phim không được âm !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        if (!is_numeric($checkTimeMovie)) {
-            return response()->json([
-                'message' => 'Thời gian phim phải là số !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        // check url trailer phim phải là url 
-        $checkTrailerMovie = $request->trailer;
-        // Kiểm tra xem trailer có đúng định dạng URL không
-        if (filter_var($checkTrailerMovie, FILTER_VALIDATE_URL) !== false) {
-            $request->trailer;
-        } else {
-            return response()->json([
-                'message' => 'Trailer phải là URL hợp lệ.',
-            ], 442); // 422 yêu cầu không hợp lệ
         }
 
         // xử lý upload ảnh phim
@@ -253,12 +215,12 @@ class MovieController extends Controller
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:5000',
-            'trailer' => 'required|string|max:255',
-            'gia_ve' => 'required',
+            'trailer' => 'required|string|url|max:255',
+            'gia_ve' => 'required|numeric|min:1',
             'hinh_thuc_phim' => 'required|string|max:255',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
-            'thoi_gian_phim' => 'required',
+            'thoi_gian_phim' => 'required|numeric|min:1',
         ]);
 
         $movie = Movie::find($id);
@@ -269,56 +231,15 @@ class MovieController extends Controller
             ], 404);
         }
 
-        // check giá vé phải không âm và không phải chuỗi kỹ tự 
-        $checkPriceMovie = $request->gia_ve;
-        if ($checkPriceMovie < 0) {
-            return response()->json([
-                'message' => 'Giá vé không được âm !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        if (!is_numeric($checkPriceMovie)) {
-            return response()->json([
-                'message' => 'Giá vé phải là số !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        // check thời gian phim phải là số , ko âm , ko phải chuỗi kỹ tự
-        $checkTimeMovie = $request->thoi_gian_phim;
-        if ($checkTimeMovie < 0) {
-            return response()->json([
-                'message' => 'Thời gian phim không được âm !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        if (!is_numeric($checkTimeMovie)) {
-            return response()->json([
-                'message' => 'Thời gian phim phải là số !',
-            ], 442); // 422 yêu cầu ko hợp lệ
-        }
-
-        // check url trailer phim phải là url 
-        $checkTrailerMovie = $request->trailer;
-        // Kiểm tra xem trailer có đúng định dạng URL không
-        if (filter_var($checkTrailerMovie, FILTER_VALIDATE_URL) !== false) {
-            $request->trailer;
-        } else {
-            return response()->json([
-                'message' => 'Trailer phải là URL hợp lệ.',
-            ], 442); // 422 yêu cầu không hợp lệ
-        }
-
         // check nếu thay đổi tên phòng chiếu khác không được trùng với bản ghi id khác
         // nhưng được phép cùng với id bản ghi hiện tại
-        $checkNameMovie = Movie::where('ten_phim', $request['ten_phim'])->where('id' , '!=' , $id)->exists();
+        $checkNameMovie = Movie::where('ten_phim', $request['ten_phim'])->where('id', '!=', $id)->exists();
         if ($checkNameMovie) {
 
             return response()->json([
                 'message' => 'Tên phim này đã tồn tại rồi',
             ], 422); //  422 là yêu cầu không hợp lệ
         }
-
-
 
         $imagePath = $movie->anh_phim;
 
