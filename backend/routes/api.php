@@ -66,9 +66,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::middleware('auth:api')->group(function () {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
-        //call api CouponCodeTaken T
-        Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
-        Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
         Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
@@ -285,8 +283,11 @@ Route::get('rotations', [RotationsController::class, 'index']);
 Route::post('rotations', [RotationsController::class, 'store']);
 Route::get('rotations/{id}', [RotationsController::class, 'show']);
 Route::put('rotations/{id}', [RotationsController::class, 'update']);
-Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);   
+Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 
+//call api CouponCodeTaken T
+Route::middleware(['auth:api'])->post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+Route::middleware(['auth:api'])->get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
 //call api countdown_vouchers T
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
 Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
@@ -294,22 +295,23 @@ Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show'
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
 // call api type_blogs T
-Route::get('type_blogs', [TypeBlogController::class, 'index']); 
-Route::post('type_blogs', [TypeBlogController::class, 'store']); 
-Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  
-Route::post('type_blogs/{id}', [TypeBlogController::class, 'update']);  
-Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']); 
+Route::get('type_blogs', [TypeBlogController::class, 'index']);
+Route::post('type_blogs', [TypeBlogController::class, 'store']);
+Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);
+Route::post('type_blogs/{id}', [TypeBlogController::class, 'update']);
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);
 // call api BlogController T
-Route::get('blogs', [BlogController::class, 'index']); 
-Route::post('blogs', [BlogController::class, 'store']); 
-Route::get('blogs/{id}', [BlogController::class, 'show']);  
+Route::get('blogs', [BlogController::class, 'index']);
+Route::post('blogs', [BlogController::class, 'store']);
+Route::get('blogs/{id}', [BlogController::class, 'show']);
 Route::post('blogs/{id}', [BlogController::class, 'update']);
-Route::delete('blogs/{id}', [BlogController::class, 'delete']);  
+Route::delete('blogs/{id}', [BlogController::class, 'delete']);
 //cal api contacts T
 Route::get('contacts/{id}', [ContactController::class, 'show']);
 Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
     ->name('contacts.details');
-Route::post('contacts', [ContactController::class, 'store']);
+
+Route::middleware(['auth:api'])->post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);
