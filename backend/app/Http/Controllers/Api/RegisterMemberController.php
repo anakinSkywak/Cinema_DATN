@@ -100,11 +100,6 @@ class RegisterMemberController extends Controller
     }
 
 
-
-
-
-
-
     public function update(Request $request, $hoivien_id)
     {
         // Lấy người dùng hiện tại
@@ -202,12 +197,6 @@ class RegisterMemberController extends Controller
             'data' => $registerMembers,
         ], 200);
     }
-
-
-
-
-
-
 
 
     public function destroy($id)

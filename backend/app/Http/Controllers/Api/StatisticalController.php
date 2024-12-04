@@ -325,19 +325,20 @@ class StatisticalController extends Controller
     }
 
     // top phim có lượt đặt vé cao
-    public function topPhimLuotveCao($limit = 5){
+    public function topPhimLuotveCao($limit = 5)
+    {
         $data = BookingDetail::join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
-        ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
-        ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
-        ->select('movies.ten_phim', 'movies.anh_phim', DB::raw('COUNT(showtimes.phim_id) as total_tickets')) // tạo 1 cột total_tickets để tính tổng booking id có trong booking detail
-        ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim') // Nhóm theo người dùng
-        ->orderBy('total_tickets', 'DESC') // Sắp xếp theo số lượng vé giảm dần
-        ->limit($limit) // Lấy top N người
-        ->get();
+            ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
+            ->select('movies.ten_phim', 'movies.anh_phim', DB::raw('COUNT(showtimes.phim_id) as total_tickets')) // tạo 1 cột total_tickets để tính tổng booking id có trong booking detail
+            ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim') // Nhóm theo người dùng
+            ->orderBy('total_tickets', 'DESC') // Sắp xếp theo số lượng vé giảm dần
+            ->limit($limit) // Lấy top N người
+            ->get();
 
 
-         // Kiểm tra nếu không có dữ liệu
-         if ($data->isEmpty()) {
+        // Kiểm tra nếu không có dữ liệu
+        if ($data->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu thống kê.',
                 'data' => [],
@@ -353,18 +354,42 @@ class StatisticalController extends Controller
 
     // doanh thu theo tháng
     // đổ doanh thu tháng theo create at
-    public function doanhThuThang(){
-        $data = Payment::selectRaw('Month(created_at) as month, Year(created_at) as year, SUM(tong_tien) as total')
-                ->where('trang_thai', 'Đã hoàn thành')
-                ->groupByRaw('Year(created_at), Month(created_at)') // nhóm theo năm và tháng
-                ->orderByRaw('Year(created_at), Month(created_at)') // sắp xếp theo năm và tháng
-                ->get();
 
+    public function doanhThuThang()
+    {
+        // Lấy dữ liệu từ bảng payments
+        $data = Payment::selectRaw('Month(created_at) as month, Year(created_at) as year, SUM(tong_tien) as total')
+            ->where('trang_thai', 'Đã hoàn thành')
+            ->groupByRaw('Year(created_at), Month(created_at)')
+            ->orderByRaw('Year(created_at), Month(created_at)')
+            ->get();
+
+        // Lấy danh sách các tháng từ 1 đến tháng hiện tại
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+
+        $result = [];
+        for ($month = 1; $month <= $currentMonth; $month++) {
+            $result[] = [
+                'month' => $month,
+                'year' => $currentYear,
+                'total' => 0, // Mặc định doanh thu là 0
+            ];
+        }
+
+        // Gán dữ liệu doanh thu vào danh sách tháng
+        foreach ($data as $item) {
+            foreach ($result as &$res) {
+                if ($res['month'] == $item->month && $res['year'] == $item->year) {
+                    $res['total'] = $item->total; // Gán giá trị doanh thu từ kết quả truy vấn
+                }
+            }
+        }
 
         // Trả về kết quả
         return response()->json([
             'message' => 'Thống kê doanh thu theo tháng thành công',
-            'data' => $data,
+            'data' => $result,
         ], 200);
     }
 }
