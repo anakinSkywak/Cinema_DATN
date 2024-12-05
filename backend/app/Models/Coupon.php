@@ -18,6 +18,7 @@ class Coupon extends Model
         'ma_giam_gia',
         'muc_giam_gia',
         'gia_don_toi_thieu',
+        'Giam_max',
         'mota',
         'so_luong',
         'so_luong_da_su_dung',

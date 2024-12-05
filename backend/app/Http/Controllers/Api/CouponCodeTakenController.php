@@ -34,6 +34,7 @@ class CouponCodeTakenController extends Controller
                 'users.ho_ten as user_name',  // Tên người dùng
                 'coupons.ma_giam_gia',  // Mã giảm giá
                 'coupons.muc_giam_gia',  // Mức giảm giá
+                'coupons.Giam_max',  // Mức giảm giá không quá 
                 'coupons.gia_don_toi_thieu',  //  giá tối thiểu để áp dụng mã 
                 'coupons.mota',  // Mô tả mã giảm giá
                 'coupon_code_takens.ngay_nhan',  // Ngày nhận

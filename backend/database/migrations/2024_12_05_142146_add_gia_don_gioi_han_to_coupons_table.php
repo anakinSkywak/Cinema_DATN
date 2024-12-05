@@ -14,7 +14,7 @@ class AddGiaDonGioiHanToCouponsTable extends Migration
     public function up()
     {
         Schema::table('coupons', function (Blueprint $table) {
-            $table->decimal('gia_don_gioi_han', 15, 0)->nullable()->after('gia_don_toi_thieu')->comment('Giới hạn số tiền giảm tối đa');
+            $table->decimal('Giam_max', 15, 0)->nullable()->after('gia_don_toi_thieu')->comment('Giới hạn số tiền giảm tối đa');
         });
     }
 
