@@ -14,11 +14,8 @@ class ShowtimeController extends Controller
 {
 
 
-    // đổ showtime theo ngày , theo phim
-
-
     // đổ ra những showtime có phim khác nhau ở list showtime
-    
+
     public function listshowtimeByMovie(Request $request)
     {
 
@@ -156,7 +153,7 @@ class ShowtimeController extends Controller
 
                 if ($exists) {
                     return response()->json([
-                        'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| đã tồn tại trong phòng",
+                        'error' => "Giờ chiếu |$gio| vào ngày |{$request->ngay_chieu}| đã tồn tại trong phòng !",
                     ], 400);
                 }
 
@@ -349,5 +346,111 @@ class ShowtimeController extends Controller
         return response()->json([
             'message' => 'Xóa Showtime theo id thành công'
         ], 200);
+    }
+
+
+    // hàm chuyển hóa loại bỏ đầu vào chuyển đổi dấu thanh ko dấu trước khi truy vấn
+    public function normalizeVietnameseString($str)
+    {
+        $map = [
+            'a' => ['á', 'à', 'ả', 'ã', 'ạ', 'ă', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'â', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ'],
+            'd' => ['đ'],
+            'e' => ['é', 'è', 'ẻ', 'ẽ', 'ẹ', 'ê', 'ế', 'ề', 'ể', 'ễ', 'ệ'],
+            'i' => ['í', 'ì', 'ỉ', 'ĩ', 'ị'],
+            'o' => ['ó', 'ò', 'ỏ', 'õ', 'ọ', 'ô', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ơ', 'ớ', 'ờ', 'ở', 'ỡ', 'ợ'],
+            'u' => ['ú', 'ù', 'ủ', 'ũ', 'ụ', 'ư', 'ứ', 'ừ', 'ử', 'ữ', 'ự'],
+            'y' => ['ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ']
+        ];
+
+        foreach ($map as $ascii => $unicode) {
+            $str = str_replace($unicode, $ascii, $str);
+        }
+
+        return strtolower($str);
+    }
+
+
+
+    // chức năng tìm kiếm showtime : phim , ngày , phòng , giờ 
+    public function searchShowtimes(Request $request)
+    {
+
+        // lấy dữ liệu từ đầu vào input resquet
+        $ten_phim  = $request->input('ten_phim');
+        $ten_phong_chieu  = $request->input('ten_phong_chieu');
+        $ngay_chieu  = $request->input('ngay_chieu');
+        $gio_chieu  = $request->input('gio_chieu');
+
+        $query = Showtime::query();
+
+        $message = [];
+
+        // tham gia với bảng movies để tìm theo tên phim
+        if ($ten_phim) {
+            $query->whereHas('movie', function ($subQuery) use ($ten_phim) {
+                $subQuery->where('ten_phim', 'LIKE', '%' . $ten_phim . '%');
+            });
+        }
+
+        // tham gia với bảng rooms để tìm theo tên phòng
+        if ($ten_phong_chieu) {
+            $query->whereHas('room', function ($subQuery) use ($ten_phong_chieu) {
+                $subQuery->where('ten_phong_chieu', 'LIKE', '%' . $ten_phong_chieu . '%');
+            });
+        }
+
+        // nêu có nhập ngày chiếu và giờ chiếu
+        if ($ngay_chieu) {
+            $query->where('ngay_chieu', $ngay_chieu);
+        }
+
+        if ($gio_chieu) {
+            //  khoảng giờ 07:00 đến 08:00
+            $start_time = $gio_chieu . ':00';
+            $end_time = date('H:i:s', strtotime($start_time . ' +1 hour'));
+    
+            $query->whereBetween('gio_chieu', [$start_time, $end_time]);
+        }
+
+        // lấy danh sách showtime có phù hợp
+        $showtimes = $query->with(['movie', 'room'])->get();
+        //$showtimes = $query->get();
+
+        if ($ten_phim && $showtimes->isEmpty()) {
+            $message[] = 'Không tìm thấy suất chiếu cho phim: ' . $ten_phim;
+        }
+
+        if ($ten_phong_chieu && $showtimes->isEmpty()) {
+            $message[] = 'Không tìm thấy suất chiếu cho phòng: ' . $ten_phong_chieu;
+        }
+
+        if ($ngay_chieu && $showtimes->isEmpty()) {
+            $message[] = 'Không tìm thấy suất chiếu cho ngày: ' . $ngay_chieu;
+        }
+
+        if ($gio_chieu && $showtimes->isEmpty()) {
+            $message[] = 'Không tìm thấy suất chiếu cho giờ: ' . $gio_chieu;
+        }
+
+        if ($showtimes->isEmpty()) {
+            return response()->json([
+                'message' => $message ?: ['Không tìm thấy suất chiếu nào phù hợp!'],
+            ], 404);
+        }
+
+        $result = $showtimes->map(function ($showtime) {
+            return [
+                'ten_phim' => $showtime->movie->ten_phim,
+                'thoi_luong_chieu' => $showtime->thoi_luong_chieu,
+                'ten_phong_chieu' => $showtime->room->ten_phong_chieu,
+                'ngay_chieu' => $showtime->ngay_chieu,
+                'gio_chieu' => $showtime->gio_chieu,
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Kết quả tìm kiếm suất chiếu theo yêu cầu',
+            'data' => $result
+        ]);
     }
 }

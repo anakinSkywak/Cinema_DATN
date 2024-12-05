@@ -237,6 +237,7 @@ Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
+Route::get('search-showtime' , [ShowtimeController::class , 'searchShowtimes']);
 
 
 // Ánh : call api Foods
