@@ -17,6 +17,62 @@ class ShowtimeController extends Controller
     // đổ showtime theo ngày , theo phim
 
 
+    // đổ ra những showtime có phim khác nhau ở list showtime
+    
+    public function listshowtimeByMovie(Request $request)
+    {
+
+        // lấy danh sách các phim có showtime
+        $showtimes = Showtime::select(DB::raw('MIN(id) as id'), 'phim_id',)
+            ->groupBy('phim_id')
+            ->with(['movie:id,ten_phim'])->get();
+
+        // check rỗng 
+        if ($showtimes->isEmpty()) {
+            return response()->json([
+                'message' => 'Chưa có xuất chiếu của bất kì phim nào thêm xuất chiếu !',
+                'data' => $showtimes,
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'List xuất chiếu thành công',
+            'data' => $showtimes,
+        ], 200);
+    }
+
+
+    // đổ all showtime ngày giờ theo phim id đó
+    public function showtimeByMovie(Request $request, $movieID)
+    {
+
+        // truy vấn lấy showtime theo khác nhau
+        $showtimeByMovie = Showtime::with('movie:id,ten_phim', 'room:id,ten_phong_chieu')
+            ->where('phim_id', $movieID)
+            ->orderBy('ngay_chieu', 'asc')
+            ->get();
+
+        if (!$showtimeByMovie) {
+            return response()->json([
+                'message' => 'Không có xuất chiếu theo id phim này !',
+                'data' => $showtimeByMovie,
+            ], 400);
+        }
+
+
+        if ($showtimeByMovie->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có xuất chiếu theo id phim này , thêm xuất chiếu với phim đó !',
+                'data' => $showtimeByMovie,
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Tất cả xuất chiếu theo phim id',
+            'data' => $showtimeByMovie,
+        ], 200);
+    }
+
     // đổ all showtime ( có thể dùng hoặc không )
 
     public function index()
@@ -294,6 +350,4 @@ class ShowtimeController extends Controller
             'message' => 'Xóa Showtime theo id thành công'
         ], 200);
     }
-
-    
 }

@@ -229,6 +229,8 @@ Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword'])
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']);
+Route::get('list-showtime' , [ShowtimeController::class , 'listshowtimeByMovie']);
+Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByMovie']);
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
 Route::post('storeShowtime', [ShowtimeController::class, 'store']);
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
