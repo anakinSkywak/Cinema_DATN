@@ -118,6 +118,8 @@ Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieControlle
 
 
 
+Route::post('/select-seat', [BookingController::class, 'selectSeat']); //
+
 Route::middleware('auth:api')->group(function () {
 
     // nhân viên book vé cho khách

@@ -443,6 +443,12 @@ class MovieController extends Controller
                 ->where('trang_thai', 1) // Ghế đã đặt
                 ->pluck('ghengoi_id');
 
+            $selectedSeats = DB::table('seat_showtime_status')
+                ->where('thongtinchieu_id', $showtime->id)
+                ->where('trang_thai', 3) // Ghế đang dc chọn hàng đợi
+                ->pluck('ghengoi_id');
+                // dd($selectedSeats);
+
             // Truy vấn trạng thái bảo trì của ghế từ bảng 'seats
             $maintenanceSeats = DB::table('seats')
                 ->where('room_id', $roomID)
@@ -450,12 +456,14 @@ class MovieController extends Controller
                 ->pluck('id');
 
             // Lấy trạng thái của các ghế (đã đặt, bảo trì hoặc trống)
-            $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats, $maintenanceSeats) {
+            $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats, $maintenanceSeats, $selectedSeats) {
 
                 if ($bookedSeats->contains($seat->id)) {
                     $status = 'Đã đặt'; // Ghế đã được đặt
                 } elseif ($maintenanceSeats->contains($seat->id)) {
                     $status = 'Bảo trì'; // Ghế đang bảo trì
+                } elseif ($selectedSeats->contains($seat->id)) {
+                    $status = 'Ghế đang trong hàng đợi'; // Ghế đang trong hàng đợi
                 } else {
                     $status = 'Trống'; // Ghế còn lại là trống
                 }

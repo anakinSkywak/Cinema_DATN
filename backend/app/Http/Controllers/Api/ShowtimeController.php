@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Movie;
 use App\Models\Room;
+use App\Models\SeatShowtimeStatu;
 use App\Models\Showtime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -181,6 +182,7 @@ class ShowtimeController extends Controller
                     }
                 }
 
+
                 // Tạo mới showtime
                 $showtime = Showtime::create([
                     'ngay_chieu' => $request->ngay_chieu,
@@ -189,6 +191,19 @@ class ShowtimeController extends Controller
                     'room_id' => $room_id,
                     'gio_chieu' => $gio,
                 ]);
+
+                //
+                $seats = DB::table('seats')->where('room_id', $room_id)->get();
+
+                foreach ($seats as $seat) {
+                    SeatShowtimeStatu::create([
+                        'thongtinchieu_id' => $showtime->id,
+                        'ghengoi_id' => $seat->id,
+                        'gio_chieu' => $gio,
+                        'trang_thai' => 0, // Trạng thái = 0 (trống)
+                    ]);
+                }
+                //
 
                 $showtimes[] = $showtime;
             }
@@ -408,7 +423,7 @@ class ShowtimeController extends Controller
             //  khoảng giờ 07:00 đến 08:00
             $start_time = $gio_chieu . ':00';
             $end_time = date('H:i:s', strtotime($start_time . ' +1 hour'));
-    
+
             $query->whereBetween('gio_chieu', [$start_time, $end_time]);
         }
 

@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\SeatSelectedEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Food;
 use App\Models\Payment;
 use App\Models\Seat;
+use App\Models\SeatShowtimeStatu;
 use App\Models\Showtime;
 use App\Models\Voucher;
 use Auth;
@@ -109,7 +111,58 @@ class BookingController extends Controller
         ];
     }
 
-    public function lockSeat(Request $request) {}
+
+    // hàm realtime chọn ghế chặn realtime và bỏ chặn khi ấn lại ghế
+    public function selectSeat(Request $request)
+    {
+        $seatId = $request->input('ghengoi_id');
+        $showtimeId = $request->input('thongtinchieu_id');
+
+        // Kiểm tra nếu ghế đã bị chọn trước đó 
+        $existingSeat = SeatShowtimeStatu::where('ghengoi_id', $seatId)
+            ->where('thongtinchieu_id', $showtimeId)
+            ->first();
+
+        // check xem ghế đã được booking hay chưa 1 là đã lưu booking rồi
+        if ($existingSeat && $existingSeat->trang_thai == 1) {
+            return response()->json([
+                'error' => 'Ghế đã được booking vé phim của khác hàng khác !',
+                'data' => $seatId,
+            ], 409);
+        }
+
+        // Nếu ghế đã chọn và người dùng muốn bỏ chọn cập nhật thành 0
+        if ($existingSeat && $existingSeat->trang_thai == 3) {
+
+            $existingSeat->update(['trang_thai' => 0]); // bỏ chọn 
+
+            //  sự kiện bỏ chọn ghế
+            event(new SeatSelectedEvent($seatId, $showtimeId));
+
+            return response()->json([
+                'message' => 'Ghế đã được bỏ chọn thành công',
+                'data' => $seatId,
+            ]);
+        }
+
+        // Nếu ghế chưa được chọn hoặc đang ở trạng thái "Trống" (0)
+        if ($existingSeat && $existingSeat->trang_thai !== 3) {
+
+            SeatShowtimeStatu::updateOrInsert(
+                ['ghengoi_id' => $seatId, 'thongtinchieu_id' => $showtimeId],
+                ['trang_thai' => 3] // 3 đang chọn
+            );
+
+            // sự kiện chọn ghế
+            event(new SeatSelectedEvent($seatId, $showtimeId));
+
+            return response()->json([
+                'message' => 'Ghế đã được chọn thành công',
+                'data' => $seatId,
+            ]);
+        }
+    }
+
 
     // Hàm xử lý đặt vé với đồ ăn và tính tiền
     public function Booking(Request $request)
