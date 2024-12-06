@@ -62,7 +62,7 @@ class SeatController extends Controller
         $totalSeatAddNew = 1;
 
         //  truy vấn xem số ghế ngồi thêm đã có trong phòng chọn chưa
-        $checkNameSeat = Seat::where('room_id', $validated['room_id'])->where('so_ghe_ngoi' , $validated['so_ghe_ngoi'])->exists();
+        $checkNameSeat = Seat::where('room_id', $validated['room_id'])->where('so_ghe_ngoi', $validated['so_ghe_ngoi'])->exists();
         if ($checkNameSeat) {
             return response()->json([
                 'message' => 'Số ghế này đã có trong phòng chọn rồi !',
@@ -179,21 +179,24 @@ class SeatController extends Controller
         preg_match('/([A-Z]+)([0-9]+)/', $starSeat, $startParts);
         preg_match('/([A-Z]+)([0-9]+)/', $endSeat, $endParts);
 
-        $prefix = $startParts[1]; // chữ A B C tùy thích
-        $startNum = (int)$startParts[2]; // phần số ghế bắt đầu
-        $endNum = (int)$endParts[2]; // phần số của ghế kết thúc (ví dụ: 15)
+        $startPrefix = $startParts[1]; // Tiền tố bắt đầu (A)
+        $endPrefix = $endParts[1];     // Tiền tố kết thúc (B)
+        $startNum = (int)$startParts[2]; // Số bắt đầu
+        $endNum = (int)$endParts[2];     // Số kết thúc
+
+        if ($startPrefix !== $endPrefix) {
+            $existingSeatsList[] = "Không hỗ trợ phạm vi khác ký tự prefix: $starSeat - $endSeat";
+            return [];
+        }
 
         // Tạo ghế từ startNum đến endNum
         for ($i = $startNum; $i <= $endNum; $i++) {
-            $seatName = $prefix . $i; // Nhập số ghế A1, A2, ..., A15
-
-            // kiểm tra xem ghế đã tồn tại trong phòng này chưa 
+            $seatName = $startPrefix . $i; // Ghép lại tên ghế, ví dụ: A1, A2...
+    
+            // Kiểm tra nếu ghế đã tồn tại
             if (in_array($seatName, $existingSeats)) {
-
-                // lưu ghế đã tồn tại
                 $existingSeatsList[] = $seatName;
-
-                continue; // Bỏ qua ghế này
+                continue; // Bỏ qua ghế đã tồn tại
             }
 
             $seats[] = Seat::create([
@@ -263,12 +266,12 @@ class SeatController extends Controller
         ]);
 
         // check khi thay đổi tên ghế khi update có bị trùng với tên ghế đã có ở trong bảng theo room id ko
-        $checkNameSeatUpdateByRoom = Seat::where('room_id' , $seatID->room_id)
-        ->where('so_ghe_ngoi' ,$validated['so_ghe_ngoi'])->where('id' , '!=' , $seatID->id)->exists();
+        $checkNameSeatUpdateByRoom = Seat::where('room_id', $seatID->room_id)
+            ->where('so_ghe_ngoi', $validated['so_ghe_ngoi'])->where('id', '!=', $seatID->id)->exists();
 
         if ($checkNameSeatUpdateByRoom) {
             return response()->json([
-                'message' => 'Tên ghế đã tồn tại trong phòng với id phòng là : ' .$seatID->room_id,
+                'message' => 'Tên ghế đã tồn tại trong phòng với id phòng là : ' . $seatID->room_id,
                 'invalid_seat' => $validated['so_ghe_ngoi'],
             ], 422);
         }
@@ -308,6 +311,4 @@ class SeatController extends Controller
             'message' => 'Xóa seat theo id thành công trừ đi 1 ghế trong Tổng Ghế Phòng của phòng theo ghế này',
         ], 200);
     }
-
-
 }
