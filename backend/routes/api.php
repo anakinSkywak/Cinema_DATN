@@ -66,9 +66,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::middleware('auth:api')->group(function () {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
-        //call api CouponCodeTaken T
-        Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
-        Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
         Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
@@ -297,6 +295,9 @@ Route::get('rotations/{id}', [RotationsController::class, 'show']);
 Route::put('rotations/{id}', [RotationsController::class, 'update']);
 Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 
+//call api CouponCodeTaken T
+Route::middleware(['auth:api'])->post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+Route::middleware(['auth:api'])->get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
 //call api countdown_vouchers T
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
 Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
@@ -319,7 +320,8 @@ Route::delete('blogs/{id}', [BlogController::class, 'delete']);
 Route::get('contacts/{id}', [ContactController::class, 'show']);
 Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
     ->name('contacts.details');
-Route::post('contacts', [ContactController::class, 'store']);
+
+Route::middleware(['auth:api'])->post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);

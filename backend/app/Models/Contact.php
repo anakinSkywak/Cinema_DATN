@@ -9,12 +9,15 @@ class Contact extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['noidung', 'user_id'];
+    protected $fillable = [
+        'noidung',
+        'user_id',
+        'trang_thai'
+    ];
 
     // Khai báo quan hệ với bảng users
     public function user()
     {
         return $this->belongsTo(User::class);
     }
-    
 }

@@ -22,6 +22,7 @@ class ContactController extends Controller
                     'email' => $contact->user->email ?? null,
                     'so_dien_thoai' => $contact->user->so_dien_thoai ?? null,
                     'noidung' => $contact->noidung,
+                    'trang_thai' => $contact->trang_thai, 
                 ];
             });
 
@@ -49,6 +50,7 @@ class ContactController extends Controller
         $contact = Contact::create([
             'noidung' => $validated['noidung'],
             'user_id' => $user->id, // Dùng id của người dùng đã đăng nhập
+            'trang_thai' => 'Chưa phản hồi', // Trạng thái mặc định
         ]);
 
         // Trả về phản hồi JSON với thông tin người dùng
@@ -84,24 +86,24 @@ class ContactController extends Controller
     }
     public function sendResponse($contactId)
     {
-        // Lấy thông tin contact
-        $contact = Contact::with('user:id,ho_ten,email,so_dien_thoai')
-            ->find($contactId);
-
+        $contact = Contact::with('user:id,ho_ten,email,so_dien_thoai')->find($contactId);
+    
         if (!$contact) {
             return response()->json(['message' => 'Không tìm thấy phản hồi'], 404);
         }
-
-        // Phản hồi từ admin
+    
         $admin_reply = "Cảm ơn bạn đã gửi phản hồi. Chúng tôi sẽ xem xét và xử lý vấn đề của bạn trong thời gian sớm nhất.";
-
+    
         // Gửi email cho người dùng
         Mail::to($contact->user->email)->send(new ContactsMail([
             'ho_ten' => $contact->user->ho_ten,
             'noidung' => $contact->noidung,
         ], $admin_reply));
-
-        return response()->json(['message' => 'Đã gửi phản hồi qua email'], 200);
+    
+        // Cập nhật trạng thái thành "Đã phản hồi"
+        $contact->update(['trang_thai' => 'Đã phản hồi']);
+    
+        return response()->json(['message' => 'Đã gửi phản hồi qua email và cập nhật trạng thái'], 200);
     }
     // Hiển thị thông tin contact theo ID
     public function show($id)
