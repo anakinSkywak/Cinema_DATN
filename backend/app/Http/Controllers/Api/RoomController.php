@@ -146,7 +146,7 @@ class RoomController extends Controller
             ], 404);
         }
         // show all ghế theo phòng đó theo id
-        $allSeatRoom = DB::table('seats')->where('room_id', $roomID->id)->get();
+        $allSeatRoom = DB::table('seats')->where('room_id', $roomID->id)->whereNull('deleted_at')->get();
 
         if ($allSeatRoom->isEmpty()) {
             return response()->json([
