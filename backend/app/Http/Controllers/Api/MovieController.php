@@ -480,5 +480,44 @@ class MovieController extends Controller
         ], 200);
     } // bỏ
 
+    public function phimDangChieu(){
+        $data = Movie::query()
+                     ->where('hinh_thuc_phim', 'Đang chiếu')
+                    //  ->select('id', 'ten_phim', 'hinh_thuc_phim', 'thoi_gian_chieu') // Chỉ chọn những trường cần thiết
+                     ->get();
+    
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phim đang chiếu.',
+                'data' => []
+            ], 404);
+        }
+    
+        return response()->json([
+            'message' => 'Lấy danh sách phim đang chiếu thành công.',
+            'data' => $data
+        ], 200);
+    }
+
+    
+    public function phimSapChieu(){
+        $data = Movie::query()
+                     ->where('hinh_thuc_phim', 'Sắp chiếu')
+                    //  ->select('id', 'ten_phim', 'hinh_thuc_phim', 'thoi_gian_chieu') // Chỉ chọn những trường cần thiết
+                     ->get();
+    
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có phim sắp chiếu.',
+                'data' => []
+            ], 404);
+        }
+    
+        return response()->json([
+            'message' => 'Lấy danh sách phim sắp chiếu thành công.',
+            'data' => $data
+        ], 200);
+    }
+    
 
 }

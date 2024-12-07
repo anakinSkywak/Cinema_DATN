@@ -35,7 +35,7 @@ class StatisticalController extends Controller
             'data' => $data
         ], 200);
     }
-    // thông kê doanh thu bán vé, theo ngày,tuần,tháng,năm
+    // thông kê tổng doanh thu bán vé, theo ngày,tuần,tháng,năm
 
     public function doanhThuBanVe(Request $request)
     {
@@ -392,4 +392,46 @@ class StatisticalController extends Controller
             'data' => $result,
         ], 200);
     }
+
+    public function doanhThuTatCaPhimTrongNgay(Request $request)
+    {
+        $trangThai = 'Đã hoàn thành';
+        $ngay = $request->input('ngay'); // Ngày được gửi từ request
+    
+        if (!$ngay) {
+            return response()->json([
+                'message' => 'Vui lòng nhập ngày để thống kê doanh thu.',
+            ], 400);
+        }
+    
+        // Lấy dữ liệu doanh thu
+        $data = Payment::join('bookings', 'payments.booking_id', '=', 'bookings.id')
+            ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
+            ->where('payments.trang_thai', $trangThai)
+            ->whereDate('payments.created_at', Carbon::parse($ngay)) // Lọc theo ngày
+            ->select(
+                'movies.ten_phim',
+                'movies.anh_phim',
+                DB::raw('SUM(bookings.tong_tien) as total_revenue') // Tính tổng doanh thu từng phim
+            )
+            ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim') // Nhóm theo phim
+            ->orderBy('total_revenue', 'DESC') // Sắp xếp giảm dần theo doanh thu
+            ->get();
+    
+        // Kiểm tra dữ liệu
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu doanh thu cho ngày đã chọn.',
+                'data' => [],
+            ], 404);
+        }
+    
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê doanh thu tất cả phim trong ngày thành công.',
+            'data' => $data,
+        ], 200);
+    }
+    
 }

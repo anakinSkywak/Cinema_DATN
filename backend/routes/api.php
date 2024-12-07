@@ -220,6 +220,8 @@ Route::post('updateMovie/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'delete']);
 Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
 Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']);
+Route::get('movieDangChieu', [MovieController::class, 'phimDangChieu']);
+Route::get('movieSapChieu', [MovieController::class, 'phimSapChieu']);
 
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
@@ -373,6 +375,7 @@ Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanh
 Route::get('getTopDatVe', [StatisticalController::class, 'topNguoiMuaVeNhieuNhat']);
 Route::get('getTopVePhim', [StatisticalController::class, 'topPhimLuotveCao']);
 Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
+Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 // Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
