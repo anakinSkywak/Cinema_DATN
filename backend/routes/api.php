@@ -235,8 +235,7 @@ Route::get('movieSapChieu', [MovieController::class, 'phimSapChieu']);
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // co the dung hoac ko
 Route::get('list-showtime' , [ShowtimeController::class , 'listshowtimeByMovie']); // 1
-Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByDateMovie']); // 2 
-Route::post('showtime-by-movie/{movieID}/showtimes-by-date' , [ShowtimeController::class , 'getShowtimesTimeByDate']); // 3
+Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByMovie']); // 2 
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
 Route::post('storeShowtime', [ShowtimeController::class, 'store']);
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
