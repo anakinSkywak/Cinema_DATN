@@ -116,7 +116,7 @@ Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieControlle
 
 
 
-Route::post('/select-seat', [BookingController::class, 'selectSeat']); //
+
 
 Route::middleware('auth:api')->group(function () {
 
@@ -126,7 +126,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('book-ticket', [BookingController::class, 'Bookticket']);
 
     // khóa ghế khi user chọn ghế và đến trang chọn đồ ăn
-    Route::post('seat-lock', [BookingController::class, 'lockSeat']);
+    Route::post('seat-lock', [BookingController::class, 'lockSeat']); // bỏ
+
+
+    Route::post('/select-seat', [BookingController::class, 'selectSeat']);  //
 
     // 4 user
     //http://127.0.0.1:8000/api/booking
@@ -179,7 +182,7 @@ Route::get('payment-all', [PaymentController::class, 'index']);
 // Ánh booking detail all , tìm đơn của khách , xác nhận khách đến
 Route::get('booking-detail-all', [BookingDetailController::class, 'bookingDetailAll']);
 Route::get('search-booking-detail/{search}', [BookingDetailController::class, 'searchBookingDetail']);
-Route::put('confirm-booking-detail/{id}', [BookingDetailController::class, 'confirmArrival']);
+Route::put('confirm-booking-detail/{id}', [BookingDetailController::class, 'confirmArrival_ExBill']);
 
 
 //Ánh call api rooms
@@ -228,9 +231,10 @@ Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword'])
 
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
-Route::get('showtimes', [ShowtimeController::class, 'index']);
-Route::get('list-showtime' , [ShowtimeController::class , 'listshowtimeByMovie']);
-Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByMovie']);
+Route::get('showtimes', [ShowtimeController::class, 'index']); // co the dung hoac ko
+Route::get('list-showtime' , [ShowtimeController::class , 'listshowtimeByMovie']); // 1
+Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByDateMovie']); // 2 
+Route::post('showtime-by-movie/{movieID}/showtimes-by-date' , [ShowtimeController::class , 'getShowtimesTimeByDate']); // 3
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
 Route::post('storeShowtime', [ShowtimeController::class, 'store']);
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);

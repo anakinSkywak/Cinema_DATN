@@ -447,7 +447,14 @@ class MovieController extends Controller
                 ->where('thongtinchieu_id', $showtime->id)
                 ->where('trang_thai', 3) // Ghế đang dc chọn hàng đợi
                 ->pluck('ghengoi_id');
-                // dd($selectedSeats);
+            // dd($selectedSeats);
+
+
+            // $seatDrum = DB::table('seat_showtime_status')
+            //     ->where('thongtinchieu_id', $showtime->id)
+            //     ->where('trang_thai', 0) // Ghế trống
+            //     ->pluck('ghengoi_id');
+
 
             // Truy vấn trạng thái bảo trì của ghế từ bảng 'seats
             $maintenanceSeats = DB::table('seats')

@@ -24,22 +24,21 @@ class PaymentController extends Controller
 {
 
 
-    public function index(){
+    public function index()
+    {
 
         $payment = Payment::all();
 
-        if($payment->isEmpty()){
+        if ($payment->isEmpty()) {
             return response()->json([
                 'message' => 'Không payment nào'
-            ] , 404);
+            ], 404);
         }
 
         return response()->json([
             'message' => 'All payment',
             'data' => $payment
-        ] , 200);
-
-    
+        ], 200);
     }
 
     // nhân viên
@@ -128,28 +127,28 @@ class PaymentController extends Controller
         $payment->ngay_thanh_toan = Carbon::now();
         $payment->save();
 
-        // 'credit_card','paypal','cash','bank_transfer','vietqr','vnpay','viettel_money','payoo','mastercard','visa','ncb','jcb'
+        
         switch ($method) {
             case 'ncb':
-                return $this->paymentNCB($booking, $money, $payment);
+                return $this->paymentNCB( $booking, $money, $payment);
             case 'mastercard':
                 return $this->paymentMasterCard($booking, $money, $payment);
             case 'visa':
-                return $this->paymentVISA($booking, $money, $payment); 
+                return $this->paymentVISA($booking, $money, $payment);
             default:
                 return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
         }
     }
 
 
-    public function paymentNCB($booking, $money, $payment)
+    public function paymentNCB( $booking, $money, $payment)
     {
         // Cấu hình của VNPAY
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-       //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
-       $vnp_ReturnUrl = "http://localhost:8000/api/payment/ncb-return"; // URL xử lý sau khi thanh toán
+        //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
+        $vnp_ReturnUrl = "http://localhost:8000/api/payment/ncb-return"; // URL xử lý sau khi thanh toán
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
@@ -157,7 +156,19 @@ class PaymentController extends Controller
         $vnp_Amount = intval($money * 100); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
         $vnp_Locale = "vn";
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-        $vnp_BankCode = "NCB"; // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
+        $vnp_BankCode = "NCB";
+        // if ($method == "ncb") {
+        //     $vnp_BankCode = "NCB";
+        // } elseif ($method == "mastercard") {
+        //     $vnp_BankCode = "MasterCard";
+        // } elseif ($method == "visa") {
+        //     $vnp_BankCode = "MasterCard";
+        // } else {
+        //     return response()->json([
+        //         'error' => 'Không xác định phương thức',
+        //     ]);
+        // }
+        // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
 
         // Dữ liệu cần gửi cho VNPAY
         $inputData = array(
@@ -261,6 +272,7 @@ class PaymentController extends Controller
                 BookingDetail::insert([
                     'booking_id' => $booking->id,
                     'payment_id' => $payment->id,
+                    'barcode' => $booking->barcode
                     //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
@@ -272,11 +284,10 @@ class PaymentController extends Controller
 
                 // return response()->json([
                 //     'message' => 'Thanh toán ok',
-                    
+
                 // ], 200);
 
                 return redirect('http://localhost:5173/profile');
-
             } else {
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
                 return response()->json([
@@ -300,7 +311,7 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-      
+
         //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
         $vnp_ReturnUrl = "http://localhost:8000/api/payment/visa-return"; // URL xử lý sau khi thanh toán
 
@@ -415,6 +426,7 @@ class PaymentController extends Controller
                 BookingDetail::insert([
                     'booking_id' => $booking->id,
                     'payment_id' => $payment->id,
+                    'barcode' => $booking->barcode
                     //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
@@ -447,7 +459,7 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        
+
         //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
         $vnp_ReturnUrl = "http://localhost:8000/api/payment/mastercard-return"; // URL xử lý sau khi thanh toán
 
@@ -562,6 +574,7 @@ class PaymentController extends Controller
                 BookingDetail::insert([
                     'booking_id' => $booking->id,
                     'payment_id' => $payment->id,
+                    'barcode' => $booking->barcode
                     //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 

@@ -115,6 +115,12 @@ class BookingController extends Controller
     // hàm realtime chọn ghế chặn realtime và bỏ chặn khi ấn lại ghế
     public function selectSeat(Request $request)
     {
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);
+        }
+
         $seatId = $request->input('ghengoi_id');
         $showtimeId = $request->input('thongtinchieu_id');
 
@@ -142,6 +148,7 @@ class BookingController extends Controller
             return response()->json([
                 'message' => 'Ghế đã được bỏ chọn thành công',
                 'data' => $seatId,
+               'user_id' =>$user->id
             ]);
         }
 
@@ -159,6 +166,7 @@ class BookingController extends Controller
             return response()->json([
                 'message' => 'Ghế đã được chọn thành công',
                 'data' => $seatId,
+                'user_id' =>$user->id
             ]);
         }
     }
@@ -183,7 +191,11 @@ class BookingController extends Controller
             'ghi_chu' => 'nullable|string|max:255',
         ]);
 
+        
+
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
+
+        // check khi chọn ghế đã có rồi có ở seat_showtime_statu với trạng thái là 1 đã đặt , 3 là hàng chờ có người chọn
 
 
         $selectedSeats = $request->ghe_ngoi;

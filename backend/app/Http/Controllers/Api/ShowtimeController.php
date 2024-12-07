@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class ShowtimeController extends Controller
 {
 
-
+    //1
     // đổ ra những showtime có phim khác nhau ở list showtime
 
     public function listshowtimeByMovie(Request $request)
@@ -39,37 +39,71 @@ class ShowtimeController extends Controller
         ], 200);
     }
 
-
-    // đổ all showtime ngày giờ theo phim id đó
-    public function showtimeByMovie(Request $request, $movieID)
+    //2
+    // đổ all showtime ngày theo phim id đó
+    public function showtimeByDateMovie(Request $request, $movieID)
     {
 
         // truy vấn lấy showtime theo khác nhau
-        $showtimeByMovie = Showtime::with('movie:id,ten_phim', 'room:id,ten_phong_chieu')
-            ->where('phim_id', $movieID)
+        $showtimeByMovieByDate = Showtime::where('phim_id', $movieID)
+            ->selectRaw('DATE(ngay_chieu) as ngay_chieu')
+            ->distinct()
             ->orderBy('ngay_chieu', 'asc')
             ->get();
 
-        if (!$showtimeByMovie) {
+        if (!$showtimeByMovieByDate) {
             return response()->json([
-                'message' => 'Không có xuất chiếu theo id phim này !',
-                'data' => $showtimeByMovie,
+                'message' => 'Không ngày chiếu theo id phim này !',
+                'data' => $showtimeByMovieByDate,
             ], 400);
         }
 
 
-        if ($showtimeByMovie->isEmpty()) {
+        if ($showtimeByMovieByDate->isEmpty()) {
             return response()->json([
-                'message' => 'Không có xuất chiếu theo id phim này , thêm xuất chiếu với phim đó !',
-                'data' => $showtimeByMovie,
+                'message' => 'Không ngày chiếu theo id phim này , thêm xuất chiếu với phim đó !',
+                'data' => $showtimeByMovieByDate,
             ], 404);
         }
 
         return response()->json([
-            'message' => 'Tất cả xuất chiếu theo phim id',
-            'data' => $showtimeByMovie,
+            'message' => 'Tất cả ngày chiếu của xuất chiếu theo phim id',
+            'data' => $showtimeByMovieByDate,
         ], 200);
     }
+
+
+    //3
+    // đổ all giờ khi ấn vào ngày 
+    public function getShowtimesTimeByDate(Request $request, $movieID)
+    {
+        $validated = $request->validate([
+            'ngay_chieu' => 'required|date',
+        ]);
+
+        $date = $validated['ngay_chieu'];
+
+
+        $allTimeByDate = Showtime::with('movie:id,ten_phim', 'room:id,ten_phong_chieu')
+            ->where('phim_id', $movieID)
+            ->whereDate('ngay_chieu', $date)
+            ->orderBy('gio_chieu', 'asc')
+            ->get();
+
+        if ($allTimeByDate->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có giờ chiếu nào của ngày đã chọn !',
+                'data' => [],
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Lấy tất cả giờ chiếu theo ngày thành công',
+            'data' => $allTimeByDate,
+        ], 200);
+    }
+
+
 
     // đổ all showtime ( có thể dùng hoặc không )
 
