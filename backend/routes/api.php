@@ -66,7 +66,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::middleware('auth:api')->group(function () {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
-
+        Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
         Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
@@ -228,6 +228,8 @@ Route::post('updateMovie/{id}', [MovieController::class, 'update']);
 Route::delete('movies/{id}', [MovieController::class, 'delete']);
 Route::get('movieFilter/{id}', [MovieController::class, 'movieFilter']);
 Route::get('movieFilterKeyword', [MovieController::class, 'movieFilterKeyword']);
+Route::get('movieDangChieu', [MovieController::class, 'phimDangChieu']);
+Route::get('movieSapChieu', [MovieController::class, 'phimSapChieu']);
 
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
@@ -301,7 +303,7 @@ Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 
 //call api CouponCodeTaken T
 Route::middleware(['auth:api'])->post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
-Route::middleware(['auth:api'])->get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+
 //call api countdown_vouchers T
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
 Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
@@ -389,6 +391,7 @@ Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanh
 Route::get('getTopDatVe', [StatisticalController::class, 'topNguoiMuaVeNhieuNhat']);
 Route::get('getTopVePhim', [StatisticalController::class, 'topPhimLuotveCao']);
 Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
+Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 // Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);

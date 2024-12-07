@@ -44,10 +44,12 @@ class CouponCodeTakenController extends Controller
             ->get();
         // Xóa các mã giảm giá đã hết hạn hơn 2 ngày
         foreach ($coupons as $coupon) {
-            // Kiểm tra nếu mã đã hết hạn hơn 2 ngày
+            if (!isset($coupon->id)) {
+                continue; // Bỏ qua nếu không có id
+            }
+        
             $expiredDate = Carbon::parse($coupon->ngay_het_han);
             if ($expiredDate->lt($currentDate->subDays(2))) {
-                // Xóa mã giảm giá của người dùng
                 DB::table('coupon_code_takens')
                     ->where('id', $coupon->id)
                     ->delete();

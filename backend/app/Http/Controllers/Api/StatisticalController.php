@@ -35,7 +35,7 @@ class StatisticalController extends Controller
             'data' => $data
         ], 200);
     }
-    // thông kê doanh thu bán vé, theo ngày,tuần,tháng,năm
+    // thông kê tổng doanh thu bán vé, theo ngày,tuần,tháng,năm
 
     public function doanhThuBanVe(Request $request)
     {
@@ -69,19 +69,18 @@ class StatisticalController extends Controller
         ], 200);
     }
 
-
-    //  nhập thời gian để thống kê doanh thu theo thời gian
+        // lọc đồ ăn theo ngày, tháng, năm
     public function doanhThuDoAn(Request $request)
     {
         // Lấy trạng thái thanh toán và tham số thời gian từ request
         $trangThai = 'Đã hoàn thành';
         $startDate = $request->input('start_date'); // Ngày bắt đầu
         $endDate = $request->input('end_date'); // Ngày kết thúc
-
+    
         // Truy vấn các booking_id từ bảng payments
         $query = Payment::query()
             ->where('trang_thai', $trangThai);
-
+    
         // Lọc theo khoảng thời gian nếu có tham số
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [
@@ -93,29 +92,49 @@ class StatisticalController extends Controller
         } elseif ($endDate) { // Chỉ có ngày kết thúc
             $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
         }
-
+    
         // Lấy danh sách ID booking từ các thanh toán thành công
         $idThanhToanThanhCong = $query->pluck('booking_id');
-
+    
         // Truy vấn các booking kèm thông tin món ăn
         $bookings = Booking::query()
-            ->with('food') // Quan hệ với bảng foods
             ->whereIn('id', $idThanhToanThanhCong) // Lọc booking theo các ID đã thanh toán thành công
             ->get();
-
+    
         // Tính tổng doanh thu từ đồ ăn
         $tongTienDoAn = 0;
         foreach ($bookings as $booking) {
-            if ($booking->food) {
-                $tongTienDoAn += $booking->so_luong_do_an * $booking->food->gia;
+            // Lấy danh sách món ăn trong trường do_an
+            $doAn = $booking->do_an;
+    
+            // Tách chuỗi món ăn và số lượng
+            $items = explode(', ', $doAn);
+    
+            foreach ($items as $item) {
+                // Tách tên món ăn và số lượng
+                preg_match('/(.*) \(x(\d+)\)/', $item, $matches);
+    
+                if (count($matches) === 3) {
+                    $foodName = $matches[1];
+                    $quantity = (int) $matches[2];
+    
+                    // Lấy giá món ăn từ bảng foods
+                    $food = Food::where('ten_do_an', $foodName)->first();
+    
+                    if ($food) {
+                        // Cộng doanh thu
+                        $tongTienDoAn += $food->gia * $quantity;
+                    }
+                }
             }
         }
-
+    
         return response()->json([
             'message' => 'Thống kê doanh thu đồ ăn thành công',
             'data' => $tongTienDoAn
         ], 200);
     }
+    
 
 
     // thông kê số lượng voucher người dùng lấy được
@@ -325,19 +344,20 @@ class StatisticalController extends Controller
     }
 
     // top phim có lượt đặt vé cao
-    public function topPhimLuotveCao($limit = 5){
+    public function topPhimLuotveCao($limit = 5)
+    {
         $data = BookingDetail::join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
-        ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
-        ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
-        ->select('movies.ten_phim', 'movies.anh_phim', DB::raw('COUNT(showtimes.phim_id) as total_tickets')) // tạo 1 cột total_tickets để tính tổng booking id có trong booking detail
-        ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim') // Nhóm theo người dùng
-        ->orderBy('total_tickets', 'DESC') // Sắp xếp theo số lượng vé giảm dần
-        ->limit($limit) // Lấy top N người
-        ->get();
+            ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
+            ->select('movies.ten_phim', 'movies.anh_phim', DB::raw('COUNT(showtimes.phim_id) as total_tickets')) // tạo 1 cột total_tickets để tính tổng booking id có trong booking detail
+            ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim') // Nhóm theo người dùng
+            ->orderBy('total_tickets', 'DESC') // Sắp xếp theo số lượng vé giảm dần
+            ->limit($limit) // Lấy top N người
+            ->get();
 
 
-         // Kiểm tra nếu không có dữ liệu
-         if ($data->isEmpty()) {
+        // Kiểm tra nếu không có dữ liệu
+        if ($data->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu thống kê.',
                 'data' => [],
@@ -353,18 +373,84 @@ class StatisticalController extends Controller
 
     // doanh thu theo tháng
     // đổ doanh thu tháng theo create at
-    public function doanhThuThang(){
-        $data = Payment::selectRaw('Month(created_at) as month, Year(created_at) as year, SUM(tong_tien) as total')
-                ->where('trang_thai', 'Đã hoàn thành')
-                ->groupByRaw('Year(created_at), Month(created_at)') // nhóm theo năm và tháng
-                ->orderByRaw('Year(created_at), Month(created_at)') // sắp xếp theo năm và tháng
-                ->get();
 
+    public function doanhThuThang()
+    {
+        // Lấy dữ liệu từ bảng payments
+        $data = Payment::selectRaw('Month(created_at) as month, Year(created_at) as year, SUM(tong_tien) as total')
+            ->where('trang_thai', 'Đã hoàn thành')
+            ->groupByRaw('Year(created_at), Month(created_at)')
+            ->orderByRaw('Year(created_at), Month(created_at)')
+            ->get();
+
+        // Lấy danh sách các tháng từ 1 đến tháng hiện tại
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+
+        $result = [];
+        for ($month = 1; $month <= $currentMonth; $month++) {
+            $result[] = [
+                'month' => $month,
+                'year' => $currentYear,
+                'total' => 0, // Mặc định doanh thu là 0
+            ];
+        }
+
+        // Gán dữ liệu doanh thu vào danh sách tháng
+        foreach ($data as $item) {
+            foreach ($result as &$res) {
+                if ($res['month'] == $item->month && $res['year'] == $item->year) {
+                    $res['total'] = $item->total; // Gán giá trị doanh thu từ kết quả truy vấn
+                }
+            }
+        }
 
         // Trả về kết quả
         return response()->json([
             'message' => 'Thống kê doanh thu theo tháng thành công',
+            'data' => $result,
+        ], 200);
+    }
+
+    public function doanhThuTatCaPhimTrongNgay(Request $request)
+    {
+        $trangThai = 'Đã hoàn thành';
+        $ngay = $request->input('ngay'); // Ngày được gửi từ request
+    
+        if (!$ngay) {
+            return response()->json([
+                'message' => 'Vui lòng nhập ngày để thống kê doanh thu.',
+            ], 400);
+        }
+    
+        // Lấy dữ liệu doanh thu
+        $data = Payment::join('bookings', 'payments.booking_id', '=', 'bookings.id')
+            ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
+            ->where('payments.trang_thai', $trangThai)
+            ->whereDate('payments.created_at', Carbon::parse($ngay)) // Lọc theo ngày
+            ->select(
+                'movies.ten_phim',
+                'movies.anh_phim',
+                DB::raw('SUM(bookings.tong_tien) as total_revenue') // Tính tổng doanh thu từng phim
+            )
+            ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim') // Nhóm theo phim
+            ->orderBy('total_revenue', 'DESC') // Sắp xếp giảm dần theo doanh thu
+            ->get();
+    
+        // Kiểm tra dữ liệu
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu doanh thu cho ngày đã chọn.',
+                'data' => [],
+            ], 404);
+        }
+    
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê doanh thu tất cả phim trong ngày thành công.',
             'data' => $data,
         ], 200);
     }
+    
 }
