@@ -28,27 +28,20 @@ class VoucherController extends Controller
     // Thêm mới Voucher
     public function store(Request $request)
     {
-        $request->validate([
+
+        $validated = $request->validate([
             'ma_giam_gia' => 'required|string|max:255',
-            'muc_giam_gia' => 'required|numeric|min:0',
+            'muc_giam_gia' => 'required|numeric',
             'mota' => 'required|string|max:255',
+            'ngay_het_han' => 'required|date',
             'so_luong' => 'required|integer|min:1',
-            'so_luong_da_su_dung' => 'nullable|integer|min:0',
-            'gia_don_toi_thieu' => 'required|numeric|min:0',
         ]);
 
-        $voucher = Voucher::create([
-            'ma_giam_gia' => $request->ma_giam_gia,
-            'muc_giam_gia' => $request->muc_giam_gia,
-            'mota' => $request->mota,
-            'so_luong' => $request->so_luong,
-            'so_luong_da_su_dung' => $request->so_luong_da_su_dung ?? 0,
-            'gia_don_toi_thieu' => $request->gia_don_toi_thieu,
-        ]);
+        $vouhchers = Voucher::create($validated);
 
         return response()->json([
             'message' => 'Thêm mới voucher thành công',
-            'data' => $voucher,
+            'data' => $vouhchers
         ], 201);
     }
 
@@ -99,11 +92,10 @@ class VoucherController extends Controller
 
         $validated = $request->validate([
             'ma_giam_gia' => 'required|string|max:255',
-            'muc_giam_gia' => 'required|numeric|min:0',
-            'gia_don_toi_thieu' => 'required|numeric|min:0',
+            'muc_giam_gia' => 'required|numeric',
             'mota' => 'required|string|max:255',
+            'ngay_het_han' => 'required|date',
             'so_luong' => 'required|integer|min:1',
-            'so_luong_da_su_dung' => 'nullable|integer|min:0',
         ]);
 
         $voucher->update($validated);

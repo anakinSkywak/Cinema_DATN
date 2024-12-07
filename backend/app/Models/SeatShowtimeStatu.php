@@ -15,7 +15,8 @@ class SeatShowtimeStatu extends Model
     protected $fillable = [
         'ghengoi_id',
         'thongtinchieu_id',
-        'trang_thai'
+        'trang_thai',
+        'gio_chieu',
     ];
 
     // 

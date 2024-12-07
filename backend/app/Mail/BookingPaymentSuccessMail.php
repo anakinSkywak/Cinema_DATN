@@ -13,6 +13,8 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Milon\Barcode\Facades\DNS1DFacade;
+use Milon\Barcode\Facades\DNS2DFacade;
 
 
 class BookingPaymentSuccessMail extends Mailable
@@ -41,15 +43,21 @@ class BookingPaymentSuccessMail extends Mailable
     public function build()
     {
 
+
+        $qrbarcode = DNS1DFacade::getBarcodeHTML($this->booking->barcode, 'C128');
+      
         // Tạo PDF từ view
         $pdf = FacadePdf::loadView('emails.pdf_invoice', [
             'booking' => $this->booking,
             'payment' => $this->payment,
             'room' => $this->room,
             'showtime' => $this->showtime,
+            'barcode' => $qrbarcode,
         ]);
 
         // Set font mặc định DejaVu Sans
+
+        $pdf->setPaper('A5', 'portrait');
         $pdf->setOption('defaultFont', 'dejavusans');
 
         // Tạo và tải file PDF
@@ -62,7 +70,8 @@ class BookingPaymentSuccessMail extends Mailable
                 'payment' => $this->payment,
                 'room' => $this->room,
                 'showtime' => $this->showtime,
-            ])->attachData($pdf->output(), 'thongtinchitietvephim.pdf', [
+                'barcode' => $qrbarcode,
+            ])->attachData($pdf->output(), 've_xem_phim.pdf', [
                 'mime' => 'application/pdf',
             ]);
     }

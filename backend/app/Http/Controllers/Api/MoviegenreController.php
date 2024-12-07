@@ -10,9 +10,10 @@ class MoviegenreController extends Controller
 {
 
 
+    // xuất all thể loại phim
     public function index()
     {
-        
+
         $moviegenreall = MovieGenre::all();
 
         if ($moviegenreall->isEmpty()) {
@@ -28,6 +29,7 @@ class MoviegenreController extends Controller
     }
 
 
+    // thêm mới thể loại phim
     public function store(Request $request)
     {
 
@@ -35,17 +37,26 @@ class MoviegenreController extends Controller
             'ten_loai_phim' => 'required|string|max:255',
         ]);
 
+        // check ten_loai_phim đã có nếu thêm mới 1 thể loại giống 
+        $checkGenre = MovieGenre::where('ten_loai_phim', $validated['ten_loai_phim'])->exists();
+
+        if ($checkGenre) {
+            return response()->json([
+                'message' => 'Tên thể loại phim này đã tồn tại !',
+                'data' => $checkGenre
+            ], 422); //  422 là yêu cầu không hợp lệ
+        }
 
         $moviegenre = MovieGenre::create($validated);
 
         return response()->json([
             'message' => 'Thêm mới loai phim thành công',
             'data' => $moviegenre
-        ], 201); 
-
+        ], 201);
     }
 
 
+    // show MovieGenre theo id
     public function show(string $id)
     {
         // show MovieGenre theo id
@@ -53,17 +64,18 @@ class MoviegenreController extends Controller
 
         if (!$moviegenreID) {
             return response()->json([
-                'error' => 'Không có dữ liệu MovieGenre theo id : ' .$id,
+                'error' => 'Không có dữ liệu MovieGenre theo id : ' . $id,
             ], 404);
         }
 
         return response()->json([
             'message' => 'Lấy thông tin MovieGenre theo ID thành công',
             'data' => $moviegenreID,
-        ], 200); 
-    } 
+        ], 200);
+    }
 
-
+    
+    // đưa đến trang edit đổ thông tin theo id
     public function edit(string $id)
     {
         // show MovieGenre theo id
@@ -71,23 +83,24 @@ class MoviegenreController extends Controller
 
         if (!$moviegenreID) {
             return response()->json([
-                'error' => 'Không có dữ liệu MovieGenre theo id : ' .$id,
-            ], 404); 
+                'error' => 'Không có dữ liệu MovieGenre theo id : ' . $id,
+            ], 404);
         }
 
         return response()->json([
             'message' => 'Lấy thông tin MovieGenre theo ID để edit thành công',
             'data' => $moviegenreID,
-        ], 200); 
+        ], 200);
     }
 
 
+    // cập nhật thông tin mới với id đó
     public function update(Request $request, string $id)
     {
-       
+
         $moviegenreID = MovieGenre::find($id);
 
-        //check khi sửa de cap nhat 
+        //check có id khi sửa de cap nhat 
         if (!$moviegenreID) {
             return response()->json([
                 'error' => 'Không tìm thấy bản ghi với ID : ' . $id
@@ -98,17 +111,27 @@ class MoviegenreController extends Controller
             'ten_loai_phim' => 'required|string|max:255',
         ]);
 
+        // check nếu thay đổi tên phòng chiếu khác không được trùng với bản ghi id khác
+        // nhưng được phép cùng với id bản ghi hiện tại 
+        $checkGenre = MovieGenre::where('ten_loai_phim', $validated['ten_loai_phim'])->where('id' , '!=' , $id)->exists();
+
+        if ($checkGenre) {
+            return response()->json([
+                'message' => 'Thể loại phim này đã tồn tại rồi !',
+            ], 409); // 409 xung đột
+        }
+
         // cap nhat
         $moviegenreID->update($validated);
 
-        
         return response()->json([
             'message' => 'Cập nhật dữ liệu MovieGenre theo id thành công',
             'data' => $moviegenreID
         ], 200);
     }
 
-
+    
+    // xóa theo id
     public function delete(string $id)
     {
         // xoa theo id có softdelete
@@ -117,7 +140,7 @@ class MoviegenreController extends Controller
         // check xem co du lieu hay ko
         if (!$moviegenreID) {
             return response()->json([
-                'message' => 'Không có dữ liệu MovieGenre theo id :' .$id,
+                'message' => 'Không có dữ liệu MovieGenre theo id :' . $id,
             ], 404);
         }
 
@@ -127,8 +150,4 @@ class MoviegenreController extends Controller
             'message' => 'Xóa MovieGenre theo id thành công'
         ], 200);
     }
-
-    
 }
-
-

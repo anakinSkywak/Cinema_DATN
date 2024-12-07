@@ -66,9 +66,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::middleware('auth:api')->group(function () {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
-        //call api CouponCodeTaken T
-        Route::post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
-        Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
         Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
@@ -118,12 +116,17 @@ Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieControlle
 
 
 
+Route::post('/select-seat', [BookingController::class, 'selectSeat']); //
+
 Route::middleware('auth:api')->group(function () {
 
     // nhân viên book vé cho khách
     //5
     //http://127.0.0.1:8000/api/book-ticket
     Route::post('book-ticket', [BookingController::class, 'Bookticket']);
+
+    // khóa ghế khi user chọn ghế và đến trang chọn đồ ăn
+    Route::post('seat-lock', [BookingController::class, 'lockSeat']);
 
     // 4 user
     //http://127.0.0.1:8000/api/booking
@@ -163,9 +166,9 @@ Route::get('movie-book-id/{movieID}/showtime-date/{date}/{time}', [BookingTicket
 
 
 // return user 
-Route::get('payment/NCB-return', [PaymentController::class, 'NCBReturn']);
-Route::get('payment/MasterCard-return', [PaymentController::class, 'mastercardReturn']);
-Route::get('payment/Visa-return', [PaymentController::class, 'visaReturn']);
+Route::get('payment/ncb-return', [PaymentController::class, 'NCBReturn']);
+Route::get('payment/mastercard-return', [PaymentController::class, 'mastercardReturn']);
+Route::get('payment/visa-return', [PaymentController::class, 'visaReturn']);
 
 
 // booking all bên admin
@@ -189,11 +192,13 @@ Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);
 Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
 Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
+Route::delete('delete-all-seatbyroom/{id}' , [RoomController::class , 'deleteAllSeatByRoom']);
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']);
 Route::get('addSeat', [SeatController::class, 'addSeat']);
+Route::post('storeOneSeat', [SeatController::class, 'storeOneSeat']);
 Route::post('storeSeat', [SeatController::class, 'store']);
 Route::get('showSeat/{id}', [SeatController::class, 'show']);
 Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
@@ -226,12 +231,15 @@ Route::get('movieSapChieu', [MovieController::class, 'phimSapChieu']);
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']);
+Route::get('list-showtime' , [ShowtimeController::class , 'listshowtimeByMovie']);
+Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByMovie']);
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
 Route::post('storeShowtime', [ShowtimeController::class, 'store']);
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
+Route::get('search-showtime' , [ShowtimeController::class , 'searchShowtimes']);
 
 
 // Ánh : call api Foods
@@ -287,8 +295,11 @@ Route::get('rotations', [RotationsController::class, 'index']);
 Route::post('rotations', [RotationsController::class, 'store']);
 Route::get('rotations/{id}', [RotationsController::class, 'show']);
 Route::put('rotations/{id}', [RotationsController::class, 'update']);
-Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);   
+Route::delete('rotations/{id}', [RotationsController::class, 'destroy']);
 
+//call api CouponCodeTaken T
+Route::middleware(['auth:api'])->post('/spin-voucher', [CouponCodeTakenController::class, 'spinVoucher']);
+Route::middleware(['auth:api'])->get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
 //call api countdown_vouchers T
 Route::get('countdown_vouchers/', [CountdownVoucherController::class, 'index']);
 Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
@@ -296,22 +307,23 @@ Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show'
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
 // call api type_blogs T
-Route::get('type_blogs', [TypeBlogController::class, 'index']); 
-Route::post('type_blogs', [TypeBlogController::class, 'store']); 
-Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);  
-Route::post('type_blogs/{id}', [TypeBlogController::class, 'update']);  
-Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']); 
+Route::get('type_blogs', [TypeBlogController::class, 'index']);
+Route::post('type_blogs', [TypeBlogController::class, 'store']);
+Route::get('type_blogs/{id}', [TypeBlogController::class, 'show']);
+Route::post('type_blogs/{id}', [TypeBlogController::class, 'update']);
+Route::delete('type_blogs/{id}', [TypeBlogController::class, 'destroy']);
 // call api BlogController T
-Route::get('blogs', [BlogController::class, 'index']); 
-Route::post('blogs', [BlogController::class, 'store']); 
-Route::get('blogs/{id}', [BlogController::class, 'show']);  
+Route::get('blogs', [BlogController::class, 'index']);
+Route::post('blogs', [BlogController::class, 'store']);
+Route::get('blogs/{id}', [BlogController::class, 'show']);
 Route::post('blogs/{id}', [BlogController::class, 'update']);
-Route::delete('blogs/{id}', [BlogController::class, 'delete']);  
+Route::delete('blogs/{id}', [BlogController::class, 'delete']);
 //cal api contacts T
 Route::get('contacts/{id}', [ContactController::class, 'show']);
 Route::get('/contact-details', [ContactController::class, 'getContactDetails'])
     ->name('contacts.details');
-Route::post('contacts', [ContactController::class, 'store']);
+
+Route::middleware(['auth:api'])->post('contacts', [ContactController::class, 'store']);
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);

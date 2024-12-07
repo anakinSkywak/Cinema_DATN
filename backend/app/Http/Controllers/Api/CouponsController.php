@@ -17,12 +17,12 @@ class CouponsController extends Controller
 
         if ($coupons->isEmpty()) {
             return response()->json([
-                'message' => 'Không có dữ liệu mã giảm giá !',
+                'message' => 'Không có dữ liệu mã giảm giá!',
             ], 200);
         }
 
         return response()->json([
-            'message' => 'Xuất dữ liệu mã giảm giá  thành công',
+            'message' => 'Xuất dữ liệu mã giảm giá thành công',
             'data' => $coupons,
         ], 200);
     }
@@ -32,22 +32,33 @@ class CouponsController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate dữ liệu đầu vào
         $validated = $request->validate([
             'ma_giam_gia' => 'required|string|max:255',
             'muc_giam_gia' => 'required|numeric|min:0',
+            'gia_don_toi_thieu' => 'nullable|numeric|min:0|max:100',
+            'Giam_max' => 'nullable|numeric|min:0',
             'mota' => 'required|string|max:255',
             'so_luong' => 'required|integer|min:1',
             'so_luong_da_su_dung' => 'nullable|integer|min:0',
-            'gia_don_toi_thieu' => 'nullable|numeric|min:0',
             'trang_thai' => 'nullable|boolean',
         ]);
-
-        $coupon = Coupon::create($validated); // Tạo mới Coupon
-
+    
+        // Kiểm tra xem mã giảm giá đã tồn tại chưa
+        $existingCoupon = Coupon::where('ma_giam_gia', $validated['ma_giam_gia'])->first();
+        if ($existingCoupon) {
+            return response()->json([
+                'message' => 'Mã giảm giá với tên này đã tồn tại. Vui lòng chọn mã khác.',
+            ], 400); // Mã trạng thái HTTP 400 - Bad Request
+        }
+    
+        // Tạo mới Coupon
+        $coupon = Coupon::create($validated);
+    
         return response()->json([
             'message' => 'Thêm mới mã giảm giá thành công',
             'data' => $coupon,
-        ], 201);
+        ], 201); // Mã trạng thái HTTP 201 - Created
     }
 
     /**
@@ -59,44 +70,61 @@ class CouponsController extends Controller
 
         if (!$coupon) {
             return response()->json([
-                'message' => 'Không có dữ liệu mã giảm theo ID này',
+                'message' => 'Không có dữ liệu mã giảm giá theo ID này',
             ], 404);
         }
 
         return response()->json([
-            'message' => 'Lấy thông tin mã giảm giá  thành công',
+            'message' => 'Lấy thông tin mã giảm giá thành công',
             'data' => $coupon,
         ], 200);
     }
+
     /**
      * Cập nhật thông tin một Coupon.
      */
     public function update(Request $request, string $id)
     {
-        $coupon = Coupon::find($id); // Tìm Coupon theo ID
-
+        // Tìm Coupon theo ID
+        $coupon = Coupon::find($id);
+    
         if (!$coupon) {
             return response()->json([
-                'message' => 'Không có dữ liệu Coupon theo ID này',
-            ], 404);
+                'message' => 'Không có dữ liệu mã giảm giá theo ID này',
+            ], 404); // Mã trạng thái HTTP 404 - Not Found
         }
-
+    
+        // Validate dữ liệu đầu vào
         $validated = $request->validate([
             'ma_giam_gia' => 'sometimes|required|string|max:255',
-            'muc_giam_gia' => 'sometimes|required|numeric|min:0',
+            'muc_giam_gia' => 'sometimes|required|numeric|min:0|max:100',
+            'gia_don_toi_thieu' => 'nullable|numeric|min:0',
+            'Giam_max' => 'nullable|numeric|min:0', // Thêm trường giảm tối đa
             'mota' => 'sometimes|required|string|max:255',
             'so_luong' => 'sometimes|required|integer|min:1',
             'so_luong_da_su_dung' => 'nullable|integer|min:0',
-            'gia_don_toi_thieu' => 'nullable|numeric|min:0',
             'trang_thai' => 'nullable|boolean',
         ]);
-
-        $coupon->update($validated); // Cập nhật dữ liệu
-
+    
+        // Kiểm tra mã giảm giá đã tồn tại (trừ mã hiện tại)
+        if (isset($validated['ma_giam_gia'])) {
+            $existingCoupon = Coupon::where('ma_giam_gia', $validated['ma_giam_gia'])
+                                    ->where('id', '!=', $id)
+                                    ->first();
+            if ($existingCoupon) {
+                return response()->json([
+                    'message' => 'Mã giảm giá với tên này đã tồn tại. Vui lòng chọn mã khác.',
+                ], 400); // Mã trạng thái HTTP 400 - Bad Request
+            }
+        }
+    
+        // Cập nhật dữ liệu
+        $coupon->update($validated);
+    
         return response()->json([
             'message' => 'Cập nhật dữ liệu mã giảm giá thành công',
             'data' => $coupon,
-        ], 200);
+        ], 200); // Mã trạng thái HTTP 200 - OK
     }
 
     /**
@@ -108,7 +136,7 @@ class CouponsController extends Controller
 
         if (!$coupon) {
             return response()->json([
-                'message' => 'Không có dữ liệu Coupon theo ID này',
+                'message' => 'Không có dữ liệu mã giảm giá theo ID này',
             ], 404);
         }
 

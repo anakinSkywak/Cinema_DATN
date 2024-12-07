@@ -4,66 +4,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CineBookingHub Ticket</title>
+    <title>Vé Xem Phim</title>
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f5f5f5;
-            height: 100vh;
+            font-family: 'DejaVu Sans', sans-serif; /* Font hỗ trợ tiếng Việt */
+            background-color: #ffffff;
             margin: 0;
-            font-family: Arial, sans-serif;
+            padding: 0;
         }
 
         .ticket {
-            width: 320px;
-            background-color: white;
-            /* Màu hồng */
+            width: 100%;
+            max-width: 74mm; /* Chiều rộng A7 */
+            height: 105mm; /* Chiều cao A7 */
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
             border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-            font-size: 12px;
-            color: #000;
-            position: relative;
+            padding: 10mm; /* Padding thêm để tạo không gian cho các phần tử */
+            box-sizing: border-box;
         }
 
-        .ticket .header {
+        .header {
             text-align: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .sub-header {
+            text-align: center;
+            font-size: 10px;
             margin-bottom: 10px;
         }
 
-        .ticket .content {
-            line-height: 1.6;
-            border-top: 1px dashed #000;
-            border-bottom: 1px dashed #000;
-            padding: 10px 0;
-        }
-
-        .ticket .content .row {
+        .row {
             display: flex;
             justify-content: space-between;
+            margin-bottom: 5px;
         }
 
-        .ticket .content .row span {
-            display: inline-block;
+        .row span {
+            font-size: 9px;
         }
 
-        .ticket .barcode {
+        .content {
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+            padding: 5px 0;
+            margin-bottom: 5px;
+        }
+
+        .barcode {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
-        .ticket .barcode img {
-            width: 150px;
-            height: 150px;
+        .barcode img {
+            width: 50mm; /* Đảm bảo barcode vừa vặn với kích thước vé */
+            height: auto;
         }
 
-        .ticket .footer {
+        .footer {
             text-align: center;
-            font-size: 10px;
+            font-size: 8px;
             margin-top: 10px;
         }
     </style>
@@ -71,72 +75,74 @@
 
 <body>
     <div class="ticket">
-        <div class="header" >CineBookingHub</div>
-        <div class="header" style="font-family: 'Courier New', Courier, monospace">Vé Vào Phòng Chiếu Phim</div>
-        <br>
+        <div class="header">CineBookingHub</div>
+        <div class="sub-header">Vé Vào Phòng Chiếu Phim</div>
+
         <div class="row">
-            <strong>Rạp: CineBookingHub </strong>
-            <strong><p>Địa chỉ: Tầng 1 Tòa Nhà Thương Mại 5, Xuân Phương , Nam Từ Liêm , Hà Nội </p></strong>
+            <strong>Rạp:</strong>
+            <strong>CineBookingHub</strong>
         </div>
-        <br>
+        <div class="row">
+            <strong>Địa chỉ:</strong>
+            <span>Tầng 1, Tòa Nhà Thương Mại 5, Xuân Phương, Nam Từ Liêm, Hà Nội</span>
+        </div>
 
         <div class="content">
-
             <div class="row">
                 <span>Phim:</span>
-                <span>Batman hồi kết tử chiến</span>
+                <span>{{ $booking->showtime->movie->ten_phim }}</span>
+            </div>
+            <div class="row">
+                <span>Thời gian phim:</span>
+                <span>{{ $booking->showtime->thoi_luong_chieu }} phút</span>
             </div>
             <div class="row">
                 <span>Ngày xem phim:</span>
-                <span>29/11/2024</span>
+                <span>{{ $booking->showtime->ngay_chieu }}</span>
             </div>
             <div class="row">
                 <span>Giờ xem phim:</span>
-                <span>22:00</span>
+                <span>{{ $booking->showtime->gio_chieu }}</span>
             </div>
             <div class="row">
                 <span>Phòng chiếu:</span>
-                <span>Phòng số 1</span>
+                <span>{{ $room->ten_phong_chieu }}</span>
             </div>
             <div class="row">
                 <span>Ghế:</span>
-                <span>A1 , A2</span>
+                <span>{{ $booking->ghe_ngoi }}</span>
             </div>
             <div class="row">
                 <span>Số lượng vé/người:</span>
-                <span>2</span>
-            </div>
-            <div class="row">
-                <span>Giá vé:</span>
-                <span>195,000 VND</span>
+                <span>{{ $booking->so_luong }}</span>
             </div>
             <div class="row">
                 <span>Đồ ăn kèm:</span>
-                <span>Bỏng (x1) , Coca (x2)</span>
+                <span>{{ $booking->do_an }}</span>
             </div>
             <div class="row">
                 <span>Ngày mua:</span>
-                <span>26/11/2024</span>
+                <span>{{ $booking->ngay_mua }}</span>
             </div>
             <div class="row">
                 <span>Ghi chú:</span>
-                <span></span>
-            </div>
-            <br>
-            <div class="content">
-                <div class="row">
-                    <span>Tiền thanh toán:</span>
-                    <span>150.000 VND</span>
-                </div>
-
-            </div>
-            <div class="barcode">
-                <img src="https://i.pinimg.com/originals/24/ab/ef/24abeff2113b322d7c2df86c24ddd797.jpg" alt="Barcode">
-            </div>
-            <div class="footer">
-                Ticket No. | Thank you for choosing CineBookingHub!
+                <span>{{ $booking->ghi_chu }}</span>
             </div>
         </div>
+
+        <div class="row">
+            <strong>Tổng thanh toán:</strong>
+            <strong>{{ number_format($booking->tong_tien_thanh_toan) }} VND</strong>
+        </div>
+
+        <div class="barcode">
+            <img src="https://i.pinimg.com/originals/24/ab/ef/24abeff2113b322d7c2df86c24ddd797.jpg" alt="Barcode">
+        </div>
+
+        <div class="footer">
+            Ticket No. | Cảm ơn bạn đã chọn CineBookingHub!
+        </div>
+    </div>
 </body>
 
 </html>

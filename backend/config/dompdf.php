@@ -45,20 +45,8 @@ return [
          * Times-Roman, Times-Bold, Times-BoldItalic, Times-Italic,
          * Symbol, ZapfDingbats.
          */
-        //'font_dir' => storage_path('fonts'), // advised by dompdf (https://github.com/dompdf/dompdf/pull/782)
-        'font_dir' => storage_path('fonts'), // Đảm bảo rằng thư mục chứa font của bạn được chỉ định đúng
-        'font_cache' => storage_path('fonts'),
-        'font_types' => [
-            'dejavusans' => [
-                'normal' => 'Dejavusans.ttf',       // Font thường
-                'bold' => 'Dejavusans_Bold.ttf',    // Font đậm
-                'italic' => 'Dejavusans_Italic.ttf', // Font nghiêng
-                'bold_italic' => 'Dejavusans_Bold_italic.ttf', // Font đậm nghiêng
-            ],
-        ],
+        'font_dir' => storage_path('fonts'), // advised by dompdf (https://github.com/dompdf/dompdf/pull/782)
 
-        'default_font' => 'dejavusans', // Chỉ định font mặc định là DejaVu Sans
-        'font_height_ratio' => 1.1,  // Có thể điều chỉnh tỉ lệ chiều cao font nếu cần
         /**
          * The location of the DOMPDF font cache directory
          *
@@ -67,7 +55,7 @@ return [
          *
          * Note: This directory must exist and be writable by the webserver process.
          */
-        //'font_cache' => storage_path('fonts'),
+        'font_cache' => storage_path('fonts'),
 
         /**
          * The location of a temporary directory.
@@ -190,7 +178,7 @@ return [
          *
          * @var string
          */
-        // 'default_font' => 'serif',
+        'default_font' => 'serif',
 
         /**
          * Image DPI setting
@@ -297,7 +285,7 @@ return [
         /**
          * A ratio applied to the fonts height to be more like browsers' line height
          */
-        // 'font_height_ratio' => 1.1,
+        'font_height_ratio' => 1.1,
 
         /**
          * Use the HTML5 Lib parser

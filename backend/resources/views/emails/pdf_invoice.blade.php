@@ -4,92 +4,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh toán thành công</title>
+    <title>Vé Xem Phim</title>
+    <style>
+        body {
+            font-family: 'DejaVu Sans', sans-serif;
+            /* Font hỗ trợ tiếng Việt */
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ticket {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .sub-header {
+            text-align: center;
+            font-size: 14px;
+
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .row span {
+            font-size: 12px;
+        }
+
+        .content {
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+            padding: 10px 0;
+            margin-bottom: 10px;
+        }
+
+        .barcode {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .barcode img {
+            width: 100px;
+            height: auto;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 10px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 
-<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+<body>
+    <div class="ticket">
+        <div class="header">CineBookingHub</div>
+        <div class="sub-header">Vé Phim</div>
 
-    <div style="text-align: center; padding: 20px;">
-        <h1 style="margin-bottom: 20px;">CineBookingHub</h1>
-        <h5 style="left: 100px;">Địa chỉ : Tầng 1 Tòa Nhà Thương Mại 55 , Xuân Phương , Nam Từ Liêm , Hà Nội </h5>
-        <h3 style="margin-bottom: 20px;">Thông Tin Booking & Payment</h3>
-        <table border="1" cellpadding="10" cellspacing="0"
-            style="border-collapse: collapse; width: 60%; margin: 0 auto; background-color: #ffffff; text-align: left;">
-            <thead>
-                <tr>
-                    <th style="background-color: #f2f2f2; text-align: left; padding: 10px; width: 40%;">Thông Tin</th>
-                    <th style="background-color: #f2f2f2; text-align: left; padding: 10px; width: 60%;">Chi Tiết</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td style="padding: 10px;">Tên khách hàng</td>
-                    <td style="padding: 10px;">{{ $booking->user->ho_ten }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Số điện thoại</td>
-                    <td style="padding: 10px;">{{ $booking->user->so_dien_thoai }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Email</td>
-                    <td style="padding: 10px;">{{ $booking->user->email }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Ngày mua</td>
-                    <td style="padding: 10px;">{{ $booking->ngay_mua }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Tên phim</td>
-                    <td style="padding: 10px;">{{ $booking->showtime->movie->ten_phim }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Số lượng vé</td>
-                    <td style="padding: 10px;">{{ $booking->so_luong }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Phòng chiếu</td>
-                    <td style="padding: 10px;">{{ $room->ten_phong_chieu }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Giờ chiếu</td>
-                    <td style="padding: 10px;">{{ $booking->showtime->gio_chieu }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Ghế ngồi</td>
-                    <td style="padding: 10px;">{{ $booking->ghe_ngoi }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Đồ ăn kèm</td>
-                    <td style="padding: 10px;">{{ $booking->do_an }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Tổng tiền</td>
-                    <td style="padding: 10px;">{{ number_format($booking->tong_tien_thanh_toan) }} VND</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Phương thức thanh toán</td>
-                    <td style="padding: 10px;">{{ $payment->phuong_thuc_thanh_toan }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Trạng thái thanh toán</td>
-                    <td style="padding: 10px;">{{ $payment->trang_thai }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Ngày thanh toán</td>
-                    <td style="padding: 10px;">{{ $payment->ngay_thanh_toan }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px;">Ghi Chú</td>
-                    <td style="padding: 10px;">{{ $booking->ghi_chu }}</td>
-                </tr>
-            </tbody>
-        </table>
-        <p style="margin-top: 20px; color: #888888; font-size: 14px;">
-            Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!
-            <br> <br>
-            © Developer Bùi Văn Ánh
-        </p>
+        <div class="row">
+            <strong>Rạp:</strong>
+            <strong>CineBookingHub</strong>
+        </div>
+        <div class="row">
+            <strong>Địa chỉ:</strong>
+            <span>Tầng 1, Tòa Nhà Thương Mại 5, Xuân Phương, Nam Từ Liêm, Hà Nội</span>
+        </div>
+
+        <div class="content">
+            <div class="row">
+                <span>Phim:</span>
+                <span>{{ $booking->showtime->movie->ten_phim }}</span>
+            </div>
+            <div class="row">
+                <span>Thời gian phim:</span>
+                <span>{{ $booking->showtime->thoi_luong_chieu }} phút</span>
+            </div>
+            <div class="row">
+                <span>Ngày xem phim:</span>
+                <span>{{ $booking->showtime->ngay_chieu }}</span>
+            </div>
+            <div class="row">
+                <span>Giờ xem phim:</span>
+                <span>{{ $booking->showtime->gio_chieu }}</span>
+            </div>
+            <div class="row">
+                <span>Phòng chiếu:</span>
+                <span>{{ $room->ten_phong_chieu }}</span>
+            </div>
+            <div class="row">
+                <span>Ghế:</span>
+                <span>{{ $booking->ghe_ngoi }}</span>
+            </div>
+            <div class="row">
+                <span>Số lượng vé/người:</span>
+                <span>{{ $booking->so_luong }}</span>
+            </div>
+            <div class="row">
+                <span>Đồ ăn kèm:</span>
+                <span>{{ $booking->do_an }}</span>
+            </div>
+            <div class="row">
+                <span>Ngày mua:</span>
+                <span>{{ $booking->ngay_mua }}</span>
+            </div>
+            <div class="row">
+                <span>Ghi chú:</span>
+                <span>{{ $booking->ghi_chu }}</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <strong>Tổng thanh toán:</strong>
+            <strong>{{ number_format($booking->tong_tien_thanh_toan) }} VND</strong>
+        </div>
+
+        <div class="row" style="margin-top: 20px; white-space: nowrap;">
+            <p>Mã Barcode vé phim</p>
+
+            {!! $barcode !!}
+
+            <p>{{ $booking->barcode }}</p>
+        </div>
+
+        <div class="footer">
+            Ticket No. | Cảm ơn bạn đã chọn CineBookingHub!
+        </div>
     </div>
+
 
 </body>
 

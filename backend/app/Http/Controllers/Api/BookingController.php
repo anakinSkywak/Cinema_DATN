@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\SeatSelectedEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Food;
 use App\Models\Payment;
 use App\Models\Seat;
+use App\Models\SeatShowtimeStatu;
 use App\Models\Showtime;
 use App\Models\Voucher;
 use Auth;
@@ -20,24 +22,23 @@ use function PHPUnit\Framework\isEmpty;
 class BookingController extends Controller
 {
 
-    public function index(){
+    public function index()
+    {
 
         $booking = Booking::all();
 
-        if($booking->isEmpty()){
+        if ($booking->isEmpty()) {
             return response()->json([
                 'message' => 'Không có đơn booking nào'
-            ] , 404);
+            ], 404);
         }
 
         return response()->json([
             'message' => 'All Booking',
             'data' => $booking
-        ] , 200);
-
-    
+        ], 200);
     }
-  
+
 
     // hàm  truy vấn ghế đã lấy để thêm tên ghế ngồi vào cột ghe_ngoi
     public function getNameSeat(array $selectedSeats)
@@ -110,6 +111,59 @@ class BookingController extends Controller
         ];
     }
 
+
+    // hàm realtime chọn ghế chặn realtime và bỏ chặn khi ấn lại ghế
+    public function selectSeat(Request $request)
+    {
+        $seatId = $request->input('ghengoi_id');
+        $showtimeId = $request->input('thongtinchieu_id');
+
+        // Kiểm tra nếu ghế đã bị chọn trước đó 
+        $existingSeat = SeatShowtimeStatu::where('ghengoi_id', $seatId)
+            ->where('thongtinchieu_id', $showtimeId)
+            ->first();
+
+        // check xem ghế đã được booking hay chưa 1 là đã lưu booking rồi
+        if ($existingSeat && $existingSeat->trang_thai == 1) {
+            return response()->json([
+                'error' => 'Ghế đã được booking vé phim của khác hàng khác !',
+                'data' => $seatId,
+            ], 409);
+        }
+
+        // Nếu ghế đã chọn và người dùng muốn bỏ chọn cập nhật thành 0
+        if ($existingSeat && $existingSeat->trang_thai == 3) {
+
+            $existingSeat->update(['trang_thai' => 0]); // bỏ chọn 
+
+            //  sự kiện bỏ chọn ghế
+            event(new SeatSelectedEvent($seatId, $showtimeId));
+
+            return response()->json([
+                'message' => 'Ghế đã được bỏ chọn thành công',
+                'data' => $seatId,
+            ]);
+        }
+
+        // Nếu ghế chưa được chọn hoặc đang ở trạng thái "Trống" (0)
+        if ($existingSeat && $existingSeat->trang_thai !== 3) {
+
+            SeatShowtimeStatu::updateOrInsert(
+                ['ghengoi_id' => $seatId, 'thongtinchieu_id' => $showtimeId],
+                ['trang_thai' => 3] // 3 đang chọn
+            );
+
+            // sự kiện chọn ghế
+            event(new SeatSelectedEvent($seatId, $showtimeId));
+
+            return response()->json([
+                'message' => 'Ghế đã được chọn thành công',
+                'data' => $seatId,
+            ]);
+        }
+    }
+
+
     // Hàm xử lý đặt vé với đồ ăn và tính tiền
     public function Booking(Request $request)
     {
@@ -131,9 +185,6 @@ class BookingController extends Controller
 
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
 
-        if (!$showtime) {
-            return response()->json(['message' => 'Suất chiếu không tồn tại.'], 404);
-        }
 
         $selectedSeats = $request->ghe_ngoi;
         $seatNames = $this->getNameSeat($selectedSeats);
@@ -151,10 +202,9 @@ class BookingController extends Controller
             }
         }
 
-        //dd($doAnDetails);
+
         $doAnString = $this->formatDoAnString($doAnDetails);
 
-        //dd($doAnString);
 
         // Tính tổng tiền
         $tongTien = $this->tongTien($showtime, $selectedSeats, $tongTienDoAn);
@@ -167,6 +217,8 @@ class BookingController extends Controller
             }
             $tongTien = $result['tong_tien_sau_giam'];
         }
+
+        $barcode = 'VE-' . substr(strval(rand(10000, 999999)), 0, 6);
 
         // Tạo Booking
         $booking = Booking::create([
@@ -181,6 +233,7 @@ class BookingController extends Controller
             'ghi_chu' => $request->ghi_chu,
             'tong_tien' => $tongTien,
             'tong_tien_thanh_toan' => $tongTien,
+            'barcode' => $barcode, // ma barcode
         ]);
 
         // Cập nhật trạng thái ghế
@@ -189,7 +242,8 @@ class BookingController extends Controller
                 [
                     'ghengoi_id' => $seatId,
                     'thongtinchieu_id' => $request->thongtinchieu_id,
-                    'gio_chieu' => $showtime->gio_chieu
+                    'gio_chieu' => $showtime->gio_chieu,
+                    'ngay_chieu' => $showtime->ngay_chieu
                 ],
                 ['trang_thai' => 1]
             );
@@ -211,12 +265,13 @@ class BookingController extends Controller
                 $doAnList[] = $doan['ten_do_an'] . ' (x' . $doan['so_luong_do_an'] . ')';
             }
         }
-        return implode(', ', $doAnList); 
+        return implode(', ', $doAnList);
     }
 
     // nhan viên book vé cho khách
-    public function Bookticket(Request $request){
-        
+    public function Bookticket(Request $request)
+    {
+
         $user = auth()->user();
         if (!$user) {
             return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);

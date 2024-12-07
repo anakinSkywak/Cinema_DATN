@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Food;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class FoodController extends Controller
 {
@@ -13,7 +14,7 @@ class FoodController extends Controller
     // xuất all đồ ăn
     public function index()
     {
-       
+
         $foodall = Food::all();
         if ($foodall->isEmpty()) {
             return response()->json([
@@ -31,13 +32,22 @@ class FoodController extends Controller
     // thêm mới đồ ăn
     public function store(Request $request)
     {
- 
+
         $validated = $request->validate([
             'ten_do_an' => 'required|string|max:250',
             'gia' => 'required|numeric',
             'ghi_chu' => 'required|string|max:250',
             'anh_do_an' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // check trùng với tên đồ ăn khác trong db khi thêm mới
+        $checkNameFood = DB::table('foods')->where('ten_do_an', $request->ten_do_an)->exists();
+        if ($checkNameFood) {
+            return response()->json([
+                'message' => 'Tên đồ ăn này đã tồn tại !',
+            
+            ], 422);
+        }
 
         if ($request->hasFile('anh_do_an')) {
             $file = $request->file('anh_do_an');
@@ -53,15 +63,14 @@ class FoodController extends Controller
             'message' => 'Thêm mới Food thành công',
             'data' => $food,
             'image_url' => asset($validated['anh_do_an']),
-        ], 201); 
-
+        ], 201);
     }
 
 
     // show đồ ăn theo id
     public function show(string $id)
     {
-    
+
         $foodID = Food::find($id);
         if (!$foodID) {
             return response()->json([
@@ -72,7 +81,7 @@ class FoodController extends Controller
         return response()->json([
             'message' => 'Lấy thông tin Food theo ID thành công',
             'data' => $foodID,
-        ], 200); 
+        ], 200);
     }
 
 
@@ -84,13 +93,13 @@ class FoodController extends Controller
         if (!$foodID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Food theo id này',
-            ], 404); 
+            ], 404);
         }
 
         return response()->json([
             'message' => 'Lấy thông tin Food theo ID để edit ok ',
             'data' => $foodID,
-        ], 200); 
+        ], 200);
     }
 
 
@@ -112,6 +121,15 @@ class FoodController extends Controller
                 'message' => 'Không có dữ liệu Food theo id này',
             ], 404);
         }
+
+         // check trùng với tên đồ ăn khác trong db nhưng ko phải của đồ ăn này
+         $checkNameFood = DB::table('foods')->where('ten_do_an', $request->ten_do_an)->where('id' , '!=' , $id)->exists();
+         if ($checkNameFood) {
+             return response()->json([
+                 'message' => 'Tên đồ ăn thay đổi này đã tồn tại với đồ ăn khác!',
+             
+             ], 422);
+         }
 
         $imagePath = $foodID->anh_do_an;
 
@@ -197,6 +215,4 @@ class FoodController extends Controller
             'data' => $foodID
         ], 200);
     }
-
-    
 }

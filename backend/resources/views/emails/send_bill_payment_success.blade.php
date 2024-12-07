@@ -7,7 +7,7 @@
     <title>Thanh toán thành công</title>
 </head>
 
-<body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+<body style="background-color: #f4f4f4; font-family: Arial, sans-serif;">
 
     <div style="text-align: center; padding: 20px;">
         <h1 style="margin-bottom: 20px;">CineBookingHub</h1>
@@ -86,15 +86,21 @@
                     <td style="padding: 10px;">Ghi Chú</td>
                     <td style="padding: 10px;">{{ $booking->ghi_chu }}</td>
                 </tr>
+
             </tbody>
         </table>
+
+
         <p style="margin-top: 20px; color: #888888; font-size: 14px;">
             Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!
             <br> <br>
             © Developer Bùi Văn Ánh
         </p>
     </div>
+
+
     <h3>Chi tiết thanh toán đã được đính kèm dưới dạng PDF ⬇️</h3>
+
 
 </body>
 

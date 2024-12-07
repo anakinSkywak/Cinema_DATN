@@ -6,26 +6,29 @@ use App\Http\Controllers\Controller;
 use App\Models\Room;
 use App\Models\Seat;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SeatController extends Controller
 {
 
 
+    // ghế all ( có thể dùng hoặc không )
     public function index()
     {
         $seatall = Seat::all();
-        
+
         if ($seatall->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu nào của ghế!',
             ], 404);
         }
-        
+
         return response()->json([
             'message' => 'Lấy All dữ liệu rạp phim thành công',
             'data' => $seatall,
         ], 200);
     }
+
 
     // Đưa đến form thêm ghế và đổ all phòng ra để thêm ghế theo phòng
     public function addSeat()
@@ -34,46 +37,121 @@ class SeatController extends Controller
         $roomall = Room::all();
         if ($roomall->isEmpty()) {
             return response()->json([
-                'message' => 'Không có phòng, hãy thêm phòng'
+                'message' => 'Không có phòng, hãy thêm phòng !'
             ], 404);
         }
 
         return response()->json([
-            'message' => 'Xuất all phòng ok',
+            'message' => 'Xuất tất cả phòng có thành công',
             'data' => $roomall
         ], 200);
     }
 
+
+    // thêm 1 ghế đơn lẻ 
+    public function storeOneSeat(Request $request)
+    {
+        $validated = $request->validate([
+            'room_id' => 'required|exists:rooms,id',
+            'so_ghe_ngoi' => 'required|string|max:255',
+            'loai_ghe_ngoi' => 'required|string|max:255',
+            'gia_ghe' => 'required|numeric|min:1',
+        ]);
+
+        // tổng số ghế sẽ cộng thêm 1
+        $totalSeatAddNew = 1;
+
+        //  truy vấn xem số ghế ngồi thêm đã có trong phòng chọn chưa
+        $checkNameSeat = Seat::where('room_id', $validated['room_id'])->where('so_ghe_ngoi', $validated['so_ghe_ngoi'])->exists();
+        if ($checkNameSeat) {
+            return response()->json([
+                'message' => 'Số ghế này đã có trong phòng chọn rồi !',
+                'invali_nameSeat' => $validated['so_ghe_ngoi'],
+            ], 422);
+        }
+
+        // Cập nhật số ghế trong bảng rooms
+        $room = Room::find($validated['room_id']);
+        $room->tong_ghe_phong += $totalSeatAddNew;
+        $room->save();
+
+        $oneSeat = Seat::create([
+            'so_ghe_ngoi' => $validated['so_ghe_ngoi'],
+            'loai_ghe_ngoi' => $validated['loai_ghe_ngoi'],
+            'room_id' => $validated['room_id'],
+            'gia_ghe' => $validated['gia_ghe'],
+        ]);
+
+        return response()->json([
+            'message' => 'Thêm 1 ghế theo room đã chọn thành công',
+            'seat' => $oneSeat,
+        ], 200);
+    }
+
+
+    // thêm ghế mới với 1 mảng A1-A5
     public function store(Request $request)
     {
-        // Thêm mới ghế ngồi 
+
         $validated = $request->validate([
             'room_id' => 'required|exists:rooms,id',
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
             'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
-            'seats.*.loai_ghe_ngoi' => 'required|string|max:255',
-            'seats.*.gia_ghe' => 'required|numeric',
+            'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế 
+            'seats.*.gia_ghe' => 'required|numeric|min:1', // giá ghế 
         ]);
 
 
+        // tạo mảng ghế rỗng
         $seatCreate = [];
+
+        $existingSeatsList = [];
+
+        // tổng số ghế = 0 
         $totalSeatAddNew = 0;
 
-        // Lặp qua từng ghế để thêm ghế ngồi
+        // đặt cờ kiểm tra ghế trùng hay không
+        $isAnySeatExist = false;
+
+        // lặp qua từng ghế để thêm ghế ngồi
         foreach ($validated['seats'] as $seatConfig) {
-            // Phân tích phạm vi ghế ngồi và tạo ghế
+            // phân tích phạm vi ghế ngồi và tạo ghế
             $range = explode('-', $seatConfig['range']);
             $starSeat = $range[0];
             $endSeat = $range[1];
 
-            // Tạo ghế dựa trên phạm vi đã phân tích
-            $seats = $this->generateSeats($starSeat, $endSeat, $seatConfig['loai_ghe_ngoi'], $seatConfig['gia_ghe'], $validated['room_id']);
+            // tạo ghế dựa trên phạm vi đã phân tích
+            $seats = $this->generateSeats(
+                $starSeat,
+                $endSeat,
+                $seatConfig['loai_ghe_ngoi'],
+                $seatConfig['gia_ghe'],
+                $validated['room_id'],
+                $existingSeatsList,
+            );
 
-            // Lưu tất cả ghế ngồi vào mảng kết quả
+
+            // nếu phát hiện ghế trùng dừng lại và không thêm bất kỳ ghế nào
+            if (!empty($existingSeatsList)) {
+                $isAnySeatExist = true;
+
+                // dùng việc thêm ghế
+                break;
+            }
+
+            // lưu tất cả ghế ngồi vào mảng kết quả
             $seatCreate = array_merge($seatCreate, $seats);
 
-            // Đếm tổng số ghế và thêm vào cột tong_ghe_phong của bảng rooms
+            // đếm tổng số ghế và thêm vào cột tong_ghe_phong của bảng rooms
             $totalSeatAddNew += count($seats);
+        }
+
+        // nếu ghế trùng trả về số ghế trùng của phòng đó
+        if ($isAnySeatExist) {
+            return response()->json([
+                'message' => 'Có ghế trùng trong phòng này, không thể thêm ghế mới',
+                'existing_seats' => $existingSeatsList,
+            ], 400);
         }
 
         // Cập nhật số ghế trong bảng rooms
@@ -84,25 +162,43 @@ class SeatController extends Controller
         return response()->json([
             'message' => 'Thêm mới ghế ngồi thành công',
             'data' => $seatCreate,
+            'existing_seats' => $existingSeatsList,
         ], 201);
     }
 
 
     // Hàm để tạo phạm vi ghế ngồi
-    public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id)
+    public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id, &$existingSeatsList)
     {
         $seats = [];
-        // Lấy phần chữ cái và phần số từ tên ghế bắt đầu và kết thúc
+
+        // truy vấn số ghế kiểm tra ghế khi thêm ghế trùng của phòng khi thêm
+        $existingSeats = Seat::where('room_id', $room_id)->pluck('so_ghe_ngoi')->toArray();
+
+        // lấy phần chữ cái và phần số từ tên ghế bắt đầu và kết thúc
         preg_match('/([A-Z]+)([0-9]+)/', $starSeat, $startParts);
         preg_match('/([A-Z]+)([0-9]+)/', $endSeat, $endParts);
 
-        $prefix = $startParts[1]; // Phần chữ A B C tùy thích
-        $startNum = (int)$startParts[2]; // Phần số ghế bắt đầu
-        $endNum = (int)$endParts[2]; // Phần số của ghế kết thúc (ví dụ: 15)
+        $startPrefix = $startParts[1]; // Tiền tố bắt đầu (A)
+        $endPrefix = $endParts[1];     // Tiền tố kết thúc (B)
+        $startNum = (int)$startParts[2]; // Số bắt đầu
+        $endNum = (int)$endParts[2];     // Số kết thúc
+
+        if ($startPrefix !== $endPrefix) {
+            $existingSeatsList[] = "Không hỗ trợ phạm vi khác ký tự prefix: $starSeat - $endSeat";
+            return [];
+        }
 
         // Tạo ghế từ startNum đến endNum
         for ($i = $startNum; $i <= $endNum; $i++) {
-            $seatName = $prefix . $i; // Nhập số ghế A1, A2, ..., A15
+            $seatName = $startPrefix . $i; // Ghép lại tên ghế, ví dụ: A1, A2...
+    
+            // Kiểm tra nếu ghế đã tồn tại
+            if (in_array($seatName, $existingSeats)) {
+                $existingSeatsList[] = $seatName;
+                continue; // Bỏ qua ghế đã tồn tại
+            }
+
             $seats[] = Seat::create([
                 'so_ghe_ngoi' => $seatName,
                 'loai_ghe_ngoi' => $loai_ghe_ngoi,
@@ -114,15 +210,16 @@ class SeatController extends Controller
         return $seats;
     }
 
-    
+
+    // có thể dùng hoặc không : shơw ghế theo id
     public function show(string $id)
     {
-    
+
         $seatID = Seat::find($id);
         if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này',
-            ], 404); 
+            ], 404);
         }
 
         return response()->json([
@@ -132,6 +229,7 @@ class SeatController extends Controller
     }
 
 
+    // đưa đến trang edit ghế đổ thông tin ghế theo id
     public function editSeat(string $id)
     {
 
@@ -139,15 +237,17 @@ class SeatController extends Controller
         if (!$seatID) {
             return response()->json([
                 'message' => 'Không có dữ liệu Seat theo id này',
-            ], 404); 
+            ], 404);
         }
 
         return response()->json([
             'message' => 'Lấy thông tin Seat theo ID thành công',
             'data' => $seatID,
-        ], 200); 
+        ], 200);
     }
 
+
+    // cập nhật ghế với thông tin mới
     public function update(Request $request, string $id)
     {
         // Cập nhật seat theo id 
@@ -162,8 +262,19 @@ class SeatController extends Controller
         $validated = $request->validate([
             'so_ghe_ngoi' => 'required|string|max:250',
             'loai_ghe_ngoi' => 'required|string|max:250',
-            'gia_ghe' => 'required|numeric',
+            'gia_ghe' => 'required|numeric|min:1',
         ]);
+
+        // check khi thay đổi tên ghế khi update có bị trùng với tên ghế đã có ở trong bảng theo room id ko
+        $checkNameSeatUpdateByRoom = Seat::where('room_id', $seatID->room_id)
+            ->where('so_ghe_ngoi', $validated['so_ghe_ngoi'])->where('id', '!=', $seatID->id)->exists();
+
+        if ($checkNameSeatUpdateByRoom) {
+            return response()->json([
+                'message' => 'Tên ghế đã tồn tại trong phòng với id phòng là : ' . $seatID->room_id,
+                'invalid_seat' => $validated['so_ghe_ngoi'],
+            ], 422);
+        }
 
         $seatID->update($validated);
 
@@ -173,6 +284,8 @@ class SeatController extends Controller
         ], 200);
     }
 
+
+    // xóa ghế theo id
     public function delete(string $id)
     {
 
@@ -183,12 +296,19 @@ class SeatController extends Controller
             ], 404);
         }
 
+        // lấy thông tin phòng liên kết với ghế
+        $room = Room::find($seatID->room_id);
+
         $seatID->delete();
 
+        // khi xóa 1 ghế của phòng nào giảm đi 1 tong_ghe_phong của phòng đó
+        if ($room) {
+            $room->decrement('tong_ghe_phong');
+        }
+
+
         return response()->json([
-            'message' => 'Xóa seat theo id thành công'
+            'message' => 'Xóa seat theo id thành công trừ đi 1 ghế trong Tổng Ghế Phòng của phòng theo ghế này',
         ], 200);
     }
-
-
 }
