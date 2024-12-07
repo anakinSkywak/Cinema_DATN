@@ -69,19 +69,18 @@ class StatisticalController extends Controller
         ], 200);
     }
 
-
-    //  nhập thời gian để thống kê doanh thu theo thời gian
+        // lọc đồ ăn theo ngày, tháng, năm
     public function doanhThuDoAn(Request $request)
     {
         // Lấy trạng thái thanh toán và tham số thời gian từ request
         $trangThai = 'Đã hoàn thành';
         $startDate = $request->input('start_date'); // Ngày bắt đầu
         $endDate = $request->input('end_date'); // Ngày kết thúc
-
+    
         // Truy vấn các booking_id từ bảng payments
         $query = Payment::query()
             ->where('trang_thai', $trangThai);
-
+    
         // Lọc theo khoảng thời gian nếu có tham số
         if ($startDate && $endDate) {
             $query->whereBetween('created_at', [
@@ -93,29 +92,49 @@ class StatisticalController extends Controller
         } elseif ($endDate) { // Chỉ có ngày kết thúc
             $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
         }
-
+    
         // Lấy danh sách ID booking từ các thanh toán thành công
         $idThanhToanThanhCong = $query->pluck('booking_id');
-
+    
         // Truy vấn các booking kèm thông tin món ăn
         $bookings = Booking::query()
-            ->with('food') // Quan hệ với bảng foods
             ->whereIn('id', $idThanhToanThanhCong) // Lọc booking theo các ID đã thanh toán thành công
             ->get();
-
+    
         // Tính tổng doanh thu từ đồ ăn
         $tongTienDoAn = 0;
         foreach ($bookings as $booking) {
-            if ($booking->food) {
-                $tongTienDoAn += $booking->so_luong_do_an * $booking->food->gia;
+            // Lấy danh sách món ăn trong trường do_an
+            $doAn = $booking->do_an;
+    
+            // Tách chuỗi món ăn và số lượng
+            $items = explode(', ', $doAn);
+    
+            foreach ($items as $item) {
+                // Tách tên món ăn và số lượng
+                preg_match('/(.*) \(x(\d+)\)/', $item, $matches);
+    
+                if (count($matches) === 3) {
+                    $foodName = $matches[1];
+                    $quantity = (int) $matches[2];
+    
+                    // Lấy giá món ăn từ bảng foods
+                    $food = Food::where('ten_do_an', $foodName)->first();
+    
+                    if ($food) {
+                        // Cộng doanh thu
+                        $tongTienDoAn += $food->gia * $quantity;
+                    }
+                }
             }
         }
-
+    
         return response()->json([
             'message' => 'Thống kê doanh thu đồ ăn thành công',
             'data' => $tongTienDoAn
         ], 200);
     }
+    
 
 
     // thông kê số lượng voucher người dùng lấy được
