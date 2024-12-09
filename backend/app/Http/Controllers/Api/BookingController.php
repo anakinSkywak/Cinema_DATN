@@ -140,7 +140,7 @@ class BookingController extends Controller
         // Nếu ghế đã chọn và người dùng muốn bỏ chọn cập nhật thành 0
         if ($existingSeat && $existingSeat->trang_thai == 3) {
 
-            $existingSeat->update(['trang_thai' => 0 , 'user_id'=> null]); // bỏ chọn 
+            $existingSeat->update(['trang_thai' => 0, 'user_id' => null]); // bỏ chọn 
 
             //  sự kiện bỏ chọn ghế
             event(new SeatSelectedEvent($seatId, $showtimeId));
@@ -156,7 +156,7 @@ class BookingController extends Controller
 
             SeatShowtimeStatu::updateOrInsert(
                 ['ghengoi_id' => $seatId, 'thongtinchieu_id' => $showtimeId],
-                ['trang_thai' => 3 , 'user_id'=>$user->id], // 3 đang chọn
+                ['trang_thai' => 3, 'user_id' => $user->id], // 3 đang chọn
             );
 
             // sự kiện chọn ghế
@@ -164,8 +164,8 @@ class BookingController extends Controller
 
             return response()->json([
                 'message' => 'Ghế đã được chọn thành công',
-               
-                'user_id' =>$user->id
+                'data' => $seatId,
+                'user_id' => $user->id
             ]);
         }
     }
