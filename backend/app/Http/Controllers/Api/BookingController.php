@@ -272,7 +272,7 @@ class BookingController extends Controller
 
          // Cập nhật trạng thái ghế trong seat_showtime_status
          foreach ($selectedSeats as $seatId) {
-            DB::table('seat_showtime_status')->where('thongtinchieu_id', $request->thongtinchieu_id)->where('ghengoi_id' , $seatId)->update(['trang_thai' => 1]);
+            DB::table('seat_showtime_status')->where('thongtinchieu_id', $request->thongtinchieu_id)->where('ghengoi_id' , $seatId)->update(['trang_thai' => 1 , 'user_id'=>$user->id]);
         }
        
 
