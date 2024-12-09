@@ -197,10 +197,28 @@ class BookingController extends Controller
 
         // check khi lưu booking theo thongtinhchieu_id và ghngoi
         // check trang_thai = 1 đặt đặt , 3 đang có người chọn ko cho lưu booking vói id ghế 
-        //$checkSeatShowtime = SeatShowtimeStatu::where('thongtinchieu',$request->thongtinchieu_id)->where('ghengoi' ,$selectedSeats);
-        // foreach(){
+        $seatShowTimeStatus = SeatShowtimeStatu::where('thongtinchieu_id' , $request->thongtinchieu_id)
+        ->whereIn('ghengoi_id' , $request->ghe_ngoi)->get();
 
-        // } 
+        // lặp kiểm tra
+        // duyệt qua mảng ghế và kiểm tra trạng thái
+        $invalidSeats = [];
+        foreach($seatShowTimeStatus as $seatStatus){
+            if($seatStatus->trang_thai !== 0){
+                $invalidSeats[]  = $seatStatus->ghengoi_id;
+            }
+        }
+
+        if (!empty($invalidSeats)) {
+            return response()->json([
+                
+                // có thế chuyển hướng về trang front mong muốn 
+
+                'message' => 'Một số ghế đã chọn không thể đặt vì không còn trống nữa !',
+                'invalid_seats' => $invalidSeats // các ghế đã có người đặt or chọn rồi
+            ], 400);
+        } 
+
 
 
         $seatNames = $this->getNameSeat($selectedSeats);
@@ -269,7 +287,7 @@ class BookingController extends Controller
             'message' => 'Tạo Booking thành công, vui lòng thanh toán.',
             'data' => $booking,
             //'doan_details' =>  $doAnDetails // chỉ để xem dữ liệu thôi
-        ], 200);
+        ], 201);
     }
 
     // Hàm format tên món ăn và số lượng món ăn thành chuỗi
