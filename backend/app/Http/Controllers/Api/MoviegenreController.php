@@ -43,7 +43,6 @@ class MoviegenreController extends Controller
         if ($checkGenre) {
             return response()->json([
                 'message' => 'Tên thể loại phim này đã tồn tại !',
-                'data' => $checkGenre
             ], 422); //  422 là yêu cầu không hợp lệ
         }
 

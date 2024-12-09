@@ -140,7 +140,7 @@ class BookingController extends Controller
         // Nếu ghế đã chọn và người dùng muốn bỏ chọn cập nhật thành 0
         if ($existingSeat && $existingSeat->trang_thai == 3) {
 
-            $existingSeat->update(['trang_thai' => 0]); // bỏ chọn 
+            $existingSeat->update(['trang_thai' => 0 , 'user_id'=> null]); // bỏ chọn 
 
             //  sự kiện bỏ chọn ghế
             event(new SeatSelectedEvent($seatId, $showtimeId));
@@ -148,7 +148,6 @@ class BookingController extends Controller
             return response()->json([
                 'message' => 'Ghế đã được bỏ chọn thành công',
                 'data' => $seatId,
-               'user_id' =>$user->id
             ]);
         }
 
@@ -157,7 +156,7 @@ class BookingController extends Controller
 
             SeatShowtimeStatu::updateOrInsert(
                 ['ghengoi_id' => $seatId, 'thongtinchieu_id' => $showtimeId],
-                ['trang_thai' => 3] // 3 đang chọn
+                ['trang_thai' => 3 , 'user_id'=>$user->id], // 3 đang chọn
             );
 
             // sự kiện chọn ghế
@@ -165,7 +164,7 @@ class BookingController extends Controller
 
             return response()->json([
                 'message' => 'Ghế đã được chọn thành công',
-                'data' => $seatId,
+               
                 'user_id' =>$user->id
             ]);
         }
@@ -191,14 +190,19 @@ class BookingController extends Controller
             'ghi_chu' => 'nullable|string|max:255',
         ]);
 
-        
-
         $showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
 
-        // check khi chọn ghế đã có rồi có ở seat_showtime_statu với trạng thái là 1 đã đặt , 3 là hàng chờ có người chọn
-
-
         $selectedSeats = $request->ghe_ngoi;
+
+
+        // check khi lưu booking theo thongtinhchieu_id và ghngoi
+        // check trang_thai = 1 đặt đặt , 3 đang có người chọn ko cho lưu booking vói id ghế 
+        //$checkSeatShowtime = SeatShowtimeStatu::where('thongtinchieu',$request->thongtinchieu_id)->where('ghengoi' ,$selectedSeats);
+        // foreach(){
+
+        // } 
+
+
         $seatNames = $this->getNameSeat($selectedSeats);
 
         $doAnDetails = [];

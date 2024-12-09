@@ -203,7 +203,7 @@ class ShowtimeController extends Controller
                         'thongtinchieu_id' => $showtime->id,
                         'ghengoi_id' => $seat->id,
                         'gio_chieu' => $gio,
-                        'trang_thai' => 0, // Trạng thái = 0 (trống)
+                        //'trang_thai' => 0, // Trạng thái = 0 (trống)
                     ]);
                 }
                 //

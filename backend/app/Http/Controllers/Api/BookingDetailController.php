@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 class BookingDetailController extends Controller
 {
 
-    // show các đơn đã mua theo userid đó
+    // show tất cả các đơn đã mua theo userid đó ở client
     public function bookingDetail(Request $request)
     {
 
@@ -63,8 +63,14 @@ class BookingDetailController extends Controller
         ], 200);
     }
 
-    // tải bill về
+
+    // show bookticket theo id đó
+
+
+    // tải bill về theo id booking_detail đó
     public function exportBill() {}
+
+
 
     // đổ all booking detail trong admin
     public function bookingDetailAll(Request $request)
@@ -97,8 +103,14 @@ class BookingDetailController extends Controller
 
             )->get();
 
+        if ($bookDetails->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có đơn Booking Detail của khách nào !',
+            ], 404);
+        }
+
         return response()->json([
-            'message' => 'booking detail ở admin all',
+            'message' => 'Lấy Booking Detail của khách hàng thành công',
             'data' => $bookDetails
         ], 200);
     }
@@ -169,8 +181,4 @@ class BookingDetailController extends Controller
             'data' => $dataID
         ], 200);
     }
-
-    
-
-
 }

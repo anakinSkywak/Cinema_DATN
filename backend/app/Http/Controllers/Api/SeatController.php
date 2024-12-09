@@ -149,7 +149,7 @@ class SeatController extends Controller
         // nếu ghế trùng trả về số ghế trùng của phòng đó
         if ($isAnySeatExist) {
             return response()->json([
-                'message' => 'Có ghế trùng trong phòng này, không thể thêm ghế mới',
+                'message' => 'Có ghế trùng trong phòng này hoặc có lỗi phạm vi ghế , không thể thêm ghế mới',
                 'existing_seats' => $existingSeatsList,
             ], 400);
         }
