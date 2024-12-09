@@ -120,14 +120,6 @@ Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieControlle
 
 Route::middleware('auth:api')->group(function () {
 
-    // nhân viên book vé cho khách
-    //5
-    //http://127.0.0.1:8000/api/book-ticket
-    Route::post('book-ticket', [BookingController::class, 'Bookticket']);
-
-    // khóa ghế khi user chọn ghế và đến trang chọn đồ ăn
-    Route::post('seat-lock', [BookingController::class, 'lockSeat']); // bỏ
-
 
     Route::post('/select-seat', [BookingController::class, 'selectSeat']);  //
 
@@ -140,10 +132,6 @@ Route::middleware('auth:api')->group(function () {
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
-    // nhân viên
-    //6
-    //http://127.0.0.1:8000/api/payment/137/thanh_toan_tien_tai_quay
-    Route::post('paymentBookTicket/{bookingId}/{method}', [PaymentController::class, 'createPaymentBookTicket']);
 
     // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
     // dữ liệu ok
@@ -153,19 +141,9 @@ Route::middleware('auth:api')->group(function () {
 
 
 // Nhân viên
-//1
+// list phim bên trong admin phim có xuất chiếu
 //http://127.0.0.1:8000/api/movie-book-all
 Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTicket']);
-//2
-//http://127.0.0.1:8000/api/movie-book-id/42
-Route::get('movie-book-id/{id}', [BookingTicketController::class, 'MovieByShowtimeID']);
-//3
-//http://127.0.0.1:8000/api/movie-book-id/42/showtime-date/2024-11-24
-Route::get('movie-book-id/{movieID}/showtime-date/{date}', [BookingTicketController::class, 'getShowtimesByDate']);
-//4
-//http://127.0.0.1:8000/api/movie-book-id/42/showtime-date/2024-11-24/08:00:00
-Route::get('movie-book-id/{movieID}/showtime-date/{date}/{time}', [BookingTicketController::class, 'getRoomsByShowtime']);
-
 
 
 // return user 
