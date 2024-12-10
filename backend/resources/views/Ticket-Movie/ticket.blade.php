@@ -4,19 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vé Xem Phim</title>
+    <title>Vé Vào Phòng Chiếu Phim</title>
     <style>
         body {
+
             font-family: 'DejaVu Sans', sans-serif;
             /* Font hỗ trợ tiếng Việt */
-            background-color: #ffffff;
-            margin: 0;
-            padding: 0;
+            background-color: white;
+            width: 370px;
+            height: 50px;
+            padding: 0 auto;
+            margin: 0 auto;
         }
 
         .ticket {
-            width: 100%;
-            max-width: 400px;
+
+            max-width: 330px;
             margin: 0 auto;
             background-color: #fff;
             border: 1px solid #ddd;
@@ -77,7 +80,7 @@
 <body>
     <div class="ticket">
         <div class="header">CineBookingHub</div>
-        <div class="sub-header">Vé Phim</div>
+        <div class="sub-header" style="font-size: 20px">Vé vào phòng chiếu phim</div>
 
         <div class="row">
             <strong>Rạp:</strong>
@@ -91,62 +94,60 @@
         <div class="content">
             <div class="row">
                 <span>Phim:</span>
-                <span>{{ $booking->showtime->movie->ten_phim }}</span>
+                <span>{{ $ticket->ten_phim }}</span>
             </div>
             <div class="row">
                 <span>Thời gian phim:</span>
-                <span>{{ $booking->showtime->thoi_luong_chieu }} phút</span>
+                <span>{{ $ticket->thoi_luong_chieu }} phút</span>
             </div>
             <div class="row">
                 <span>Ngày xem phim:</span>
-                <span> {{ \Carbon\Carbon::parse($booking->showtime->ngay_chieu)->format('d-m-Y') }} </span>
+                <span> {{ \Carbon\Carbon::parse($ticket->ngay_chieu)->format('d-m-Y') }} </span>
             </div>
             <div class="row">
                 <span>Giờ xem phim:</span>
-                <span> {{ \Carbon\Carbon::parse($booking->showtime->gio_chieu)->format('H:i') }} </span>
+                <span> {{ \Carbon\Carbon::parse($ticket->gio_chieu)->format('H:i') }} </span>
             </div>
             <div class="row">
                 <span>Phòng chiếu:</span>
-                <span>{{ $room->ten_phong_chieu }}</span>
+                <span>{{ $ticket->ten_phong_chieu }} </span>
             </div>
             <div class="row">
                 <span>Ghế:</span>
-                <span>{{ $booking->ghe_ngoi }}</span>
+                <span>{{ $ticket->ghe_ngoi }}</span>
             </div>
             <div class="row">
                 <span>Số lượng vé/người:</span>
-                <span>{{ $booking->so_luong }}</span>
+                <span>{{ $ticket->so_luong }}</span>
             </div>
             <div class="row">
                 <span>Đồ ăn kèm:</span>
-                <span>{{ $booking->do_an }}</span>
+                <span>{{ $ticket->do_an }}</span>
             </div>
             <div class="row">
                 <span>Ngày mua:</span>
-                <span> {{ \Carbon\Carbon::parse($booking->ngay_mua)->format('d-m-Y') }} </span>
+                <span> {{ \Carbon\Carbon::parse($ticket->ngay_mua)->format('d-m-Y') }}</span>
             </div>
             <div class="row">
                 <span>Ghi chú:</span>
-                <span>{{ $booking->ghi_chu }}</span>
+                <span>{{ $ticket->ghi_chu }}</span>
             </div>
         </div>
 
         <div class="row">
             <strong>Tổng thanh toán:</strong>
-            <strong>{{ number_format($booking->tong_tien_thanh_toan) }} VND</strong>
+            <strong>{{ number_format($ticket->tong_tien_thanh_toan) }} VND</strong>
         </div>
 
-        <div class="row" style="margin-top: 20px; white-space: nowrap;">
-            <p>Mã Barcode vé phim</p>
-
-            {!! $barcode !!}
-
-            <p>{{ $booking->barcode }}</p>
+        <div class="row" style="text-align: center">
+            <span style="color: red ; font-size: 15px">ĐÃ CHECK IN</span>
         </div>
 
         <div class="footer">
+            Lưu ý : Nhân viên soát vé nhận vé luôn của khách <br>
             Ticket No. | Cảm ơn bạn đã chọn CineBookingHub!
         </div>
+
     </div>
 
 

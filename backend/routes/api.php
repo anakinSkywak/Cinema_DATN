@@ -33,6 +33,7 @@ use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\CheckTicketController;
 use App\Http\Controllers\Api\StatisticalController;
 
 
@@ -139,6 +140,8 @@ Route::middleware('auth:api')->group(function () {
 });
 
 
+// check mã barcode trả in vé cho khách vào phòng chiếu phim
+Route::get('checkBarcode-exportTicket', [CheckTicketController::class, 'checkBarcodeExportTicket']);
 
 // Nhân viên
 // list phim bên trong admin phim có xuất chiếu
