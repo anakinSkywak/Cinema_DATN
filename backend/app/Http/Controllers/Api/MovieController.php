@@ -38,15 +38,15 @@ class MovieController extends Controller
     public function movieClient()
     {
 
-        // phim đang chiếu
-        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Đang Chiếu')->orderBy('id', 'DESC')->get();
+        // phim đang chiếu 0 : Đang chiếu
+        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 0)->orderBy('id', 'DESC')->get();
 
 
-        // phim sắp công chiếu
-        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Sắp Công Chiếu')->orderBy('id', 'DESC')->get();
+        // phim sắp công chiếu 1 : Sắp công chiếu
+        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 1)->orderBy('id', 'DESC')->get();
 
 
-        // phim xuất chiếu
+        // phim có xuất chiếu đã tạo showtime theo phim 
         $movie_xuatchieu = Movie::with('movie_genres')
             ->whereHas('showtimes') // Chỉ lấy các phim có suất chiếu
             ->orderBy('id', 'DESC')
@@ -125,10 +125,11 @@ class MovieController extends Controller
             'noi_dung' => 'required|string|max:5000',
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric|min:1',
-            'hinh_thuc_phim' => 'required|string|max:255',
+            'hinh_thuc_phim' => 'required|numeric',  // 0 đang chiếu 1 sắp công chiếu 
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric|min:1',
+            'quoc_gia' => 'required|string|max:255',
         ]);
 
 
@@ -217,10 +218,11 @@ class MovieController extends Controller
             'noi_dung' => 'required|string|max:5000',
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric|min:1',
-            'hinh_thuc_phim' => 'required|string|max:255',
+            'hinh_thuc_phim' => 'required|numeric',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric|min:1',
+            'quoc_gia' => 'required|string|max:255',
         ]);
 
         $movie = Movie::find($id);
@@ -266,6 +268,7 @@ class MovieController extends Controller
             'gia_ve' => $request->gia_ve,
             'hinh_thuc_phim' => $request->hinh_thuc_phim,
             'thoi_gian_phim' => $request->thoi_gian_phim,
+            'quoc_gia' => $request->quoc_gia,
         ]);
 
         $movie->movie_genres()->sync($request->loaiphim_ids);

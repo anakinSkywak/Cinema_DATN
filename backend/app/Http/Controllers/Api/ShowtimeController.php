@@ -99,7 +99,7 @@ class ShowtimeController extends Controller
 
         // lấy phim thêm showtime với phim phải là Đang chiếu 
 
-        $movies = Movie::select('id', 'ten_phim', 'hinh_thuc_phim')->where('hinh_thuc_phim', 'Đang Chiếu')->get();
+        $movies = Movie::select('id', 'ten_phim', 'hinh_thuc_phim')->where('hinh_thuc_phim', 0)->get();
         if ($movies->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phim hãy thêm phim !'
