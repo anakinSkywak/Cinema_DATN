@@ -251,6 +251,11 @@ class PaymentController extends Controller
                     $booking->save();
                 }
 
+                //$thieu = 0;
+
+                // update trạng thái ghế ở seat_showtime_statu những ghế đã chọn ở booking lại thành 0
+                //DB::table('seat_showtime_status')->where('thongtinchieu_id' , $booking->thongtinchieu_id)->where('ghengoi_id', $thieu)->update(['trang_thai' , 0]);
+
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
                 return redirect('http://localhost:5173');
 

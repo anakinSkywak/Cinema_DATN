@@ -204,7 +204,7 @@ class BookingController extends Controller
         // duyệt qua mảng ghế và kiểm tra trạng thái
         $invalidSeats = [];
         foreach($seatShowTimeStatus as $seatStatus){
-            if($seatStatus->trang_thai !== 0){
+            if($seatStatus->trang_thai == 1){
                 $invalidSeats[]  = $seatStatus->ghengoi_id;
             }
         }

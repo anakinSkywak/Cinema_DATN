@@ -453,13 +453,19 @@ class MovieController extends Controller
                 ->where('trang_thai', 2) // Trạng thái bảo trì
                 ->pluck('id');
 
+                //dd($maintenanceSeats);
+
             // lấy trạng thái của các ghế (đã đặt, bảo trì hoặc trống)
             $seatsWithStatus = $allSeats->map(function ($seat) use ($seatStatuses, $maintenanceSeats) {
-                // lấy trạng thái và user_id từ `seat_showtime_status`
-                $statusInfo = $seatStatuses->get($seat->id);
-
-                if ($statusInfo) {
+               
+                if ($maintenanceSeats->contains($seat->id)) {
+                    $status = 'Bảo trì';
+                    $userId = null;
+                } elseif ($seatStatuses->has($seat->id)) {
+                    // nếu không phải bảo trì, kiểm tra trạng thái từ seat_showtime_status
+                    $statusInfo = $seatStatuses->get($seat->id);
                     $userId = $statusInfo->user_id;
+            
                     switch ($statusInfo->trang_thai) {
                         case 1:
                             $status = 'Đã đặt';
@@ -470,14 +476,12 @@ class MovieController extends Controller
                         default:
                             $status = 'Trống';
                     }
-                } elseif ($maintenanceSeats->contains($seat->id)) {
-                    $status = 'Bảo trì';
-                    $userId = null;
                 } else {
+                    // trạng thái mặc định là trống
                     $status = 'Trống';
                     $userId = null;
                 }
-
+            
                 return [
                     'id' => $seat->id,
                     'ten_ghe_ngoi' => $seat->so_ghe_ngoi,
@@ -487,16 +491,18 @@ class MovieController extends Controller
                     'user_id' => $userId 
                 ];
             });
+            
 
             return [
                 'room' => $showtime->room,
-                'seats' => $seatsWithStatus 
+                'seats' => $seatsWithStatus,
             ];
         });
 
         return response()->json([
             'message' => 'Lấy danh sách phòng chiếu và trạng thái ghế thành công.',
-            'roomsWithSeats' => $roomsWithSeats 
+            'roomsWithSeats' => $roomsWithSeats,
+            
         ], 200);
     }
 }
