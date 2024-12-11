@@ -168,6 +168,49 @@ class AuthController extends Controller
         }
     }
 
+
+    // khi người dùng quên không nhập otp để otp quá hạn
+    public function refeshEmailOtp(Request $request)
+    {
+        // Lấy email từ phiên
+        $email = $request->session()->get('email');
+
+        // Kiểm tra xem email có tồn tại không
+        if (!$email) {
+            return response()->json(['message' => 'Email không được tìm thấy. Vui lòng đăng ký lại.'], 400);
+        }
+
+        // Kiểm tra số lần gửi OTP
+        $otpRequestCount = Cache::get('otp_request_count_' . $email, 0);
+        if ($otpRequestCount >= 5) { // Giới hạn số lần gửi OTP
+            return response()->json(['message' => 'Bạn đã yêu cầu gửi OTP quá nhiều lần. Vui lòng thử lại sau 10 phút.'], 429);
+        }
+
+        // Kiểm tra thời gian chờ giữa các lần gửi
+        $lastRequestTime = Cache::get('last_otp_request_time_' . $email);
+        if ($lastRequestTime && now()->diffInMinutes($lastRequestTime) < 1) { // Thời gian chờ 1 phút
+            return response()->json(['message' => 'Vui lòng chờ ít nhất 1 phút trước khi yêu cầu gửi lại OTP.'], 429);
+        }
+
+        // Tạo OTP mới
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Lưu cả email và OTP vào cache
+        Cache::put('verify_email_' . $otp, $email, now()->addMinutes(5));
+        Cache::put('verify_otp_' . $email, $otp, now()->addMinutes(5));
+
+        // Cập nhật số lần gửi OTP
+        Cache::put('otp_request_count_' . $email, $otpRequestCount + 1, now()->addMinutes(10)); // Reset sau 10 phút
+        Cache::put('last_otp_request_time_' . $email, now()); // Cập nhật thời gian yêu cầu
+
+        // Gửi email chứa OTP mới
+        Mail::to($email)->send(new WelcomeEmail(new User(['email' => $email]), $otp));
+
+        return response()->json([
+            'message' => 'OTP mới đã được gửi đến email của bạn. Vui lòng kiểm tra email để xác thực tài khoản.',
+        ], 200);
+    }
+
     //tạo token mới khi người dùng đăng nhập
     protected function createNewToken($token)
     {

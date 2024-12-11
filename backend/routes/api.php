@@ -91,8 +91,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
-
-
+// gui email otp
+Route::post('refesh_email', [AuthController::class, 'refeshEmailOtp']);
 
 
 // Client
