@@ -172,43 +172,69 @@ class AuthController extends Controller
     // khi người dùng quên không nhập otp để otp quá hạn
     public function refeshEmailOtp(Request $request)
     {
-        // Lấy email từ phiên
-        $email = $request->session()->get('email');
+        try {
+            // Lấy OTP từ request
+            $oldOtp = $request->otp;
+            if (!$oldOtp) {
+                return response()->json([
+                    'message' => 'Không tìm thấy thông tin OTP'
+                ], 400);
+            }
 
-        // Kiểm tra xem email có tồn tại không
-        if (!$email) {
-            return response()->json(['message' => 'Email không được tìm thấy. Vui lòng đăng ký lại.'], 400);
+            // Lấy email từ cache dựa vào OTP cũ
+            $email = Cache::get('verify_email_' . $oldOtp);
+            if (!$email) {
+                return response()->json([
+                    'message' => 'Không tìm thấy thông tin email hoặc OTP đã hết hạn'
+                ], 400);
+            }
+
+            // Kiểm tra số lần gửi OTP
+            $otpRequestCount = Cache::get('otp_request_count_' . $email, 0);
+            if ($otpRequestCount >= 5) {
+                return response()->json([
+                    'message' => 'Bạn đã yêu cầu gửi OTP quá nhiều lần. Vui lòng thử lại sau 10 phút.'
+                ], 429);
+            }
+
+            // Kiểm tra thời gian chờ giữa các lần gửi
+            $lastRequestTime = Cache::get('last_otp_request_time_' . $email);
+            if ($lastRequestTime && now()->diffInSeconds($lastRequestTime) < 60) {
+                $waitTime = 60 - now()->diffInSeconds($lastRequestTime);
+                return response()->json([
+                    'message' => "Vui lòng đợi {$waitTime} giây trước khi yêu cầu gửi lại OTP."
+                ], 429);
+            }
+
+            // Tạo OTP mới
+            $newOtp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+            // Xóa cache của OTP cũ
+            Cache::forget('verify_email_' . $oldOtp);
+            Cache::forget('verify_otp_' . $email);
+
+            // Lưu OTP và email mới vào cache
+            Cache::put('verify_email_' . $newOtp, $email, now()->addMinutes(5));
+            Cache::put('verify_otp_' . $email, $newOtp, now()->addMinutes(5));
+
+            // Cập nhật số lần gửi và thời gian gửi
+            Cache::put('otp_request_count_' . $email, $otpRequestCount + 1, now()->addMinutes(10));
+            Cache::put('last_otp_request_time_' . $email, now());
+
+            // Lấy thông tin user để gửi email
+            $user = User::where('email', $email)->first();
+            Mail::to($email)->send(new WelcomeEmail($user, $newOtp));
+
+            return response()->json([
+                'message' => 'OTP mới đã được gửi đến email của bạn. Vui lòng kiểm tra email để xác thực tài khoản.',
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Có lỗi xảy ra khi gửi OTP. Vui lòng thử lại sau.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Kiểm tra số lần gửi OTP
-        $otpRequestCount = Cache::get('otp_request_count_' . $email, 0);
-        if ($otpRequestCount >= 5) { // Giới hạn số lần gửi OTP
-            return response()->json(['message' => 'Bạn đã yêu cầu gửi OTP quá nhiều lần. Vui lòng thử lại sau 10 phút.'], 429);
-        }
-
-        // Kiểm tra thời gian chờ giữa các lần gửi
-        $lastRequestTime = Cache::get('last_otp_request_time_' . $email);
-        if ($lastRequestTime && now()->diffInMinutes($lastRequestTime) < 1) { // Thời gian chờ 1 phút
-            return response()->json(['message' => 'Vui lòng chờ ít nhất 1 phút trước khi yêu cầu gửi lại OTP.'], 429);
-        }
-
-        // Tạo OTP mới
-        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-
-        // Lưu cả email và OTP vào cache
-        Cache::put('verify_email_' . $otp, $email, now()->addMinutes(5));
-        Cache::put('verify_otp_' . $email, $otp, now()->addMinutes(5));
-
-        // Cập nhật số lần gửi OTP
-        Cache::put('otp_request_count_' . $email, $otpRequestCount + 1, now()->addMinutes(10)); // Reset sau 10 phút
-        Cache::put('last_otp_request_time_' . $email, now()); // Cập nhật thời gian yêu cầu
-
-        // Gửi email chứa OTP mới
-        Mail::to($email)->send(new WelcomeEmail(new User(['email' => $email]), $otp));
-
-        return response()->json([
-            'message' => 'OTP mới đã được gửi đến email của bạn. Vui lòng kiểm tra email để xác thực tài khoản.',
-        ], 200);
     }
 
     //tạo token mới khi người dùng đăng nhập
