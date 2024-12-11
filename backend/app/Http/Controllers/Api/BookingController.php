@@ -253,14 +253,17 @@ class BookingController extends Controller
         }
 
         $barcode = 'VE-' . substr(strval(rand(10000, 999999)), 0, 6);
+        $id = rand(10000, 9999999);
 
         // Tạo Booking
+        // 0 Chưa thanh toán , 2 là Đã thanh toán , 1 Đã huy đơn , 3 Lỗi đơn hàng ,
         $booking = Booking::create([
+            'id' => $id,
             'user_id' => $user->id,
             'thongtinchieu_id' => $request->thongtinchieu_id,
             'so_luong' => count($selectedSeats),
             'ngay_mua' => Carbon::now(),
-            'trang_thai' => 0,  // Chưa thanh toán
+            'trang_thai' => 0,  // Chưa thanh toán 
             'ghe_ngoi' => implode(', ', $seatNames),
             'do_an' => $doAnString,
             'ma_giam_gia' => $request->ma_giam_gia,

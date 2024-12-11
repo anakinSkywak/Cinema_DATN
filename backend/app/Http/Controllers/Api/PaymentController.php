@@ -42,7 +42,7 @@ class PaymentController extends Controller
         ], 200);
     }
 
-  
+
     // đưa đến from chọn phương thức thanh toán
     public function createPayment($bookingId, $method)
     {
@@ -59,7 +59,8 @@ class PaymentController extends Controller
             return response()->json(['message' => 'No booking id'], 404);
         }
 
-        //enum('Đang chờ xử lý','Đã hoàn thành','Không thành công','Đã hoàn lại','Đã hủy')
+        // payment
+        // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
         // đang xử lý
         if ($booking->trang_thai !== 0) {
             return response()->json(['error' => 'Booking đã được thanh toán'], 400);
@@ -72,14 +73,14 @@ class PaymentController extends Controller
         $payment->tong_tien = $money;
         //$payment->tien_te = 'VND'; 
         $payment->phuong_thuc_thanh_toan = $method;
-        $payment->trang_thai = 'Đang chờ xử lý';
+        $payment->trang_thai = 0;
         $payment->ngay_thanh_toan = Carbon::now();
         $payment->save();
 
-        
+
         switch ($method) {
             case 'ncb':
-                return $this->paymentNCB( $booking, $money, $payment);
+                return $this->paymentNCB($booking, $money, $payment);
             case 'mastercard':
                 return $this->paymentMasterCard($booking, $money, $payment);
             case 'visa':
@@ -90,7 +91,7 @@ class PaymentController extends Controller
     }
 
 
-    public function paymentNCB( $booking, $money, $payment)
+    public function paymentNCB($booking, $money, $payment)
     {
         // Cấu hình của VNPAY
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
@@ -198,13 +199,13 @@ class PaymentController extends Controller
         if ($secureHash === $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
 
-
                 // Tìm giao dịch thanh toán dựa trên mã thanh toán
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
 
                 if ($payment) {
                     // trạng thái thanh toán thành công
-                    $payment->trang_thai = 'Đã hoàn thành';
+                    // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+                    $payment->trang_thai = 1;
                     $payment->save();
                 } else {
                     return response()->json(['message' => 'Không tìm thấy giao dịch thanh toán'], 404);
@@ -222,28 +223,43 @@ class PaymentController extends Controller
                     'booking_id' => $booking->id,
                     'payment_id' => $payment->id,
                     'barcode' => $booking->barcode
-                    //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
                 // thêm 1 lượt quay khi đặt và trả tiền vé ok để quay trưởng
                 User::where('id', $booking->user_id)->increment('so_luot_quay', 1);
 
-
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
-                // return response()->json([
-                //     'message' => 'Thanh toán ok',
-
-                // ], 200);
-
                 return redirect('http://localhost:5173/profile');
-            } else {
+
+            } elseif($inputData['vnp_ResponseCode'] == '24') {
+
+                $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
+
+                if ($payment) {
+                    
+                    // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+                    $payment->trang_thai = 3;
+                    $payment->save();
+                }
+
+                // Tìm booking dựa trên mã giao dịch
+                $booking = Booking::find($inputData['vnp_TxnRef']);
+                // 0 Chưa thanh toán , 2 là Đã thanh toán , 1 Đã huy đơn , 3 Lỗi đơn hàng ,
+                if ($booking) {
+                    $booking->trang_thai = 1;
+                    $booking->save();
+                }
+
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
-                return response()->json([
-                    'message' => 'Thanh toán thất bại',
-                    'error_code' => $inputData['vnp_ResponseCode'],
-                    'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
-                ], 400);
+                return redirect('http://localhost:5173');
+
+                //http://localhost:5173/
+                // return response()->json([
+                //     'message' => 'Thanh toán thất bại',
+                //     'error_code' => $inputData['vnp_ResponseCode'],
+                //     //'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
+                // ], 400);
             }
         } else {
             // Trả về phản hồi thất bại nếu không khớp SecureHash

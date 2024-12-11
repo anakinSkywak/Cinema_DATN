@@ -100,6 +100,7 @@ class BookingDetailController extends Controller
                 'payments.phuong_thuc_thanh_toan',
                 'payments.trang_thai',
                 'booking_details.trang_thai', // trạng thái booking_detail 0 là chưa đến 1 là nhân viên xác nhận đã đến
+                'booking_details.barcode'
 
             )->get();
 
