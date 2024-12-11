@@ -111,7 +111,7 @@ class FoodController extends Controller
             'ten_do_an' => 'required|string|max:250',
             'gia' => 'required|numeric',
             'ghi_chu' => 'required|string|max:250',
-            'anh_do_an' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'anh_do_an' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $foodID = Food::find($id);

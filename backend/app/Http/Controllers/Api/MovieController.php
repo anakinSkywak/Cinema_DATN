@@ -212,7 +212,7 @@ class MovieController extends Controller
 
         $request->validate([
             'ten_phim' => 'required|string|max:255',
-            'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'anh_phim' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:5000',
