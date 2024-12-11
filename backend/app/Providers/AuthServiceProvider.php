@@ -22,6 +22,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        // Passport là một package của Laravel để xác thực API
+
         // Ánh xạ các chính sách xác thực
         $this->registerPolicies();
 
