@@ -87,6 +87,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             'error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này',
         ], 401);
     })->name('unauthenticated');
+
+    Route::post('refresh-token', [AuthController::class, 'refresh']);
 });
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
