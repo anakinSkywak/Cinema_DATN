@@ -14,12 +14,15 @@ class CouponCodeTakenController extends Controller
 {
     public function showVoucherCodes()
     {
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        if (!Auth::check()) {
-            return response()->json(['message' => 'Bạn cần đăng nhập để xem mã giảm giá'], 401);
+        // $user = Auth::user(); // Lấy thông tin người dùng đang đăng nhập
+        // // Kiểm tra xem người dùng đã đăng nhập chưa
+        // if (!Auth::check()) {
+        //     return response()->json(['message' => 'Bạn cần đăng nhập để xem mã giảm giá'], 401);
+        // }
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);
         }
-
-        $user = Auth::user(); // Lấy thông tin người dùng đang đăng nhập
 
         // Lấy ngày hiện tại
         $currentDate = Carbon::now(); // Sử dụng Carbon để lấy ngày hiện tại
@@ -72,7 +75,7 @@ class CouponCodeTakenController extends Controller
         $countdownVoucher = CountdownVoucher::where('id', $request->countdownvoucher_id) // Kiểm tra mã giảm giá cụ thể
             ->where('trang_thai', 0) // Kiểm tra trạng thái là 0
             ->where('so_luong_con_lai', '>', 0) // Kiểm tra số lượng còn lại > 0
-            ->whereDate('ngay', '>=', Carbon::today()->toDateString()) // Ngày phải là hôm nay hoặc tương lai
+            ->whereDate('ngay', '=', Carbon::today()->toDateString()) // Ngày phải là hôm nay hoặc tương lai
             ->whereTime('thoi_gian_bat_dau', '<=', Carbon::now()) // Thời gian bắt đầu phải trước hoặc bằng hiện tại
             ->whereTime('thoi_gian_ket_thuc', '>=', Carbon::now()) // Thời gian kết thúc phải sau hiện tại
             ->first();

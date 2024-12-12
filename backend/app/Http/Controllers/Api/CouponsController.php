@@ -35,15 +35,14 @@ class CouponsController extends Controller
         // Validate dữ liệu đầu vào
         $validated = $request->validate([
             'ma_giam_gia' => 'required|string|max:255',
-            'muc_giam_gia' => 'required|numeric|min:0',
-            'gia_don_toi_thieu' => 'nullable|numeric|min:0|max:100',
-            'Giam_max' => 'nullable|numeric|min:0',
+            'muc_giam_gia' => 'required|numeric|min:0|max:100',
+            'gia_don_toi_thieu' => 'required|numeric|min:0',
+            'Giam_max' => 'required|numeric|min:0',
             'mota' => 'required|string|max:255',
             'so_luong' => 'required|integer|min:1',
             'so_luong_da_su_dung' => 'nullable|integer|min:0',
             'trang_thai' => 'nullable|boolean',
         ]);
-    
         // Kiểm tra xem mã giảm giá đã tồn tại chưa
         $existingCoupon = Coupon::where('ma_giam_gia', $validated['ma_giam_gia'])->first();
         if ($existingCoupon) {
@@ -93,8 +92,7 @@ class CouponsController extends Controller
                 'message' => 'Không có dữ liệu mã giảm giá theo ID này',
             ], 404); // Mã trạng thái HTTP 404 - Not Found
         }
-    
-        // Validate dữ liệu đầu vào
+// Validate dữ liệu đầu vào
         $validated = $request->validate([
             'ma_giam_gia' => 'sometimes|required|string|max:255',
             'muc_giam_gia' => 'sometimes|required|numeric|min:0|max:100',
