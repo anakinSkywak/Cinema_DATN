@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Carbon\Carbon;
+use App\Models\Member;
 use App\Models\Rotation;
 use Illuminate\Http\Request;
 use App\Models\HistoryRotation;
@@ -110,22 +111,43 @@ class RotationsController extends Controller
             'xac_xuat' => 'required|numeric|min:0|max:100',
             'so_luong' => 'required|integer|min:1',
             'so_luong_con_lai' => 'integer|min:0|max:' . $request->so_luong,
+        ], [
+            // Tùy chỉnh thông báo lỗi cho các trường hợp validate không hợp lệ
+            'so_luong.min' => 'Số lượng không thể nhỏ hơn 1.',
+            'so_luong_con_lai.max' => 'Số lượng còn lại không thể lớn hơn số lượng tổng.',
         ]);
-
-        // Lấy tổng xác suất của tất cả các vòng quay đã có
+    
+        // Kiểm tra lỗi xác thực
+        if ($request->fails()) {
+            return response()->json([
+                'message' => 'Dữ liệu không hợp lệ.',
+                'errors' => $request->errors()
+            ], 200);
+        }
+    
+        // Kiểm tra tổng xác suất của tất cả các vòng quay đã có
         $totalXacXuat = Rotation::sum('xac_xuat');
-
+    
         // Kiểm tra tổng xác suất có vượt quá 100 không
         $newXacXuat = $request->xac_xuat;
         if (($totalXacXuat + $newXacXuat) > 100) {
-            return response()->json(['message' => 'Tổng xác suất của tất cả các vòng quay không thể vượt quá 100%.'], 400);
+            return response()->json([
+                'message' => 'Tổng xác suất của tất cả các vòng quay không thể vượt quá 100%.'
+            ], 200); // Trả về thông báo lỗi với mã 200 OK
         }
-
+    
         // Tạo vòng quay mới với trạng thái mặc định là 1
         $rotation = Rotation::create(array_merge($validatedData, ['trang_thai' => 1]));
-
-        return response()->json($rotation, 201);
+    
+        // Trả về vòng quay mới nếu không có lỗi
+        return response()->json([
+            'message' => 'Vòng quay đã được tạo thành công.',
+            'data' => $rotation
+        ], 201); // Mã 201 cho việc tạo thành công
     }
+    
+
+
 
 
 

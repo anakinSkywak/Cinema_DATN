@@ -46,7 +46,7 @@ class MemberController extends Controller
             'uu_dai' => 'required|numeric',
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric|min:0',  // Đảm bảo giá trị gia không được âm
+            'gia' => 'required|numeric|min:0',  
             'anh_hoi_vien' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',  // Kiểm tra ảnh
         ]);
 
@@ -62,7 +62,7 @@ class MemberController extends Controller
                 'message' => 'Loại hội viên đã tồn tại!'
             ], 409); 
         }
-
+        $validated['thoi_gian'] = 1;
         // Kiểm tra và lưu ảnh nếu có
         $imagePath = null;
         if ($request->hasFile('anh_hoi_vien')) {
