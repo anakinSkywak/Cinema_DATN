@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Membership;
 use App\Models\MemberShips;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Mail\MembershipNotification;
+use Illuminate\Support\Facades\Mail;
 
 class MemberShipsController extends Controller
 {
@@ -18,7 +21,7 @@ class MemberShipsController extends Controller
     public function index()
     {
         // Lấy tất cả dữ liệu từ bảng Membership
-        $data = Memberships::with('registerMember')->get();
+        $data = Membership::with('registerMember')->get();
 
         if ($data->isEmpty()) {
             return response()->json([
@@ -46,7 +49,7 @@ class MemberShipsController extends Controller
         $user_id = auth()->user()->id;
 
         // Lấy thông tin thẻ hội viên của người dùng
-        $membership = Memberships::with('registerMember')
+        $membership = Membership::with('registerMember')
             ->whereHas('registerMember', function ($query) use ($user_id) {
                 $query->where('user_id', $user_id);
             })
@@ -97,7 +100,7 @@ class MemberShipsController extends Controller
         $user_id = auth()->user()->id;
 
         // Truy vấn để lấy thẻ hội viên của người dùng
-        $membership = Memberships::with('registerMember')  // Quan hệ với RegisterMember
+        $membership = Membership::with('registerMember')  // Quan hệ với RegisterMember
             ->whereHas('registerMember', function ($query) use ($user_id) {
                 $query->where('user_id', $user_id);  // Lọc theo user_id trong bảng register_members
             })
@@ -148,7 +151,7 @@ class MemberShipsController extends Controller
      */
     public function destroy($id)
     {
-        $membership = Memberships::find($id);
+        $membership = Membership::find($id);
 
         if (!$membership) {
             return response()->json([
@@ -161,5 +164,62 @@ class MemberShipsController extends Controller
         return response()->json([
             'message' => 'Xóa thẻ hội viên thành công!'
         ], 200); // Trả về 200 khi xóa thành công
+    }
+    public function sendMembershipEmail()
+    {
+        // Kiểm tra xem người dùng đã đăng nhập chưa
+        if (!auth()->check()) {
+            return response()->json(['message' => 'Bạn cần đăng nhập để xem thông tin thẻ hội viên!'], 401);
+        }
+
+        // Lấy user_id của người dùng đã đăng nhập
+        $user_id = auth()->user()->id;
+
+        // Lấy thẻ hội viên của người dùng
+        $membership = Membership::with('registerMember.user')  // Eager load quan hệ với user
+            ->whereHas('registerMember', function ($query) use ($user_id) {
+                $query->where('user_id', $user_id);
+            })
+            ->first(); // Lấy thẻ hội viên đầu tiên (nếu có)
+
+        // Kiểm tra xem thẻ hội viên có tồn tại không
+        if (!$membership) {
+            return response()->json(['message' => 'Bạn chưa đăng ký thẻ hội viên!'], 404);
+        }
+
+        $currentDate = now(); // Lấy ngày hiện tại
+        $expirationDate = Carbon::parse($membership->ngay_het_han); // Lấy ngày hết hạn thẻ hội viên
+
+        // Kiểm tra nếu thẻ hội viên đã hết hạn
+        if ($expirationDate->isBefore($currentDate)) {
+            $membership->trang_thai = 1; // Thẻ đã hết hạn
+            $messageContent = "Thẻ hội viên của bạn đã hết hạn. Vui lòng đăng ký lại thẻ mới!";
+        } else {
+            // Kiểm tra nếu thẻ sắp hết hạn trong vòng 2 ngày
+            if ($expirationDate->diffInDays($currentDate) <= 2) {
+                $messageContent = "Thẻ hội viên của bạn sắp hết hạn. Vui lòng gia hạn thẻ để tiếp tục sử dụng dịch vụ!";
+            } else {
+                $messageContent = "Thẻ hội viên của bạn còn thời gian sử dụng.";
+            }
+            $membership->trang_thai = 0;  // Thẻ còn hiệu lực
+        }
+
+        // Cập nhật trạng thái và thông báo
+        $membership->renewal_message = $messageContent;
+        $membership->save();
+
+        // Lấy email của người dùng thông qua quan hệ với bảng registerMember
+        $email = $membership->registerMember->user->email;
+
+        // Gửi email thông báo nếu thẻ hội viên đã hết hạn hoặc sắp hết hạn (<=2 ngày)
+        if ($expirationDate->isBefore($currentDate) || $expirationDate->diffInDays($currentDate) <= 2) {
+            Mail::to($email)->send(new MembershipNotification($membership, $messageContent));
+        }
+
+        // Trả về thông tin thẻ hội viên sau khi cập nhật
+        return response()->json([
+            'message' => 'Thông tin thẻ hội viên đã được gửi đến người dùng.',
+            'data' => $membership
+        ], 200);
     }
 }

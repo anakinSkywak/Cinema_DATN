@@ -4,6 +4,8 @@ use App\Models\Movie;
 use Illuminate\Http\Request;
 // use Illuminate\Support\Facades\Auth;
 use App\Models\CouponCodeTaken;
+use App\Mail\MembershipNotification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
 use App\Http\Controllers\Api\BillController;
@@ -25,7 +27,9 @@ use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\CheckTicketController;
 use App\Http\Controllers\Api\MemberShipsController;
+use App\Http\Controllers\Api\StatisticalController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\BookingTicketController;
 use App\Http\Controllers\Api\RegisterMemberController;
@@ -33,8 +37,6 @@ use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
-use App\Http\Controllers\Api\CheckTicketController;
-use App\Http\Controllers\Api\StatisticalController;
 
 
 // xác thực email
@@ -72,7 +74,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
         Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
         Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'show']);
-
+        Route::post('/send-membership-email/{membershipId}', [MemberShipsController::class, 'sendMembershipEmail']);
 
         Route::post('/quay-thuong', [RotationsController::class, 'quayThuong']);
         // Đăng xuất - vô hiệu hóa token
@@ -176,7 +178,7 @@ Route::delete('deleteRoom/{id}', [RoomController::class, 'delete']);
 Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
 Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
-Route::delete('delete-all-seatbyroom/{id}' , [RoomController::class , 'deleteAllSeatByRoom']);
+Route::delete('delete-all-seatbyroom/{id}', [RoomController::class, 'deleteAllSeatByRoom']);
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
@@ -215,15 +217,15 @@ Route::get('movieSapChieu', [MovieController::class, 'phimSapChieu']);
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // co the dung hoac ko
-Route::get('list-showtime' , [ShowtimeController::class , 'listshowtimeByMovie']); // 1
-Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByMovie']); // 2 
+Route::get('list-showtime', [ShowtimeController::class, 'listshowtimeByMovie']); // 1
+Route::get('showtime-by-movie/{movieID}', [ShowtimeController::class, 'showtimeByMovie']); // 2 
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
 Route::post('storeShowtime', [ShowtimeController::class, 'store']);
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
-Route::get('search-showtime' , [ShowtimeController::class , 'searchShowtimes']);
+Route::get('search-showtime', [ShowtimeController::class, 'searchShowtimes']);
 
 
 // Ánh : call api Foods
@@ -374,4 +376,4 @@ Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
 Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
-// Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
+
