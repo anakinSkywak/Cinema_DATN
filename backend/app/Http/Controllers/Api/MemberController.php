@@ -46,7 +46,8 @@ class MemberController extends Controller
             'uu_dai' => 'required|numeric',
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric|min:0' // Đảm bảo giá trị gia không được âm
+            'gia' => 'required|numeric|min:0',  // Đảm bảo giá trị gia không được âm
+            'anh_hoi_vien' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',  // Kiểm tra ảnh
         ]);
 
         // Kiểm tra loại hội viên có hợp lệ không (chỉ cho phép "Thường" và "VIP")
@@ -54,27 +55,33 @@ class MemberController extends Controller
             return response()->json(['message' => 'Loại hội viên không hợp lệ. Chỉ cho phép "Thường" và "VIP".'], 400);
         }
 
-        // Kiểm tra thời gian chỉ được phép là 1 tháng
-        if ($validated['thoi_gian'] !== 1) {
-            return response()->json(['message' => 'Thời gian thẻ hội viên phải là 1 tháng.'], 400);
-        }
-
         // Kiểm tra trùng tên loại hội viên
         $exists = Member::where('loai_hoi_vien', $validated['loai_hoi_vien'])->exists();
         if ($exists) {
             return response()->json([
-                'message' => 'Loại hội viên đã tồn tại, vui lòng chọn tên khác!'
-            ], 409); // 409 Conflict
+                'message' => 'Loại hội viên đã tồn tại!'
+            ], 409); 
         }
 
+        // Kiểm tra và lưu ảnh nếu có
+        $imagePath = null;
+        if ($request->hasFile('anh_hoi_vien')) {
+            $file = $request->file('anh_hoi_vien');
+            $filename = $file->getClientOriginalName();
+            $filePath = $file->storeAs('uploads/anh_hoi_vien', $filename, 'public');
+            $validated['anh_hoi_vien'] = '/storage/' . $filePath;
+        }
         // Tạo mới Member
         $member = Member::create($validated);
 
         return response()->json([
             'message' => 'Thêm mới thẻ hội viên thành công',
+            'image_url' => asset($validated['anh_hoi_vien']),
             'data' => $member
         ], 200);
     }
+
+
 
 
 
