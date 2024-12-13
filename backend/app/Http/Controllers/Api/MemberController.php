@@ -46,31 +46,29 @@ class MemberController extends Controller
             'uu_dai' => 'required|numeric',
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric|min:0',  
+            'gia' => 'required|numeric|min:0',
             'anh_hoi_vien' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',  // Kiểm tra ảnh
         ]);
-
-        // Kiểm tra loại hội viên có hợp lệ không (chỉ cho phép "Thường" và "VIP")
-        if (!in_array($validated['loai_hoi_vien'], ['Thường', 'VIP'])) {
-            return response()->json(['message' => 'Loại hội viên không hợp lệ. Chỉ cho phép "Thường" và "VIP".'], 400);
-        }
 
         // Kiểm tra trùng tên loại hội viên
         $exists = Member::where('loai_hoi_vien', $validated['loai_hoi_vien'])->exists();
         if ($exists) {
             return response()->json([
                 'message' => 'Loại hội viên đã tồn tại!'
-            ], 409); 
+            ], 409);  // Trả về lỗi 409 nếu loại hội viên đã tồn tại
         }
+
+        // Thiết lập thói quen thời gian mặc định nếu chưa có
         $validated['thoi_gian'] = 1;
+
         // Kiểm tra và lưu ảnh nếu có
-        $imagePath = null;
         if ($request->hasFile('anh_hoi_vien')) {
             $file = $request->file('anh_hoi_vien');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName(); // Đảm bảo tên ảnh không bị trùng
             $filePath = $file->storeAs('uploads/anh_hoi_vien', $filename, 'public');
             $validated['anh_hoi_vien'] = '/storage/' . $filePath;
         }
+
         // Tạo mới Member
         $member = Member::create($validated);
 
@@ -78,8 +76,9 @@ class MemberController extends Controller
             'message' => 'Thêm mới thẻ hội viên thành công',
             'image_url' => asset($validated['anh_hoi_vien']),
             'data' => $member
-        ], 200);
+        ], 200);  // Trả về mã 200 khi thành công
     }
+
 
 
 
