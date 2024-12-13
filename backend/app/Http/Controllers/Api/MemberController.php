@@ -47,7 +47,6 @@ class MemberController extends Controller
             'ghi_chu' => 'nullable|string|max:255',
             'gia' => 'required|numeric'
         ]);
-    
         // Kiểm tra trùng tên loại hội viên
         $exists = Member::where('loai_hoi_vien', $validated['loai_hoi_vien'])->exists();
         if ($exists) {
