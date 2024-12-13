@@ -39,7 +39,6 @@ class CouponsController extends Controller
             'gia_don_toi_thieu' => 'required|numeric|min:0',
             'Giam_max' => 'required|numeric|min:0',
             'mota' => 'required|string|max:255',
-            'so_luong' => 'required|integer|min:1',
             'so_luong_da_su_dung' => 'nullable|integer|min:0',
             'trang_thai' => 'nullable|boolean',
         ], [
@@ -57,9 +56,6 @@ class CouponsController extends Controller
             'Giam_max.min' => 'Giảm tối đa không được nhỏ hơn 0.',
             'mota.required' => 'Mô tả không được để trống.',
             'mota.max' => 'Mô tả không được vượt quá 255 ký tự.',
-            'so_luong.required' => 'Số lượng không được để trống.',
-            'so_luong.integer' => 'Số lượng phải là số nguyên.',
-            'so_luong.min' => 'Số lượng phải lớn hơn hoặc bằng 1.',
             'so_luong_da_su_dung.integer' => 'Số lượng đã sử dụng phải là số nguyên.',
             'so_luong_da_su_dung.min' => 'Số lượng đã sử dụng không được nhỏ hơn 0.',
         ]);
@@ -71,15 +67,6 @@ class CouponsController extends Controller
                 'message' => 'Mã giảm giá với tên này đã tồn tại. Vui lòng chọn mã khác.',
             ], 400); // Mã trạng thái HTTP 400 - Bad Request
         }
-
-        // Kiểm tra nếu số lượng đã sử dụng bằng số lượng thì trạng thái sẽ tự động thành 1
-        if (
-            isset($validated['so_luong']) && isset($validated['so_luong_da_su_dung']) &&
-            $validated['so_luong'] == $validated['so_luong_da_su_dung']
-        ) {
-            $validated['trang_thai'] = 1; // Cập nhật trạng thái thành 1
-        }
-
         // Tạo mới Coupon
         $coupon = Coupon::create($validated);
 
@@ -128,7 +115,7 @@ class CouponsController extends Controller
             'gia_don_toi_thieu' => 'required|numeric|min:0',
             'Giam_max' => 'required|numeric|min:0',
             'mota' => 'required|string|max:255',
-            'so_luong' => 'required|integer|min:1',
+
             'so_luong_da_su_dung' => 'nullable|integer|min:0',
             'trang_thai' => 'nullable|boolean',
         ], [
@@ -146,9 +133,6 @@ class CouponsController extends Controller
             'Giam_max.min' => 'Giảm tối đa không được nhỏ hơn 0.',
             'mota.required' => 'Mô tả không được để trống.',
             'mota.max' => 'Mô tả không được vượt quá 255 ký tự.',
-            'so_luong.required' => 'Số lượng không được để trống.',
-            'so_luong.integer' => 'Số lượng phải là số nguyên.',
-            'so_luong.min' => 'Số lượng phải lớn hơn hoặc bằng 1.',
             'so_luong_da_su_dung.integer' => 'Số lượng đã sử dụng phải là số nguyên.',
             'so_luong_da_su_dung.min' => 'Số lượng đã sử dụng không được nhỏ hơn 0.',
 
