@@ -14,7 +14,7 @@ class AddSoLuongConLaiToCouponsTable extends Migration
     public function up()
     {
         Schema::table('coupons', function (Blueprint $table) {
-            $table->integer('so_luong_con_lai')->unsigned()->default(0)->after('so_luong'); // Thêm cột mới
+            $table->integer('so_luong_con_lai_de_san')->unsigned()->default(0)->after('so_luong'); // Thêm cột mới
         });
     }
 
