@@ -43,8 +43,8 @@ class MemberController extends Controller
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
-            'uu_dai' => 'required|numeric',
-            'thoi_gian' => 'required|numeric',
+            'uu_dai' => 'required|numeric|min:1|max:50',
+            'thoi_gian' => 'nullable|numeric|min:1|max:24',
             'ghi_chu' => 'nullable|string|max:255',
             'gia' => 'required|numeric|min:0',
             'anh_hoi_vien' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',  // Kiểm tra ảnh
@@ -59,7 +59,7 @@ class MemberController extends Controller
         }
 
         // Thiết lập thói quen thời gian mặc định nếu chưa có
-        $validated['thoi_gian'] = 1;
+        $validated['thoi_gian'] = $validated['thoi_gian'] ?? 1;
 
         // Kiểm tra và lưu ảnh nếu có
         if ($request->hasFile('anh_hoi_vien')) {

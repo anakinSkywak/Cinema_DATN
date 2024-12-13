@@ -106,7 +106,7 @@ class RotationsController extends Controller
         // Xác thực dữ liệu đầu vào
         $validatedData = $request->validate([
             'ten_phan_thuong' => 'required|string|max:150',
-            'muc_giam_gia' => 'nullable|numeric',
+            'muc_giam_gia' => 'nullable|numeric|max:90', // Kiểm tra rằng mức giảm giá không quá 90%
             'mo_ta' => 'required|string|max:255',
             'xac_xuat' => 'required|numeric|min:0|max:100',
             'so_luong' => 'required|integer|min:1',
@@ -115,19 +115,20 @@ class RotationsController extends Controller
             // Tùy chỉnh thông báo lỗi cho các trường hợp validate không hợp lệ
             'so_luong.min' => 'Số lượng không thể nhỏ hơn 1.',
             'so_luong_con_lai.max' => 'Số lượng còn lại không thể lớn hơn số lượng tổng.',
+            'muc_giam_gia.max' => 'Mức giảm giá không thể vượt quá 90%.', // Thông báo lỗi khi mức giảm giá quá 90%
         ]);
-    
-        // Kiểm tra lỗi xác thực
-        if ($request->fails()) {
+
+        // Kiểm tra tên phần thưởng có bị trùng không
+        $exists = Rotation::where('ten_phan_thuong', $request->ten_phan_thuong)->exists();
+        if ($exists) {
             return response()->json([
-                'message' => 'Dữ liệu không hợp lệ.',
-                'errors' => $request->errors()
-            ], 200);
+                'message' => 'Tên phần thưởng đã tồn tại! Vui lòng chọn tên khác.'
+            ], 409); // Mã lỗi 409 khi có tên trùng
         }
-    
+
         // Kiểm tra tổng xác suất của tất cả các vòng quay đã có
         $totalXacXuat = Rotation::sum('xac_xuat');
-    
+
         // Kiểm tra tổng xác suất có vượt quá 100 không
         $newXacXuat = $request->xac_xuat;
         if (($totalXacXuat + $newXacXuat) > 100) {
@@ -135,17 +136,18 @@ class RotationsController extends Controller
                 'message' => 'Tổng xác suất của tất cả các vòng quay không thể vượt quá 100%.'
             ], 200); // Trả về thông báo lỗi với mã 200 OK
         }
-    
+
         // Tạo vòng quay mới với trạng thái mặc định là 1
         $rotation = Rotation::create(array_merge($validatedData, ['trang_thai' => 1]));
-    
+
         // Trả về vòng quay mới nếu không có lỗi
         return response()->json([
             'message' => 'Vòng quay đã được tạo thành công.',
             'data' => $rotation
         ], 201); // Mã 201 cho việc tạo thành công
     }
-    
+
+
 
 
 
@@ -153,30 +155,49 @@ class RotationsController extends Controller
 
     public function update(Request $request, $id)
     {
+        // Tìm phần thưởng theo ID
         $rotation = Rotation::find($id);
 
         if (!$rotation) {
             return response()->json(['message' => 'Không tìm thấy phần thưởng'], 404);
         }
 
+        // Xác thực dữ liệu đầu vào
         $validatedData = $request->validate([
             'ten_phan_thuong' => 'string|max:150',
-            'muc_giam_gia' => 'nullable|numeric',
+            'muc_giam_gia' => 'nullable|numeric|max:90', // Kiểm tra mức giảm giá không quá 90%
             'mo_ta' => 'string|max:255',
             'xac_xuat' => 'numeric|min:0|max:100',
             'so_luong' => 'integer|min:1',
             'so_luong_con_lai' => 'integer|min:0|max:' . ($request->so_luong ?? $rotation->so_luong),
+        ], [
+            // Tùy chỉnh thông báo lỗi cho các trường hợp validate không hợp lệ
+            'so_luong.min' => 'Số lượng không thể nhỏ hơn 1.',
+            'so_luong_con_lai.max' => 'Số lượng còn lại không thể lớn hơn số lượng tổng.',
+            'muc_giam_gia.max' => 'Mức giảm giá không thể vượt quá 90%.', // Thông báo lỗi khi mức giảm giá quá 90%
         ]);
+
+        // Kiểm tra tên phần thưởng có bị trùng không, ngoại trừ phần thưởng hiện tại
+        if ($request->has('ten_phan_thuong') && $request->ten_phan_thuong !== $rotation->ten_phan_thuong) {
+            $exists = Rotation::where('ten_phan_thuong', $request->ten_phan_thuong)->exists();
+            if ($exists) {
+                return response()->json([
+                    'message' => 'Tên phần thưởng đã tồn tại! Vui lòng chọn tên khác.'
+                ], 409); // Mã lỗi 409 khi có tên trùng
+            }
+        }
 
         // Loại bỏ `trang_thai` để tránh ghi đè
         $validatedData = array_filter($validatedData, function ($key) {
             return $key !== 'trang_thai';
         }, ARRAY_FILTER_USE_KEY);
 
+        // Cập nhật phần thưởng
         $rotation->update($validatedData);
 
         return response()->json($rotation);
     }
+
 
 
 
