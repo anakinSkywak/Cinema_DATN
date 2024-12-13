@@ -38,6 +38,7 @@ class MemberController extends Controller
         if (auth()->user()->vai_tro !== 'admin') {
             return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
         }
+    
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
@@ -45,13 +46,24 @@ class MemberController extends Controller
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',
             'gia' => 'required|numeric'
-            
         ]);
-
+    
+        // Kiểm tra trùng tên loại hội viên
+        $exists = Member::where('loai_hoi_vien', $validated['loai_hoi_vien'])->exists();
+        if ($exists) {
+            return response()->json([
+                'message' => 'Loại phần thưởng đã tồn tại, vui lòng chọn tên khác!'
+            ], 409); // 409 Conflict
+        }
+    
         // Tạo mới Member
         $member = Member::create($validated);
-        return response()->json(['message' => 'Thêm mới Member thành công', 'data' => $member], 200);
+        return response()->json([
+            'message' => 'Thêm mới Member thành công',
+            'data' => $member
+        ], 200);
     }
+    
 
     public function show($id)
     {
