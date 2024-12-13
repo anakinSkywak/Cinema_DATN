@@ -35,38 +35,53 @@ class MemberController extends Controller
 
     public function store(Request $request)
     {
+        // Kiểm tra quyền truy cập
         if (auth()->user()->vai_tro !== 'admin') {
             return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
         }
-    
+
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
             'uu_dai' => 'required|numeric',
             'thoi_gian' => 'required|numeric',
             'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric'
+            'gia' => 'required|numeric|min:0' // Đảm bảo giá trị gia không được âm
         ]);
+
+        // Kiểm tra loại hội viên có hợp lệ không (chỉ cho phép "Thường" và "VIP")
+        if (!in_array($validated['loai_hoi_vien'], ['Thường', 'VIP'])) {
+            return response()->json(['message' => 'Loại hội viên không hợp lệ. Chỉ cho phép "Thường" và "VIP".'], 400);
+        }
+
+        // Kiểm tra thời gian chỉ được phép là 1 tháng
+        if ($validated['thoi_gian'] !== 1) {
+            return response()->json(['message' => 'Thời gian thẻ hội viên phải là 1 tháng.'], 400);
+        }
+
         // Kiểm tra trùng tên loại hội viên
         $exists = Member::where('loai_hoi_vien', $validated['loai_hoi_vien'])->exists();
         if ($exists) {
             return response()->json([
-                'message' => 'Loại phần thưởng đã tồn tại, vui lòng chọn tên khác!'
+                'message' => 'Loại hội viên đã tồn tại, vui lòng chọn tên khác!'
             ], 409); // 409 Conflict
         }
-    
+
         // Tạo mới Member
         $member = Member::create($validated);
+
         return response()->json([
-            'message' => 'Thêm mới Member thành công',
+            'message' => 'Thêm mới thẻ hội viên thành công',
             'data' => $member
         ], 200);
     }
-    
+
+
+
 
     public function show($id)
     {
-      
+
         $dataID = Member::find($id);
 
         if (!$dataID) {
@@ -78,7 +93,7 @@ class MemberController extends Controller
 
     public function update(Request $request, $id)
     {
-        
+
         $dataID = Member::find($id);
 
         if (!$dataID) {
