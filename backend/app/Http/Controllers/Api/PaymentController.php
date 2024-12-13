@@ -610,7 +610,7 @@ class PaymentController extends Controller
         $payment->registermember_id = $registerMember->id; // Changed from booking_id to registermember_id
         $payment->tong_tien = $money;
         $payment->phuong_thuc_thanh_toan = $method;
-        $payment->trang_thai = 'Đang chờ xử lý';
+        $payment->trang_thai = '0';
         $payment->ngay_thanh_toan = Carbon::now();
         $payment->ma_thanh_toan = $this->generateRandomCode();
         $payment->save();
@@ -736,7 +736,7 @@ class PaymentController extends Controller
                 // Tìm bản ghi thanh toán
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
                 if ($payment) {
-                    $payment->trang_thai = 'Đã hoàn thành'; // Cập nhật trạng thái thanh toán
+                    $payment->trang_thai = '1'; // Cập nhật trạng thái thanh toán
                     $payment->save();
                 } else {
                     return response()->json(['message' => 'Không tìm thấy thông tin thanh toán'], 404);
@@ -971,7 +971,7 @@ class PaymentController extends Controller
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
 
                 if ($payment) {
-                    $payment->trang_thai = 'Đã hoàn thành'; // Cập nhật trạng thái thanh toán
+                    $payment->trang_thai = '1'; // Cập nhật trạng thái thanh toán
                     $payment->save();
 
                     // Tìm bản ghi đăng ký hội viên

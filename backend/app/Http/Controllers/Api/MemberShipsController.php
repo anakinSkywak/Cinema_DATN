@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\Membership;
 use App\Models\MemberShips;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -18,7 +19,7 @@ class MemberShipsController extends Controller
     public function index()
     {
         // Lấy tất cả dữ liệu từ bảng Membership
-        $data = Memberships::with('registerMember')->get();
+        $data = Membership::with('registerMember')->get();
 
         if ($data->isEmpty()) {
             return response()->json([
@@ -46,7 +47,7 @@ class MemberShipsController extends Controller
         $user_id = auth()->user()->id;
 
         // Lấy thông tin thẻ hội viên của người dùng
-        $membership = Memberships::with('registerMember')
+        $membership = Membership::with('registerMember')
             ->whereHas('registerMember', function ($query) use ($user_id) {
                 $query->where('user_id', $user_id);
             })
@@ -97,7 +98,7 @@ class MemberShipsController extends Controller
         $user_id = auth()->user()->id;
 
         // Truy vấn để lấy thẻ hội viên của người dùng
-        $membership = Memberships::with('registerMember')  // Quan hệ với RegisterMember
+        $membership = Membership::with('registerMember')  // Quan hệ với RegisterMember
             ->whereHas('registerMember', function ($query) use ($user_id) {
                 $query->where('user_id', $user_id);  // Lọc theo user_id trong bảng register_members
             })
@@ -148,7 +149,7 @@ class MemberShipsController extends Controller
      */
     public function destroy($id)
     {
-        $membership = Memberships::find($id);
+        $membership = Membership::find($id);
 
         if (!$membership) {
             return response()->json([
