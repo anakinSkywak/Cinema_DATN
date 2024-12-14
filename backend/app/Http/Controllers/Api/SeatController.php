@@ -98,7 +98,7 @@ class SeatController extends Controller
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
             'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
             'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế 
-            'seats.*.gia_ghe' => 'required|numeric|min:1', // giá ghế 
+            'seats.*.gia_ghe' => 'nullable|numeric|min:1', // giá ghế 
         ]);
 
 

@@ -23,7 +23,8 @@ class Movie extends Model
         'hinh_thuc_phim',
         'thoi_gian_phim',
         'danh_gia',
-        'quoc_gia'
+        'quoc_gia',
+        'ngay_cong_chieu'
        
     ];
 

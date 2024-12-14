@@ -34,6 +34,7 @@ use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
 use App\Http\Controllers\Api\CheckTicketController;
+use App\Http\Controllers\Api\SeatPriceController;
 use App\Http\Controllers\Api\StatisticalController;
 
 
@@ -104,16 +105,16 @@ Route::get('movie-client', [MovieController::class, 'movieClient']);
 
 // chi tiết theo id phim khi ấn vào phim ở home
 // 1  user
-//http://127.0.0.1:8000/api/movie-detail/31
-Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
+//http://127.0.0.1:8000/api/movie-detail/31  // mẫu
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetailById']);
 
 // 2 user
-//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
-Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
+//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19   // mẫu
+Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getTimeOfDateShowtime']);
 
 // 3 user
-//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00
-Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getRoomsByShowtime']);
+//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00    // mẫu
+Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getSeatOfTimeShowtime']);
 
 
 
@@ -122,7 +123,7 @@ Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieControlle
 Route::middleware('auth:api')->group(function () {
 
 
-    Route::post('/select-seat', [BookingController::class, 'selectSeat']);  //
+    Route::post('/select-seat', [BookingController::class, 'selectSeat']); 
 
     // 4 user
     //http://127.0.0.1:8000/api/booking
@@ -149,10 +150,9 @@ Route::get('checkBarcode-exportTicket', [CheckTicketController::class, 'checkBar
 Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTicket']);
 
 
-// return user 
-Route::get('payment/ncb-return', [PaymentController::class, 'NCBReturn']);
-Route::get('payment/mastercard-return', [PaymentController::class, 'mastercardReturn']);
-Route::get('payment/visa-return', [PaymentController::class, 'visaReturn']);
+// return payment  
+Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+
 
 
 // booking all bên admin
@@ -177,6 +177,8 @@ Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
 Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
 Route::delete('delete-all-seatbyroom/{id}' , [RoomController::class , 'deleteAllSeatByRoom']);
+Route::put('close-room/{id}' , [RoomController::class , 'closeRoomId']);
+Route::put('open-room/{id}' , [RoomController::class , 'openRoomId']);
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
@@ -188,6 +190,17 @@ Route::get('showSeat/{id}', [SeatController::class, 'show']);
 Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
 Route::put('updateSeat/{id}', [SeatController::class, 'update']);
 Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
+
+
+// Ánh call bảng gía ghế theo ngày tuần , ngày lễ 
+Route::get('seat-prices' ,[SeatPriceController::class , 'listSeatPrice']); 
+Route::get('list-seat' ,[SeatPriceController::class , 'table_seat_price']);
+Route::post('store-seat-price' ,[SeatPriceController::class , 'store']);
+Route::get('show-seat-price/{id}' ,[SeatPriceController::class , 'show']);
+Route::get('edit-seat-price/{id}' ,[SeatPriceController::class , 'edit']);
+Route::put('update-seat-price' ,[SeatPriceController::class , 'update']);
+Route::delete('delete-seat-price/{id}' ,[SeatPriceController::class , 'delete']);
+
 
 
 // Ánh : call api moviegenres

@@ -73,7 +73,6 @@ class ShowtimeController extends Controller
 
 
 
-
     // đổ all showtime ( có thể dùng hoặc không )
 
     public function index()
@@ -97,7 +96,7 @@ class ShowtimeController extends Controller
     public function addShowtime()
     {
 
-        // lấy phim thêm showtime với phim phải là Đang chiếu 
+        // lấy phim thêm showtime với phim phải là Đang chiếu đang được chiếu ở thời gian thực
 
         $movies = Movie::select('id', 'ten_phim', 'hinh_thuc_phim')->where('hinh_thuc_phim', 0)->get();
         if ($movies->isEmpty()) {
@@ -106,11 +105,11 @@ class ShowtimeController extends Controller
             ], 404);
         }
 
-        // lấy room ra với tổng ghế phòng phải có lớn hơn 0
-        $rooms = Room::select('id', 'ten_phong_chieu')->where('tong_ghe_phong', '>', 0)->get();
+        // lấy room ra với tổng ghế phòng phải có lớn hơn 0 và phòng không được khóa 
+        $rooms = Room::select('id', 'ten_phong_chieu')->where('tong_ghe_phong', '>', 0)->where('trang_thai', 0)->get();
         if ($rooms->isEmpty()) {
             return response()->json([
-                'message' => 'Không có phòng hãy thêm phòng !'
+                'message' => 'Không có phòng hãy thêm phòng or có phòng đang khóa đi kiểm tra !'
             ], 404);
         }
 
@@ -143,9 +142,7 @@ class ShowtimeController extends Controller
         $showtimes = [];
 
         foreach ($request->room_ids as $room_id) { // thêm showtime với nhiều phòng cùng 1 gio
-
             foreach ($request->gio_chieu as $gio) { // thêm nhiều giờ với cùng 1 phim 1 room
-
                 $gio = $gio . ':00';
                 $gio_chieu = Carbon::createFromFormat('H:i:s', $gio); // Tạo Carbon instance từ giờ chiếu
 
@@ -171,20 +168,17 @@ class ShowtimeController extends Controller
                 if ($last_showtime) {
                     // Tính thời gian kết thúc của giờ chiếu trước đó (bao gồm thời gian chiếu + 15 phút dọn dẹp)
                     $gio_truoc = Carbon::createFromFormat('H:i:s', $last_showtime->gio_chieu);
-
                     $thoi_gian_ket_thuc_truoc = $gio_truoc->copy()->addMinutes($thoi_luong_chieu + 15);
 
                     // Kiểm tra giờ chiếu mới phải lớn hơn giờ kết thúc của giờ chiếu trước
                     if ($gio_chieu->lessThanOrEqualTo($thoi_gian_ket_thuc_truoc)) {
 
                         $gio_ket_thuc = $thoi_gian_ket_thuc_truoc->format('H:i:s');
-
                         return response()->json([
                             'error' => "Giờ chiếu |$gio| không thể thêm vì quá gần với giờ chiếu trước đó là: {$last_showtime->gio_chieu} phải thêm mới với lớn hơn {$gio_ket_thuc}.",
                         ], 400);
                     }
                 }
-
 
                 // Tạo mới showtime
                 $showtime = Showtime::create([
@@ -195,18 +189,46 @@ class ShowtimeController extends Controller
                     'gio_chieu' => $gio,
                 ]);
 
-                //
+                // lấy id seat theo room_id lưu vào seat_showtime_status 
                 $seats = DB::table('seats')->where('room_id', $room_id)->get();
 
                 foreach ($seats as $seat) {
+                    // tìm giá ghế
+                    // lấy ngày chiếu khi thêm showtime để kiểm tra thứ trong tuần
+                    $thu_trong_tuan = Carbon::parse($request->ngay_chieu)->dayOfWeek;
+
+                    // lấy giá ghế theo thứ và khung giờ khác nhau or ngày lễ để lấy giá ghế
+                    $gia_ghe = DB::table('seat_prices')
+                        ->where('loai_ghe', $seat->loai_ghe_ngoi)
+                        ->where(function ($query) use ($thu_trong_tuan, $request, $gio_chieu) {
+                            $ngay_chieu = Carbon::parse($request->ngay_chieu);
+
+                            $query->where(function ($subQuery) use ($ngay_chieu, $gio_chieu) {
+                                $subQuery->whereRaw('MONTH(ngay_cu_the) = ?', [$ngay_chieu->month]) // So sánh tháng
+                                    ->whereRaw('DAY(ngay_cu_the) = ?', [$ngay_chieu->day])         // So sánh ngày
+                                    ->where('la_ngay_le', 1)                                     // Chỉ lấy ngày lễ
+                                    ->where('gio_bat_dau', '<=', $gio_chieu->toTimeString())
+                                    ->where('gio_ket_thuc', '>=', $gio_chieu->toTimeString());
+                            })
+                                ->orWhere(function ($subQuery) use ($thu_trong_tuan, $gio_chieu) {
+                                    $subQuery->where('thu_trong_tuan', $thu_trong_tuan)             // Giá theo thứ
+                                        ->where('gio_bat_dau', '<=', $gio_chieu->toTimeString())
+                                        ->where('gio_ket_thuc', '>=', $gio_chieu->toTimeString());
+                                });
+                        })
+                        ->orderByDesc('la_ngay_le') // ưu tiên lấy ngày lễ trước
+                        ->value('gia_ghe') ?? 0;
+
+                    // tạo ghế seat_showtime với thông tin chiếu ghế ngồi id và giá ghế theo bảng seat_price
                     SeatShowtimeStatu::create([
                         'thongtinchieu_id' => $showtime->id,
                         'ghengoi_id' => $seat->id,
                         'gio_chieu' => $gio,
-                        //'trang_thai' => 0, // Trạng thái = 0 (trống)
+                        'ngay_chieu' => $showtime->ngay_chieu,
+                        'gia_ghe_showtime' => $gia_ghe
+                        //'trang_thai' => 0, // Trạng thái = 0 (trống) default(0)
                     ]);
                 }
-                //
 
                 $showtimes[] = $showtime;
             }
@@ -290,6 +312,7 @@ class ShowtimeController extends Controller
     }
 
 
+    // xử lý sau
     // update với thông tin ngày mới giờ mới
     public function update(Request $request, string $id)
     {
@@ -359,34 +382,14 @@ class ShowtimeController extends Controller
             ], 404);
         }
 
+        // check xóa showtime đang có phải không có đơn booking nào của user : check sau 
+
         $showtimeID->delete();
 
         return response()->json([
             'message' => 'Xóa Showtime theo id thành công'
         ], 200);
     }
-
-
-    // hàm chuyển hóa loại bỏ đầu vào chuyển đổi dấu thanh ko dấu trước khi truy vấn
-    public function normalizeVietnameseString($str)
-    {
-        $map = [
-            'a' => ['á', 'à', 'ả', 'ã', 'ạ', 'ă', 'ắ', 'ằ', 'ẳ', 'ẵ', 'ặ', 'â', 'ấ', 'ầ', 'ẩ', 'ẫ', 'ậ'],
-            'd' => ['đ'],
-            'e' => ['é', 'è', 'ẻ', 'ẽ', 'ẹ', 'ê', 'ế', 'ề', 'ể', 'ễ', 'ệ'],
-            'i' => ['í', 'ì', 'ỉ', 'ĩ', 'ị'],
-            'o' => ['ó', 'ò', 'ỏ', 'õ', 'ọ', 'ô', 'ố', 'ồ', 'ổ', 'ỗ', 'ộ', 'ơ', 'ớ', 'ờ', 'ở', 'ỡ', 'ợ'],
-            'u' => ['ú', 'ù', 'ủ', 'ũ', 'ụ', 'ư', 'ứ', 'ừ', 'ử', 'ữ', 'ự'],
-            'y' => ['ý', 'ỳ', 'ỷ', 'ỹ', 'ỵ']
-        ];
-
-        foreach ($map as $ascii => $unicode) {
-            $str = str_replace($unicode, $ascii, $str);
-        }
-
-        return strtolower($str);
-    }
-
 
 
     // chức năng tìm kiếm showtime : phim , ngày , phòng , giờ 
