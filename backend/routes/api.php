@@ -403,6 +403,11 @@ Route::get('getPhanLoaiVe', function(Request $request) {
     return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'trang_thai');
 });
 
+Route::get('getHinhThucThanhToan', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'phuong_thuc_thanh_toan');
+});
+
+
 // Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
 // Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
 // Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
