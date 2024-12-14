@@ -122,7 +122,7 @@ class StatisticalController extends Controller
 
         if ($filterBy === 'phuong_thuc_thanh_toan') {
             $result = [
-                'tienMat' => 'cash',
+                'tienMat' => Payment::where($filterBy, 'cash')->count(),
                 'thanhToanOnline' => Payment::where($filterBy, '!=', 'cash')->count()
             ];
 
