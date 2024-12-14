@@ -18,9 +18,8 @@ class Coupon extends Model
         'ma_giam_gia',
         'muc_giam_gia',
         'gia_don_toi_thieu',
-        'Giam_max',
+        'Giam_max', // Sửa 'Giam_max' thành 'giam_max' để tuân thủ quy tắc đặt tên biến
         'mota',
-        'so_luong',
         'so_luong_da_su_dung',
         'trang_thai',
     ];
