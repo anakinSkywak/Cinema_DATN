@@ -421,6 +421,11 @@ Route::get('getDoanhThuThang', function(Request $request) {
     return app(StatisticalController::class)->doanhThuThang();
 });
 
+// 5. Thống kê voucher đã sử dụng
+Route::get('getThongKeVoucher', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request , 'voucher');
+});
+
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 // Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
 
