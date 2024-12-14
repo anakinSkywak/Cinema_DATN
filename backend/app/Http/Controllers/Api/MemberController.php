@@ -43,7 +43,7 @@ class MemberController extends Controller
         // Validate dữ liệu khi tạo Member mới
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
-            'uu_dai' => 'required|numeric|min:1|max:50',
+            'uu_dai' => 'required|numeric|min:1|max:100',
             'thoi_gian' => 'nullable|numeric|min:1|max:24',
             'ghi_chu' => 'nullable|string|max:255',
             'gia' => 'required|numeric|min:0',
@@ -99,26 +99,59 @@ class MemberController extends Controller
 
     public function update(Request $request, $id)
     {
-
+        // Tìm Member theo ID
         $dataID = Member::find($id);
-
+    
         if (!$dataID) {
             Log::error("Không tìm thấy Member với ID: $id");
             return response()->json(['message' => 'Không tìm thấy Member theo ID'], 404);
         }
-
+    
+        // Validate dữ liệu đầu vào
         $validated = $request->validate([
             'loai_hoi_vien' => 'required|string|max:255',
-            'uu_dai' => 'required|numeric',
-            'thoi_gian' => 'required|numeric',
+            'uu_dai' => 'required|numeric|min:1|max:100', 
+            'thoi_gian' => 'nullable|numeric|min:1|max:24', 
             'ghi_chu' => 'nullable|string|max:255',
-            'gia' => 'required|numeric',
+            'gia' => 'required|numeric|min:1', 
+            'anh_hoi_vien' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Kiểm tra tệp ảnh
         ]);
-
+    
+        // Kiểm tra trùng tên loại hội viên (trừ chính bản ghi đang được cập nhật)
+        $exists = Member::where('loai_hoi_vien', $validated['loai_hoi_vien'])
+            ->where('id', '!=', $dataID->id)
+            ->exists();
+        if ($exists) {
+            return response()->json([
+                'message' => 'Loại hội viên đã tồn tại!'
+            ], 409); // Trả về lỗi 409 nếu loại hội viên đã tồn tại
+        }
+    
+        // Kiểm tra và cập nhật ảnh nếu có
+        if ($request->hasFile('anh_hoi_vien')) {
+            $file = $request->file('anh_hoi_vien');
+            $filename = time() . '_' . $file->getClientOriginalName(); // Đảm bảo tên ảnh không bị trùng
+            $filePath = $file->storeAs('uploads/anh_hoi_vien', $filename, 'public');
+            $validated['anh_hoi_vien'] = '/storage/' . $filePath;
+    
+            // Xóa ảnh cũ nếu có
+            if ($dataID->anh_hoi_vien) {
+                $oldImagePath = public_path(str_replace('/storage', 'storage', $dataID->anh_hoi_vien));
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
+            }
+        }
+    
+        // Cập nhật dữ liệu
         $dataID->update($validated);
-
-        return response()->json(['message' => 'Cập nhật dữ liệu thành công', 'data' => $dataID], 200);
+    
+        return response()->json([
+            'message' => 'Cập nhật dữ liệu thành công',
+            'data' => $dataID
+        ], 200);
     }
+    
 
     public function destroy($id)
     {

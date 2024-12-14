@@ -20,6 +20,7 @@ class MemberShipsController extends Controller
      */
     public function index()
     {
+
         // Lấy tất cả dữ liệu từ bảng Membership
         $data = Membership::with('registerMember')->get();
 
@@ -137,12 +138,6 @@ class MemberShipsController extends Controller
 
 
 
-
-
-
-
-
-
     /**
      * Xóa thẻ hội viên theo ID.
      *
@@ -165,61 +160,37 @@ class MemberShipsController extends Controller
             'message' => 'Xóa thẻ hội viên thành công!'
         ], 200); // Trả về 200 khi xóa thành công
     }
-    public function sendMembershipEmail()
+    private function checkAndNotifyMembership($membership)
     {
-        // Kiểm tra xem người dùng đã đăng nhập chưa
-        if (!auth()->check()) {
-            return response()->json(['message' => 'Bạn cần đăng nhập để xem thông tin thẻ hội viên!'], 401);
-        }
+        $currentDate = Carbon::now();
+        $expirationDate = Carbon::parse($membership->ngay_het_han);
+        $user = $membership->registerMember;  // Người dùng liên kết với thẻ hội viên
 
-        // Lấy user_id của người dùng đã đăng nhập
-        $user_id = auth()->user()->id;
-
-        // Lấy thẻ hội viên của người dùng
-        $membership = Membership::with('registerMember.user')  // Eager load quan hệ với user
-            ->whereHas('registerMember', function ($query) use ($user_id) {
-                $query->where('user_id', $user_id);
-            })
-            ->first(); // Lấy thẻ hội viên đầu tiên (nếu có)
-
-        // Kiểm tra xem thẻ hội viên có tồn tại không
-        if (!$membership) {
-            return response()->json(['message' => 'Bạn chưa đăng ký thẻ hội viên!'], 404);
-        }
-
-        $currentDate = now(); // Lấy ngày hiện tại
-        $expirationDate = Carbon::parse($membership->ngay_het_han); // Lấy ngày hết hạn thẻ hội viên
-
-        // Kiểm tra nếu thẻ hội viên đã hết hạn
+        // Kiểm tra nếu thẻ đã hết hạn
         if ($expirationDate->isBefore($currentDate)) {
-            $membership->trang_thai = 1; // Thẻ đã hết hạn
-            $messageContent = "Thẻ hội viên của bạn đã hết hạn. Vui lòng đăng ký lại thẻ mới!";
+            $membership->trang_thai = 1;  // Thẻ đã hết hạn
+            $membership->renewal_message = "Thẻ hội viên đã hết hạn. Vui lòng đăng ký lại thẻ hội viên mới!";
+            $this->sendNotification($user->email, "Thông báo hết hạn thẻ hội viên", $membership->renewal_message);
         } else {
-            // Kiểm tra nếu thẻ sắp hết hạn trong vòng 2 ngày
+            // Kiểm tra thẻ sắp hết hạn (trong vòng 2 ngày)
             if ($expirationDate->diffInDays($currentDate) <= 2) {
-                $messageContent = "Thẻ hội viên của bạn sắp hết hạn. Vui lòng gia hạn thẻ để tiếp tục sử dụng dịch vụ!";
+                $membership->renewal_message = "Thẻ hội viên sắp hết hạn. Vui lòng gia hạn thẻ!";
+                $this->sendNotification($user->email, "Thông báo gia hạn thẻ hội viên", $membership->renewal_message);
             } else {
-                $messageContent = "Thẻ hội viên của bạn còn thời gian sử dụng.";
+                $membership->renewal_message = "Thẻ còn thời gian sử dụng.";
             }
             $membership->trang_thai = 0;  // Thẻ còn hiệu lực
         }
 
         // Cập nhật trạng thái và thông báo
-        $membership->renewal_message = $messageContent;
         $membership->save();
-
-        // Lấy email của người dùng thông qua quan hệ với bảng registerMember
-        $email = $membership->registerMember->user->email;
-
-        // Gửi email thông báo nếu thẻ hội viên đã hết hạn hoặc sắp hết hạn (<=2 ngày)
-        if ($expirationDate->isBefore($currentDate) || $expirationDate->diffInDays($currentDate) <= 2) {
-            Mail::to($email)->send(new MembershipNotification($membership, $messageContent));
-        }
-
-        // Trả về thông tin thẻ hội viên sau khi cập nhật
-        return response()->json([
-            'message' => 'Thông tin thẻ hội viên đã được gửi đến người dùng.',
-            'data' => $membership
-        ], 200);
     }
+
+    /**
+     * Gửi thông báo email cho người dùng.
+     */
+    // private function sendNotification($email, $subject, $message)
+    // {
+    //     Mail::to($email)->send(new MembershipNotification($subject, $message));
+    // }
 }

@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Mail\PaymentSuccessMail;
 use App\Models\Member;
 use App\Models\MemberShip;
 use App\Models\User;
@@ -233,13 +234,12 @@ class PaymentController extends Controller
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
                 return redirect('http://localhost:5173/profile');
-
-            } elseif($inputData['vnp_ResponseCode'] == '24') {
+            } elseif ($inputData['vnp_ResponseCode'] == '24') {
 
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
 
                 if ($payment) {
-                    
+
                     // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
                     $payment->trang_thai = 3;
                     $payment->save();
@@ -751,24 +751,35 @@ class PaymentController extends Controller
                     // Kiểm tra hoặc cập nhật bảng memberships
                     $membership = MemberShip::where('dangkyhoivien_id', $registerMember->id)->first();
 
-                    if ($membership) {
-                        $membership->ngay_dang_ky = $registerMember->ngay_dang_ky;
-                        $membership->ngay_het_han = $registerMember->ngay_het_han;
-                        $membership->save();
-
-                        $message = "Membership với ID {$membership->id} đã được cập nhật.";
-                    } else {
-                        $newMembership = MemberShip::create([
+                    if (!$membership) {
+                        $membership = MemberShip::create([
                             'dangkyhoivien_id' => $registerMember->id,
                             'so_the' => 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT),
                             'ngay_dang_ky' => $registerMember->ngay_dang_ky,
                             'ngay_het_han' => $registerMember->ngay_het_han,
                         ]);
-
-                        $message = "Membership mới được tạo với ID {$newMembership->id}.";
+                    } else {
+                        $membership->ngay_dang_ky = $registerMember->ngay_dang_ky;
+                        $membership->ngay_het_han = $registerMember->ngay_het_han;
+                        $membership->save();
                     }
 
-                    return response()->json(['message' => $message]);
+                    // Lấy thông tin người dùng từ user_id
+                    $user = User::find($registerMember->user_id);
+                    if ($user && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                        // Gửi email thông báo
+                        Mail::to($user->email)->send(new PaymentSuccessMail($membership));
+
+                        return response()->json([
+                            'message' => 'Thanh toán thành công, email đã được gửi.',
+                            'email' => $user->email,
+                            'so_the' => $membership->so_the,
+                            'ngay_bat_dau' => $membership->ngay_dang_ky,
+                            'ngay_het_han' => $membership->ngay_het_han,
+                        ]);
+                    } else {
+                        return response()->json(['message' => 'Không tìm thấy email hợp lệ của người dùng'], 400);
+                    }
                 } else {
                     return response()->json(['message' => 'Không tìm thấy thông tin đăng ký hội viên'], 404);
                 }

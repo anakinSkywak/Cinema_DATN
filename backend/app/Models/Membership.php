@@ -21,10 +21,30 @@ class MemberShip extends Model
         'renewal_message'
     ];
 
-    // Mối quan hệ với RegisterMember
+
     public function registerMember()
     {
-        return $this->belongsTo(RegisterMember::class, 'dangkyhoivien_id');
+        return $this->belongsTo(RegisterMember::class, 'dangkyhoivien_id'); // Assuming 'dangkyhoivien_id' is the foreign key
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Hook vào sự kiện khi truy vấn model
+        static::retrieved(function ($membership) {
+            $currentDate = Carbon::now();
+            $expirationDate = Carbon::parse($membership->ngay_het_han);
+
+            if ($expirationDate->isBefore($currentDate)) {
+                $membership->trang_thai = 1; // Đã hết hạn
+                $membership->renewal_message = "Thẻ hội viên đã hết hạn.";
+                $membership->save(); // Tự động cập nhật vào cơ sở dữ liệu
+            }
+        });
+    }
 }

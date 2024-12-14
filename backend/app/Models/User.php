@@ -16,7 +16,7 @@ use Laravel\Passport\HasApiTokens as PassportHasApiTokens;
 
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, MustVerifyEmailTrait ;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, MustVerifyEmailTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -106,7 +106,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
 
 
-        // không dc sửa cái này
+    // không dc sửa cái này
     /**
      * Determine if the user has verified their email address.
      *
@@ -117,7 +117,7 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         return ! is_null($this->email_verified_at);
     }
 
-        // không dc sửa cái này
+    // không dc sửa cái này
     /**
      * Get the email address that should be used for verification.
      *
@@ -133,7 +133,11 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         $this->notify(new VerifyEmail($otp));
     }
     public function contacts()
-{
-    return $this->hasMany(Contact::class);
-}
+    {
+        return $this->hasMany(Contact::class);
+    }
+    public function registerMember()
+    {
+        return $this->hasOne(RegisterMember::class, 'user_id'); // Assuming 'user_id' is the foreign key
+    }
 }
