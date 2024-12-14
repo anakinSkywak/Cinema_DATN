@@ -412,6 +412,9 @@ Route::get('getTopDatVe', function(Request $request) {
     return app(StatisticalController::class)->thongKeTop($request, 'user', 5);
 });
 
+Route::get('getTopVePhim', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTop($request, 'movie', 5);
+});
 
 // Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
 // Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
