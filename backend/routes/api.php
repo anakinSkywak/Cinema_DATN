@@ -375,17 +375,9 @@ Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThu
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 
-Route::get('/send-test-email', function () {
-    $details = [
-        'subject' => 'Test Email',
-        'body' => 'This is a test email to check SMTP configuration.'
-    ];
 
-    // Gửi email
-    Mail::raw($details['body'], function ($message) use ($details) {
-        $message->to('vuxuanbon12022004@gmail.com')
-                ->subject($details['subject']);
-    });
+// Route thống kê doanh thu theo loại hội viên
+Route::get('/revenue-by-membership', [RegisterMemberController::class, 'revenueByMembershipType']);
 
-    return 'Test email sent!';
-});
+// Route thống kê số lượng người đăng ký theo loại hội viên
+Route::get('/count-users-by-membership', [RegisterMemberController::class, 'countUsersByMembershipType']);
