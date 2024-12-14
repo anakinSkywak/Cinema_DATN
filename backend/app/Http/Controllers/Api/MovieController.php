@@ -38,15 +38,15 @@ class MovieController extends Controller
     public function movieClient()
     {
 
-        // phim đang chiếu
-        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Đang Chiếu')->orderBy('id', 'DESC')->get();
+        // phim đang chiếu 0 : Đang chiếu
+        $movie_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 0)->orderBy('id', 'DESC')->get();
 
 
-        // phim sắp công chiếu
-        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 'Sắp Công Chiếu')->orderBy('id', 'DESC')->get();
+        // phim sắp công chiếu 1 : Sắp công chiếu
+        $movie_sap_chieu = Movie::with('movie_genres')->where('hinh_thuc_phim', 1)->orderBy('id', 'DESC')->get();
 
 
-        // phim xuất chiếu
+        // phim có xuất chiếu đã tạo showtime theo phim 
         $movie_xuatchieu = Movie::with('movie_genres')
             ->whereHas('showtimes') // Chỉ lấy các phim có suất chiếu
             ->orderBy('id', 'DESC')
@@ -125,10 +125,11 @@ class MovieController extends Controller
             'noi_dung' => 'required|string|max:5000',
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric|min:1',
-            'hinh_thuc_phim' => 'required|string|max:255',
+            'hinh_thuc_phim' => 'required|numeric',  // 0 đang chiếu 1 sắp công chiếu 
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric|min:1',
+            'quoc_gia' => 'required|string|max:255',
         ]);
 
 
@@ -211,16 +212,17 @@ class MovieController extends Controller
 
         $request->validate([
             'ten_phim' => 'required|string|max:255',
-            'anh_phim' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048',
+            'anh_phim' => 'nullable|file|mimes:jpeg,png,jpg,gif|max:2048',
             'dao_dien' => 'required|string|max:255',
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:5000',
             'trailer' => 'required|string|url|max:255',
             'gia_ve' => 'required|numeric|min:1',
-            'hinh_thuc_phim' => 'required|string|max:255',
+            'hinh_thuc_phim' => 'required|numeric',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
             'thoi_gian_phim' => 'required|numeric|min:1',
+            'quoc_gia' => 'required|string|max:255',
         ]);
 
         $movie = Movie::find($id);
@@ -266,6 +268,7 @@ class MovieController extends Controller
             'gia_ve' => $request->gia_ve,
             'hinh_thuc_phim' => $request->hinh_thuc_phim,
             'thoi_gian_phim' => $request->thoi_gian_phim,
+            'quoc_gia' => $request->quoc_gia,
         ]);
 
         $movie->movie_genres()->sync($request->loaiphim_ids);
@@ -417,76 +420,89 @@ class MovieController extends Controller
     // khi ấn vào thời gian đổ ra room nếu có room nhiều phòng cùng 1 giờ
     public function getRoomsByShowtime(Request $request, $movieID, $date, $time)
     {
-        // Truy vấn danh sách các phòng chiếu cho giờ và ngày đã chọn
+        // lấy phòng chiếu theo ngày và giờ đã chọn
         $roomsByTime = Showtime::where('phim_id', $movieID)
             ->whereDate('ngay_chieu', $date)
             ->where('gio_chieu', $time)
             ->select('id', 'phim_id', 'room_id', 'ngay_chieu', 'gio_chieu')
-            ->with('room') // Lấy thông tin phòng
+            ->with('room')
             ->get();
 
         if ($roomsByTime->isEmpty()) {
             return response()->json(['message' => 'Không có phòng chiếu nào cho giờ đã chọn.']);
         }
 
-        // Khởi tạo mảng để chứa phòng và ghế với trạng thái
+        // khởi tạo mảng để chứa phòng và ghế với trạng thái
         $roomsWithSeats = $roomsByTime->map(function ($showtime) {
-            // Lấy room_id của từng suất chiếu
+            // lấy room_id của từng suất chiếu
             $roomID = $showtime->room_id;
 
-            // Lấy tất cả ghế của phòng chiếu
-            $allSeats = Seat::where('room_id', $roomID)->get();
+            // lấy tất cả ghế của phòng chiếu đó
+            $allSeats = Seat::where('room_id', $roomID)->whereNull('deleted_at')->get();
 
-            // Truy vấn trạng thái của ghế đã đặt cho showtime này
-            $bookedSeats = DB::table('seat_showtime_status')
+            // truy vấn trạng thái ghế từ bảng `seat_showtime_status`
+            $seatStatuses = DB::table('seat_showtime_status')
                 ->where('thongtinchieu_id', $showtime->id)
-                ->where('trang_thai', 1) // Ghế đã đặt
-                ->pluck('ghengoi_id');
+                ->select('ghengoi_id', 'trang_thai', 'user_id')
+                ->get()
+                ->keyBy('ghengoi_id'); // key là id ghế ngồi để truy xuất lấy dữ liệu
 
-            $selectedSeats = DB::table('seat_showtime_status')
-                ->where('thongtinchieu_id', $showtime->id)
-                ->where('trang_thai', 3) // Ghế đang dc chọn hàng đợi
-                ->pluck('ghengoi_id');
-                // dd($selectedSeats);
-
-            // Truy vấn trạng thái bảo trì của ghế từ bảng 'seats
+            // truy vấn trạng thái ghế bảo trì
             $maintenanceSeats = DB::table('seats')
                 ->where('room_id', $roomID)
-                ->where('trang_thai', 2) // Trạng thái bảo trì của ghế
+                ->where('trang_thai', 2) // Trạng thái bảo trì
                 ->pluck('id');
 
-            // Lấy trạng thái của các ghế (đã đặt, bảo trì hoặc trống)
-            $seatsWithStatus = $allSeats->map(function ($seat) use ($bookedSeats, $maintenanceSeats, $selectedSeats) {
+                //dd($maintenanceSeats);
 
-                if ($bookedSeats->contains($seat->id)) {
-                    $status = 'Đã đặt'; // Ghế đã được đặt
-                } elseif ($maintenanceSeats->contains($seat->id)) {
-                    $status = 'Bảo trì'; // Ghế đang bảo trì
-                } elseif ($selectedSeats->contains($seat->id)) {
-                    $status = 'Ghế đang trong hàng đợi'; // Ghế đang trong hàng đợi
+            // lấy trạng thái của các ghế (đã đặt, bảo trì hoặc trống)
+            $seatsWithStatus = $allSeats->map(function ($seat) use ($seatStatuses, $maintenanceSeats) {
+               
+                if ($maintenanceSeats->contains($seat->id)) {
+                    $status = 'Bảo trì';
+                    $userId = null;
+                } elseif ($seatStatuses->has($seat->id)) {
+                    // nếu không phải bảo trì, kiểm tra trạng thái từ seat_showtime_status
+                    $statusInfo = $seatStatuses->get($seat->id);
+                    $userId = $statusInfo->user_id;
+            
+                    switch ($statusInfo->trang_thai) {
+                        case 1:
+                            $status = 'Đã đặt';
+                            break;
+                        case 3:
+                            $status = 'Ghế đang trong hàng đợi';
+                            break;
+                        default:
+                            $status = 'Trống';
+                    }
                 } else {
-                    $status = 'Trống'; // Ghế còn lại là trống
+                    // trạng thái mặc định là trống
+                    $status = 'Trống';
+                    $userId = null;
                 }
-
+            
                 return [
                     'id' => $seat->id,
                     'ten_ghe_ngoi' => $seat->so_ghe_ngoi,
                     'loai_ghe_ngoi' => $seat->loai_ghe_ngoi,
                     'gia_ghe' => $seat->gia_ghe,
-                    'trang_thai' => $status
+                    'trang_thai' => $status,
+                    'user_id' => $userId 
                 ];
             });
+            
 
-            // Trả về thông tin phòng và ghế với trạng thái
             return [
                 'room' => $showtime->room,
-                'seats' => $seatsWithStatus // Danh sách ghế với trạng thái
+                'seats' => $seatsWithStatus,
             ];
         });
 
         return response()->json([
             'message' => 'Lấy danh sách phòng chiếu và trạng thái ghế thành công.',
-            'roomsWithSeats' => $roomsWithSeats // Danh sách các phòng chiếu và ghế
+            'roomsWithSeats' => $roomsWithSeats,
+            
         ], 200);
     }
 }

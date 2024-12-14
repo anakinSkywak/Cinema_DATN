@@ -128,6 +128,17 @@ class RoomController extends Controller
             return response()->json(['message' => 'Không có dữ liệu Room theo id này'], 404);
         }
 
+        // truy vấn showtime nếu có room theo id này thì phải xóa showtime trước
+        $checkRoomIDShowtime = DB::table('showtimes')->where('room_id', $id)->exists();
+    
+        if($checkRoomIDShowtime){
+            return response()->json([
+                'message' => 'Có showtime đã tạo với phòng này phải xóa showtime đã tạo với room này trước mới xóa được room này !'
+            ],409);
+        }
+    
+        DB::table('seats')->where('room_id' , $id)->delete(); 
+
         $room->delete();
 
         return response()->json(['message' => 'Xóa Room theo id thành công'], 200);

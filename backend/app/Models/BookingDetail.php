@@ -14,7 +14,8 @@ class BookingDetail extends Model
     protected $fillable = [
         'booking_id',
         'payment_id',
-        'trang_thai'
+        'trang_thai',
+        'barcode'
     ];
 
     protected $dates = ['deleted_at'];

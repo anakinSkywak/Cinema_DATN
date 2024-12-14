@@ -17,6 +17,9 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Mail\PaymentSuccessMail;
+use App\Models\Member;
+use App\Models\MemberShip;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
@@ -24,75 +27,22 @@ class PaymentController extends Controller
 {
 
 
-    public function index(){
+    // có thể dùng hoặc không
+    public function index()
+    {
 
         $payment = Payment::all();
 
-        if($payment->isEmpty()){
+        if ($payment->isEmpty()) {
             return response()->json([
                 'message' => 'Không payment nào'
-            ] , 404);
+            ], 404);
         }
 
         return response()->json([
             'message' => 'All payment',
             'data' => $payment
-        ] , 200);
-
-    
-    }
-
-    // nhân viên
-    public function createPaymentBookTicket($bookingId, $method)
-    {
-
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json([
-                'message' => 'Chưa đăng nhập phải đăng nhập'
-            ], 401);
-        }
-
-        $booking = Booking::find($bookingId);
-        if (!$booking) {
-            return response()->json(['message' => 'No booking id'], 404);
-        }
-
-
-        $money = $booking->tong_tien_thanh_toan;
-
-        $payment = new Payment();
-        $payment->booking_id = $booking->id;
-        $payment->tong_tien = $money;
-        $payment->tien_te = 'VND';
-        $payment->phuong_thuc_thanh_toan = $method;
-        $payment->ma_thanh_toan = $booking->id;
-        $payment->trang_thai = 'Đã Hoàn Thành';
-        $payment->ngay_thanh_toan = Carbon::now();
-        $payment->save();
-
-        switch ($method) {
-            case 'thanh_toan_tien_tai_quay':
-                return $this->paymentBookTicketNow($booking, $payment);
-            default:
-                return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
-        }
-    }
-    // nhân viên
-    public function paymentBookTicketNow($booking, $payment)
-    {
-
-        BookingDetail::insert([
-            'booking_id' => $booking->id,
-            'payment_id' => $payment->id,
-        ]);
-
-        Booking::where('id', $booking->id)->update(['trang_thai' => 2]);
-
-        return response()->json([
-            'message' => 'Mua vé và tạo vé thanh toán trực tiếp cho khách ok',
-
-        ]);
+        ], 200);
     }
 
 
@@ -112,10 +62,12 @@ class PaymentController extends Controller
             return response()->json(['message' => 'No booking id'], 404);
         }
 
-        //enum('Đang chờ xử lý','Đã hoàn thành','Không thành công','Đã hoàn lại','Đã hủy')
+        // payment
+        // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+        // đang xử lý
         if ($booking->trang_thai !== 0) {
             return response()->json(['error' => 'Booking đã được thanh toán'], 400);
-        }
+        } // đang xử lý
 
         $money = $booking->tong_tien_thanh_toan;
 
@@ -124,18 +76,18 @@ class PaymentController extends Controller
         $payment->tong_tien = $money;
         //$payment->tien_te = 'VND'; 
         $payment->phuong_thuc_thanh_toan = $method;
-        $payment->trang_thai = 'Đang chờ xử lý';
+        $payment->trang_thai = 0;
         $payment->ngay_thanh_toan = Carbon::now();
         $payment->save();
 
-        // 'credit_card','paypal','cash','bank_transfer','vietqr','vnpay','viettel_money','payoo','mastercard','visa','ncb','jcb'
+
         switch ($method) {
             case 'ncb':
                 return $this->paymentNCB($booking, $money, $payment);
             case 'mastercard':
                 return $this->paymentMasterCard($booking, $money, $payment);
             case 'visa':
-                return $this->paymentVISA($booking, $money, $payment); 
+                return $this->paymentVISA($booking, $money, $payment);
             default:
                 return response()->json(['error' => 'Phương thức thanh toán không hợp lệ'], 400);
         }
@@ -148,8 +100,8 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-       //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
-       $vnp_ReturnUrl = "http://localhost:8000/api/payment/ncb-return"; // URL xử lý sau khi thanh toán
+        //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
+        $vnp_ReturnUrl = "http://localhost:8000/api/payment/ncb-return"; // URL xử lý sau khi thanh toán
 
         $vnp_TxnRef = $booking->id; // Mã đơn hàng
         $vnp_OrderInfo = "Thanh toán booking ID: " . $booking->id;
@@ -157,7 +109,19 @@ class PaymentController extends Controller
         $vnp_Amount = intval($money * 100); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
         $vnp_Locale = "vn";
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-        $vnp_BankCode = "NCB"; // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
+        $vnp_BankCode = "NCB";
+        // if ($method == "ncb") {
+        //     $vnp_BankCode = "NCB";
+        // } elseif ($method == "mastercard") {
+        //     $vnp_BankCode = "MasterCard";
+        // } elseif ($method == "visa") {
+        //     $vnp_BankCode = "MasterCard";
+        // } else {
+        //     return response()->json([
+        //         'error' => 'Không xác định phương thức',
+        //     ]);
+        // }
+        // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
 
         // Dữ liệu cần gửi cho VNPAY
         $inputData = array(
@@ -238,13 +202,13 @@ class PaymentController extends Controller
         if ($secureHash === $vnp_SecureHash) {
             if ($inputData['vnp_ResponseCode'] == '00') {
 
-
                 // Tìm giao dịch thanh toán dựa trên mã thanh toán
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
 
                 if ($payment) {
                     // trạng thái thanh toán thành công
-                    $payment->trang_thai = 'Đã hoàn thành';
+                    // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+                    $payment->trang_thai = 1;
                     $payment->save();
                 } else {
                     return response()->json(['message' => 'Không tìm thấy giao dịch thanh toán'], 404);
@@ -261,29 +225,48 @@ class PaymentController extends Controller
                 BookingDetail::insert([
                     'booking_id' => $booking->id,
                     'payment_id' => $payment->id,
-                    //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
+                    'barcode' => $booking->barcode
                 ]);
 
                 // thêm 1 lượt quay khi đặt và trả tiền vé ok để quay trưởng
                 User::where('id', $booking->user_id)->increment('so_luot_quay', 1);
 
-
                 Mail::to($booking->user->email)->send(new BookingPaymentSuccessMail($booking, $payment));
 
-                // return response()->json([
-                //     'message' => 'Thanh toán ok',
-                    
-                // ], 200);
-
                 return redirect('http://localhost:5173/profile');
+            } elseif ($inputData['vnp_ResponseCode'] == '24') {
 
-            } else {
+                $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
+
+                if ($payment) {
+
+                    // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+                    $payment->trang_thai = 3;
+                    $payment->save();
+                }
+
+                // Tìm booking dựa trên mã giao dịch
+                $booking = Booking::find($inputData['vnp_TxnRef']);
+                // 0 Chưa thanh toán , 2 là Đã thanh toán , 1 Đã huy đơn , 3 Lỗi đơn hàng ,
+                if ($booking) {
+                    $booking->trang_thai = 1;
+                    $booking->save();
+                }
+
+                //$thieu = 0;
+
+                // update trạng thái ghế ở seat_showtime_statu những ghế đã chọn ở booking lại thành 0
+                //DB::table('seat_showtime_status')->where('thongtinchieu_id' , $booking->thongtinchieu_id)->where('ghengoi_id', $thieu)->update(['trang_thai' , 0]);
+
                 // Xử lý trường hợp `vnp_ResponseCode` không phải '00'
-                return response()->json([
-                    'message' => 'Thanh toán thất bại',
-                    'error_code' => $inputData['vnp_ResponseCode'],
-                    'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
-                ], 400);
+                return redirect('http://localhost:5173');
+
+                //http://localhost:5173/
+                // return response()->json([
+                //     'message' => 'Thanh toán thất bại',
+                //     'error_code' => $inputData['vnp_ResponseCode'],
+                //     //'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
+                // ], 400);
             }
         } else {
             // Trả về phản hồi thất bại nếu không khớp SecureHash
@@ -300,7 +283,7 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-      
+
         //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
         $vnp_ReturnUrl = "http://localhost:8000/api/payment/visa-return"; // URL xử lý sau khi thanh toán
 
@@ -415,6 +398,7 @@ class PaymentController extends Controller
                 BookingDetail::insert([
                     'booking_id' => $booking->id,
                     'payment_id' => $payment->id,
+                    'barcode' => $booking->barcode
                     //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
@@ -447,7 +431,7 @@ class PaymentController extends Controller
         $vnp_TmnCode = "0749VTZ7"; // Thay bằng mã TmnCode thực tế của bạn
         $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U"; // Thay bằng mã HashSecret thực tế của bạn
         $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        
+
         //$vnp_ReturnUrl = "http://localhost:5173/transaction/success"; // URL xử lý sau khi thanh toán
         $vnp_ReturnUrl = "http://localhost:8000/api/payment/mastercard-return"; // URL xử lý sau khi thanh toán
 
@@ -562,6 +546,7 @@ class PaymentController extends Controller
                 BookingDetail::insert([
                     'booking_id' => $booking->id,
                     'payment_id' => $payment->id,
+                    'barcode' => $booking->barcode
                     //'trang_thai' => 0  // 0 la default ok con 1 thi se la check khach da den va xem phim
                 ]);
 
@@ -625,8 +610,9 @@ class PaymentController extends Controller
         $payment->registermember_id = $registerMember->id; // Changed from booking_id to registermember_id
         $payment->tong_tien = $money;
         $payment->phuong_thuc_thanh_toan = $method;
-        $payment->trang_thai = 'Đang chờ xử lý';
+        $payment->trang_thai = '0';
         $payment->ngay_thanh_toan = Carbon::now();
+        $payment->ma_thanh_toan = $this->generateRandomCode();
         $payment->save();
 
         // Handle different payment methods
@@ -646,6 +632,15 @@ class PaymentController extends Controller
             default:
                 return response()->json(['error' => 'Invalid payment method'], 400);
         }
+    }
+    private function generateRandomCode($length = 10)
+    {
+        $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $code = 'PAY';
+        for ($i = 0; $i < $length; $i++) {
+            $code .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        return $code;
     }
 
     public function paymentNCB1($registerMember, $money, $payment)
@@ -714,81 +709,92 @@ class PaymentController extends Controller
     }
 
 
-    // public function NCBReturn1(Request $request)
-    // {
-    //     $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
+    public function NCBReturn1(Request $request)
+    {
+        $vnp_HashSecret = "TTUJCPICUHRHA8PY7LLIQSCZU9Q7ND8U";
 
-    //     // Lấy dữ liệu đầu vào từ request
-    //     $inputData = $request->all();
-    //     $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
+        // Lấy dữ liệu đầu vào từ request
+        $inputData = $request->all();
+        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
 
-    //     // Kiểm tra vnp_SecureHash có tồn tại hay không
-    //     if (!$vnp_SecureHash) {
-    //         return response()->json(['message' => 'Thiếu dữ liệu vnp_SecureHash'], 400);
-    //     }
+        // Kiểm tra vnp_SecureHash có tồn tại hay không
+        if (!$vnp_SecureHash) {
+            return response()->json(['message' => 'Thiếu dữ liệu vnp_SecureHash'], 400);
+        }
 
-    //     // Loại bỏ vnp_SecureHash để tính toán lại hash
-    //     unset($inputData['vnp_SecureHash']);
-    //     ksort($inputData); // Sắp xếp dữ liệu theo key
-    //     $hashData = http_build_query($inputData, '', '&');
+        // Loại bỏ vnp_SecureHash để tính toán lại hash
+        unset($inputData['vnp_SecureHash']);
+        ksort($inputData); // Sắp xếp dữ liệu theo key
+        $hashData = http_build_query($inputData, '', '&');
 
-    //     // Tính toán hash để xác thực
-    //     $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+        // Tính toán hash để xác thực
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
 
-    //     // Xác thực hash và kiểm tra mã phản hồi
-    //     if ($secureHash === $vnp_SecureHash) {
-    //         if ($inputData['vnp_ResponseCode'] == '00') {
-    //             // Tìm bản ghi thanh toán
-    //             $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
-    //             if ($payment) {
-    //                 $payment->trang_thai = 'Đã hoàn thành'; // Cập nhật trạng thái thanh toán
-    //                 $payment->save();
-    //             } else {
-    //                 return response()->json(['message' => 'Không tìm thấy thông tin thanh toán'], 404);
-    //             }
+        // Xác thực hash và kiểm tra mã phản hồi
+        if ($secureHash === $vnp_SecureHash) {
+            if ($inputData['vnp_ResponseCode'] == '00') {
+                // Tìm bản ghi thanh toán
+                $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
+                if ($payment) {
+                    $payment->trang_thai = '1'; // Cập nhật trạng thái thanh toán
+                    $payment->save();
+                } else {
+                    return response()->json(['message' => 'Không tìm thấy thông tin thanh toán'], 404);
+                }
 
-    //             // Tìm bản ghi đăng ký hội viên
-    //             $registerMember = RegisterMember::find($inputData['vnp_TxnRef']);
-    //             if ($registerMember) {
-    //                 $registerMember->trang_thai = 2; // Cập nhật trạng thái đăng ký
-    //                 $registerMember->save();
+                // Tìm bản ghi đăng ký hội viên
+                $registerMember = RegisterMember::find($inputData['vnp_TxnRef']);
+                if ($registerMember) {
+                    $registerMember->trang_thai = 2; // Cập nhật trạng thái đăng ký
+                    $registerMember->save();
 
-    //                 // Kiểm tra hoặc cập nhật bảng memberships
-    //                 $membership = MemberShip::where('dangkyhoivien_id', $registerMember->id)->first();
+                    // Kiểm tra hoặc cập nhật bảng memberships
+                    $membership = MemberShip::where('dangkyhoivien_id', $registerMember->id)->first();
 
-    //                 if ($membership) {
-    //                     $membership->ngay_dang_ky = $registerMember->ngay_dang_ky;
-    //                     $membership->ngay_het_han = $registerMember->ngay_het_han;
-    //                     $membership->save();
+                    if (!$membership) {
+                        $membership = MemberShip::create([
+                            'dangkyhoivien_id' => $registerMember->id,
+                            'so_the' => 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT),
+                            'ngay_dang_ky' => $registerMember->ngay_dang_ky,
+                            'ngay_het_han' => $registerMember->ngay_het_han,
+                        ]);
+                    } else {
+                        $membership->ngay_dang_ky = $registerMember->ngay_dang_ky;
+                        $membership->ngay_het_han = $registerMember->ngay_het_han;
+                        $membership->save();
+                    }
 
-    //                     $message = "Membership với ID {$membership->id} đã được cập nhật.";
-    //                 } else {
-    //                     $newMembership = MemberShip::create([
-    //                         'dangkyhoivien_id' => $registerMember->id,
-    //                         'so_the' => 'CARD' . str_pad($registerMember->id, 6, '0', STR_PAD_LEFT),
-    //                         'ngay_dang_ky' => $registerMember->ngay_dang_ky,
-    //                         'ngay_het_han' => $registerMember->ngay_het_han,
-    //                     ]);
+                    // Lấy thông tin người dùng từ user_id
+                    $user = User::find($registerMember->user_id);
+                    if ($user && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                        // Gửi email thông báo
+                        Mail::to($user->email)->send(new PaymentSuccessMail($membership));
 
-    //                     $message = "Membership mới được tạo với ID {$newMembership->id}.";
-    //                 }
-
-    //                 return response()->json(['message' => $message]);
-    //             } else {
-    //                 return response()->json(['message' => 'Không tìm thấy thông tin đăng ký hội viên'], 404);
-    //             }
-    //         } else {
-    //             // Thanh toán thất bại
-    //             return response()->json([
-    //                 'message' => 'Thanh toán thất bại',
-    //                 'error_code' => $inputData['vnp_ResponseCode'],
-    //                 'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
-    //             ], 400);
-    //         }
-    //     } else {
-    //         return response()->json(['message' => 'Xác thực secure hash thất bại'], 400);
-    //     }
-    // }
+                        return response()->json([
+                            'message' => 'Thanh toán thành công, email đã được gửi.',
+                            'email' => $user->email,
+                            'so_the' => $membership->so_the,
+                            'ngay_bat_dau' => $membership->ngay_dang_ky,
+                            'ngay_het_han' => $membership->ngay_het_han,
+                        ]);
+                    } else {
+                        return response()->json(['message' => 'Không tìm thấy email hợp lệ của người dùng'], 400);
+                    }
+                } else {
+                    return response()->json(['message' => 'Không tìm thấy thông tin đăng ký hội viên'], 404);
+                }
+            } else {
+                // Thanh toán thất bại
+                return response()->json([
+                    'message' => 'Thanh toán thất bại',
+                    'error_code' => $inputData['vnp_ResponseCode'],
+                    'error_message' => $this->getVnpayErrorMessage($inputData['vnp_ResponseCode'])
+                ], 400);
+            }
+        } else {
+            return response()->json(['message' => 'Xác thực secure hash thất bại'], 400);
+        }
+    }
     public function paymentMasterCard1($registerMember, $money, $payment)
     {
         // Cấu hình của VNPAY
@@ -976,7 +982,7 @@ class PaymentController extends Controller
                 $payment = Payment::where('ma_thanh_toan', $inputData['vnp_TxnRef'])->first();
 
                 if ($payment) {
-                    $payment->trang_thai = 'Đã hoàn thành'; // Cập nhật trạng thái thanh toán
+                    $payment->trang_thai = '1'; // Cập nhật trạng thái thanh toán
                     $payment->save();
 
                     // Tìm bản ghi đăng ký hội viên

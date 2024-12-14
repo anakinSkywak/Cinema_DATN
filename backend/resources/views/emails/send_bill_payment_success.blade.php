@@ -36,7 +36,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Ngày mua</td>
-                    <td style="padding: 10px;">{{ $booking->ngay_mua }}</td>
+                    <td style="padding: 10px;"> {{ \Carbon\Carbon::parse($booking->ngay_mua)->format('d-m-Y') }} </td>
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Tên phim</td>
@@ -48,7 +48,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Ngày xem phim</td>
-                    <td style="padding: 10px;">{{ $booking->showtime->ngay_chieu }}</td>
+                    <td style="padding: 10px;"> {{ \Carbon\Carbon::parse($booking->showtime->ngay_chieu)->format('d-m-Y') }} </td>
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Phòng chiếu</td>
@@ -56,7 +56,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Giờ chiếu</td>
-                    <td style="padding: 10px;">{{ $booking->showtime->gio_chieu }}</td>
+                    <td style="padding: 10px;"> {{ \Carbon\Carbon::parse($booking->showtime->gio_chieu)->format('H:i') }}  </td>
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Ghế ngồi</td>
@@ -80,7 +80,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Ngày thanh toán</td>
-                    <td style="padding: 10px;">{{ $payment->ngay_thanh_toan }}</td>
+                    <td style="padding: 10px;"> {{ \Carbon\Carbon::parse($payment->ngay_thanh_toan)->format('d-m-Y') }} </td>
                 </tr>
                 <tr>
                     <td style="padding: 10px;">Ghi Chú</td>

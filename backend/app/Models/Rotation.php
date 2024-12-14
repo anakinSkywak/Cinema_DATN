@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Rotation extends Model
 {
@@ -15,7 +16,7 @@ class Rotation extends Model
         'mo_ta',
         'xac_xuat',
         'so_luong',
-        'so_luong_con_lai',
         'trang_thai',
     ];
+   
 }

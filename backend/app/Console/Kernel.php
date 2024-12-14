@@ -2,10 +2,10 @@
 
 namespace App\Console;
 
-use App\Jobs\SendBookingReminder;
-use App\Models\Booking;
-use App\Models\Payment;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\Membership;
+use App\Jobs\SendMembershipEmailJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -14,13 +14,13 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
+    
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        // cập nhật trạng thái của ngày bên săn mã giảm giá 
-        $schedule->command('countdown:update-status')->dailyAt('00:00'); // Chạy mỗi ngày lúc 00:00
-
-        
+        // Cập nhật trạng thái săn mã giảm giá mỗi ngày lúc 00:00
+        $schedule->command('countdown:update-status')->dailyAt('00:00');
+        $schedule->command('membership:check-expiration')->daily();
+       
     }
 
     /**
@@ -29,7 +29,6 @@ class Kernel extends ConsoleKernel
     protected function commands(): void
     {
         $this->load(__DIR__ . '/Commands');
-
         require base_path('routes/console.php');
     }
 }

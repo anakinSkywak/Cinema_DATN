@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class ShowtimeController extends Controller
 {
 
-
+    //1
     // đổ ra những showtime có phim khác nhau ở list showtime
 
     public function listshowtimeByMovie(Request $request)
@@ -39,7 +39,7 @@ class ShowtimeController extends Controller
         ], 200);
     }
 
-
+    //2
     // đổ all showtime ngày giờ theo phim id đó
     public function showtimeByMovie(Request $request, $movieID)
     {
@@ -71,6 +71,9 @@ class ShowtimeController extends Controller
         ], 200);
     }
 
+
+
+
     // đổ all showtime ( có thể dùng hoặc không )
 
     public function index()
@@ -96,7 +99,7 @@ class ShowtimeController extends Controller
 
         // lấy phim thêm showtime với phim phải là Đang chiếu 
 
-        $movies = Movie::select('id', 'ten_phim', 'hinh_thuc_phim')->where('hinh_thuc_phim', 'Đang Chiếu')->get();
+        $movies = Movie::select('id', 'ten_phim', 'hinh_thuc_phim')->where('hinh_thuc_phim', 0)->get();
         if ($movies->isEmpty()) {
             return response()->json([
                 'message' => 'Không có phim hãy thêm phim !'
@@ -200,7 +203,7 @@ class ShowtimeController extends Controller
                         'thongtinchieu_id' => $showtime->id,
                         'ghengoi_id' => $seat->id,
                         'gio_chieu' => $gio,
-                        'trang_thai' => 0, // Trạng thái = 0 (trống)
+                        //'trang_thai' => 0, // Trạng thái = 0 (trống)
                     ]);
                 }
                 //

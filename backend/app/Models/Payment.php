@@ -15,7 +15,6 @@ class Payment extends Model
         'tien_te',
         'phuong_thuc_thanh_toan',
         'ma_thanh_toan',
-        'ma_tham_chieu',
         'ngay_thanh_toan',
         'trang_thai',
         'chi_tiet_giao_dich',

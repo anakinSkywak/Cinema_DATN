@@ -17,6 +17,7 @@ class SeatShowtimeStatu extends Model
         'thongtinchieu_id',
         'trang_thai',
         'gio_chieu',
+        'user_id'
     ];
 
     // 
