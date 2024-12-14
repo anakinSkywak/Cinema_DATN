@@ -416,6 +416,11 @@ Route::get('getTopVePhim', function(Request $request) {
     return app(StatisticalController::class)->thongKeTop($request, 'movie', 5);
 });
 
+// 4. Thống kê doanh thu theo tháng
+Route::get('getDoanhThuThang', function(Request $request) {
+    return app(StatisticalController::class)->doanhThuThang();
+});
+
 // Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
 // Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
 // Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
