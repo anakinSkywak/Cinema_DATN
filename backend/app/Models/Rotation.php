@@ -15,7 +15,6 @@ class Rotation extends Model
         'mo_ta',
         'xac_xuat',
         'so_luong',
-        'so_luong_con_lai',
         'trang_thai',
     ];
 }

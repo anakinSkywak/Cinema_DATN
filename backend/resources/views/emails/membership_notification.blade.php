@@ -1,14 +1,14 @@
-<!-- resources/views/emails/membership_notification.blade.php -->
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông Báo Thẻ Hội Viên</title>
+    <title>Thông báo thẻ hội viên</title>
 </head>
 <body>
-    <h1>Chào bạn</h1>
-    <p>Thông báo từ website chiếu phim CinemaHub</p>
-    <p>{{ $messageContent }}</p>
+    <div class="container">
+        <h1>Xin chào!</h1>
+        <p>{{ $message }}</p>
+        <p><strong>Ngày hết hạn:</strong> {{ $membership->ngay_het_han }}</p>
+        <p>Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!</p>
+    </div>
 </body>
 </html>

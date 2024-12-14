@@ -1,9 +1,11 @@
 <?php
 
 use App\Models\Movie;
-use Illuminate\Http\Request;
+use App\Models\Membership;
 // use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\CouponCodeTaken;
+use App\Jobs\SendMembershipEmailJob;
 use App\Mail\MembershipNotification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;

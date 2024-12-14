@@ -11,31 +11,20 @@ class MembershipNotification extends Mailable
     use Queueable, SerializesModels;
 
     public $membership;
-    public $messageContent;
+    public $message;
 
-    /**
-     * Create a new message instance.
-     *
-     * @param $membership
-     * @param $messageContent
-     */
-    public function __construct($membership, $messageContent)
+    public function __construct($membership, $message)
     {
         $this->membership = $membership;
-        $this->messageContent = $messageContent;
+        $this->message = $message;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
         return $this->view('emails.membership_notification')
                     ->with([
                         'membership' => $this->membership,
-                        'messageContent' => $this->messageContent,
+                        'message' => $this->message, 
                     ]);
     }
 }

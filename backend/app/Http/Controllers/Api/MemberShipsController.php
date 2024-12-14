@@ -20,6 +20,8 @@ class MemberShipsController extends Controller
      */
     public function index()
     {
+        event(new \App\Events\CheckMembershipStatus());
+
         // Lấy tất cả dữ liệu từ bảng Membership
         $data = Membership::with('registerMember')->get();
 
@@ -89,6 +91,7 @@ class MemberShipsController extends Controller
 
     public function getUserMembership()
     {
+        event(new \App\Events\CheckMembershipStatus());
         // Kiểm tra nếu người dùng đã đăng nhập
         if (!auth()->check()) {
             return response()->json([
