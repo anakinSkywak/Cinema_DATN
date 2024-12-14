@@ -16,11 +16,8 @@ use App\Models\BookingDetail;
 class StatisticalController extends Controller
 {
     /**
-     * Thống kê doanh thu linh hoạt theo loại
-     * @param Request $request
-     * @param string $type Loại thống kê (ve, do_an, phim, phong, tat_ca_phim_ngay)
-     * @param int|null $id ID của phim hoặc phòng (tùy theo type)
-     */
+     * 1. Thống kê doanh thu linh hoạt theo loại
+     */ 
     public function thongKeDoanhThu(Request $request, $type = 've', $id = null)
     {
         try {
@@ -28,23 +25,23 @@ class StatisticalController extends Controller
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
 
-            // Khởi tạo query cơ bản
-            $query = Payment::query()->where('trang_thai', $trangThai);
+            // Khởi tạo query cơ bản và chỉ rõ trang_thai thuộc bảng payments
+            $query = Payment::query()->where('payments.trang_thai', $trangThai);
 
             // Áp dụng bộ lọc ngày tháng
             if ($startDate && $endDate) {
-                $query->whereBetween('created_at', [
+                $query->whereBetween('payments.created_at', [
                     Carbon::parse($startDate)->startOfDay(),
                     Carbon::parse($endDate)->endOfDay()
                 ]);
             } elseif ($startDate) {
-                $query->where('created_at', '>=', Carbon::parse($startDate)->startOfDay());
+                $query->where('payments.created_at', '>=', Carbon::parse($startDate)->startOfDay());
             } elseif ($endDate) {
-                $query->where('created_at', '<=', Carbon::parse($endDate)->endOfDay());
+                $query->where('payments.created_at', '<=', Carbon::parse($endDate)->endOfDay());
             }
 
             // Xử lý theo từng loại thống kê
-            // 
+            // match là một cú pháp mới của PHP 8.0, được sử dụng để thực hiện các so sánh và trả về giá trị dựa trên các điều kiện khác nhau.
             $ketQua = match($type) {
                 'do_an' => $this->tinhDoanhThuDoAn(
                     Booking::whereIn('id', $query->pluck('booking_id'))->get()
@@ -87,6 +84,7 @@ class StatisticalController extends Controller
      */
     private function tinhDoanhThuPhong($query, $id)
     {
+        // whereIn được sử dụng để lọc các bản ghi dựa trên một danh sách các giá trị.
         return $query->whereIn('booking_id',
             Booking::join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
                 ->where('showtimes.room_id', $id)
