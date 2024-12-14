@@ -398,7 +398,10 @@ Route::get('getDoanhThuTPhimTrongNgay', function(Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request, 'tat_ca_phim_ngay');
 });
 
-
+// 2. Thống kê theo trạng thái và phương thức thanh toán
+Route::get('getPhanLoaiVe', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'trang_thai');
+});
 
 // Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
 // Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
