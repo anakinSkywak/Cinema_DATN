@@ -377,19 +377,43 @@ Route::middleware('auth:api')->group(function () {
 });
 
 // việt làm thống kê
-Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
-Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
-Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
-Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVoucher']);
-Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
-Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
-Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
-Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
-Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
-Route::get('getTopDatVe', [StatisticalController::class, 'topNguoiMuaVeNhieuNhat']);
-Route::get('getTopVePhim', [StatisticalController::class, 'topPhimLuotveCao']);
-Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
-Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
+
+// Thống kê doanh thu
+Route::get('getDoanhThuVe', [StatisticalController::class, 'thongKeDoanhThu']);
+
+// app là để lấy đối tượng StatisticalController
+Route::get('getDoanhDoAn', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'do_an');
+});
+
+Route::get('getDoanhThuPhim/{id}', function(Request $request, $id) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phim', $id); 
+});
+
+Route::get('getDoanhPhongChieu/{id}', function(Request $request, $id) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phong', $id);
+});
+
+Route::get('getDoanhThuTPhimTrongNgay', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'tat_ca_phim_ngay');
+});
+
+
+
+// Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
+// Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
+// Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
+// Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVoucher']);
+// Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
+// Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
+// Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
+// Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
+// Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
+// Route::get('getTopDatVe', [StatisticalController::class, 'topNguoiMuaVeNhieuNhat']);
+// Route::get('getTopVePhim', [StatisticalController::class, 'topPhimLuotveCao']);
+// Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
+// Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 // Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
+

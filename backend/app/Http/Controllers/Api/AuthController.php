@@ -19,8 +19,6 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
-
-
 class AuthController extends Controller
 {
     public function __construct()
