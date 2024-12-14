@@ -236,4 +236,30 @@ class RegisterMemberController extends Controller
             'data' => $result->values()
         ], 200);
     }
+    public function countUsersByMembershipType()
+    {
+        // Lấy tất cả các loại hội viên từ bảng Member
+        $membershipTypes = Member::all()->keyBy('id');
+
+        // Đếm số lượng người đăng ký cho từng loại hội viên từ bảng RegisterMember
+        $registrationData = RegisterMember::select('hoivien_id', DB::raw('COUNT(user_id) as total_users'))
+            ->groupBy('hoivien_id')
+            ->get()
+            ->keyBy('hoivien_id');
+
+        // Kết hợp thông tin số lượng người đăng ký với tất cả loại hội viên
+        $result = $membershipTypes->map(function ($membership) use ($registrationData) {
+            $registrations = $registrationData->get($membership->id);
+            return [
+                'Loại hội viên' => $membership->loai_hoi_vien,
+                'Doanh thu' => $registrations ? $registrations->total_users : 0
+            ];
+        });
+
+        // Trả về kết quả
+        return response()->json([
+            'message' => 'Thống kê số lượng người đăng ký thành công',
+            'data' => $result->values()
+        ], 200);
+    }
 }
