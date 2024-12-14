@@ -252,7 +252,7 @@ class RegisterMemberController extends Controller
             $registrations = $registrationData->get($membership->id);
             return [
                 'Loại hội viên' => $membership->loai_hoi_vien,
-                'Doanh thu' => $registrations ? $registrations->total_users : 0
+                'Số lượng user đăng kí' => $registrations ? $registrations->total_users : 0
             ];
         });
 
