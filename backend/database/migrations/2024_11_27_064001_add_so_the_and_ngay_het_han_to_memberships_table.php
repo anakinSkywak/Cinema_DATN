@@ -12,15 +12,15 @@ return new class extends Migration
     public function up()
     {
         Schema::table('memberships', function (Blueprint $table) {
-            // $table->string('so_the')->nullable()->after('ngay_dang_ky');
-            // $table->date('ngay_het_han')->nullable()->after('ngay_dang_ky');  
+            $table->string('so_the')->nullable()->after('ngay_dang_ky');
+            $table->date('ngay_het_han')->nullable()->after('ngay_dang_ky');  
         });
     }
 
     public function down()
     {
         Schema::table('memberships', function (Blueprint $table) {
-            // $table->dropColumn(['so_the', 'ngay_het_han']); // Xóa các cột nếu rollback
+            $table->dropColumn(['so_the', 'ngay_het_han']); // Xóa các cột nếu rollback
         });
     }
 };

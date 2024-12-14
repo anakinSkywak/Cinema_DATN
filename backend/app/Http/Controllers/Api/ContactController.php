@@ -84,15 +84,23 @@ class ContactController extends Controller
         // Phản hồi thành công
         return response()->json(['message' => 'Xóa phản hồi thành công'], 200);
     }
-    public function sendResponse($contactId)
+    public function sendResponse(Request $request,$contactId)
     {
+        // Tìm phản hồi theo contactId
         $contact = Contact::with('user:id,ho_ten,email,so_dien_thoai')->find($contactId);
-    
+        
+        // Kiểm tra nếu không tìm thấy phản hồi
         if (!$contact) {
             return response()->json(['message' => 'Không tìm thấy phản hồi'], 404);
         }
     
-        $admin_reply = "Cảm ơn bạn đã gửi phản hồi. Chúng tôi sẽ xem xét và xử lý vấn đề của bạn trong thời gian sớm nhất.";
+        // Lấy nội dung phản hồi từ request (yêu cầu admin nhập nội dung)
+        $admin_reply = $request->input('admin_reply');
+    
+        // Kiểm tra nếu không có nội dung phản hồi thì trả về lỗi
+        if (!$admin_reply) {
+            return response()->json(['message' => 'Vui lòng nhập nội dung phản hồi'], 400);
+        }
     
         // Gửi email cho người dùng
         Mail::to($contact->user->email)->send(new ContactsMail([
@@ -103,7 +111,7 @@ class ContactController extends Controller
         // Cập nhật trạng thái thành "Đã phản hồi"
         $contact->update(['trang_thai' => 'Đã phản hồi']);
     
-        return response()->json(['message' => 'Đã gửi phản hồi qua email và cập nhật trạng thái'], 200);
+        return response()->json(['message' => 'Đã gửi phản hồi qua email '], 200);
     }
     // Hiển thị thông tin contact theo ID
     public function show($id)

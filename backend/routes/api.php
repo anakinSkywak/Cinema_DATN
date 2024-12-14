@@ -1,9 +1,13 @@
 <?php
 
 use App\Models\Movie;
-use Illuminate\Http\Request;
+use App\Models\Membership;
 // use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\CouponCodeTaken;
+use App\Jobs\SendMembershipEmailJob;
+use App\Mail\MembershipNotification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use PHPUnit\Framework\Attributes\Group;
 use App\Http\Controllers\Api\BillController;
@@ -25,7 +29,9 @@ use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\CheckTicketController;
 use App\Http\Controllers\Api\MemberShipsController;
+use App\Http\Controllers\Api\StatisticalController;
 use App\Http\Controllers\Api\BookingDetailController;
 use App\Http\Controllers\Api\BookingTicketController;
 use App\Http\Controllers\Api\RegisterMemberController;
@@ -33,9 +39,9 @@ use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
-use App\Http\Controllers\Api\CheckTicketController;
 use App\Http\Controllers\Api\SeatPriceController;
-use App\Http\Controllers\Api\StatisticalController;
+//use App\Http\Controllers\Api\ StatisticalController;
+
 
 
 // xác thực email
@@ -73,7 +79,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
         Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
         Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'show']);
-
+        Route::post('/send-membership-email/{membershipId}', [MemberShipsController::class, 'sendMembershipEmail']);
 
         Route::post('/quay-thuong', [RotationsController::class, 'quayThuong']);
         // Đăng xuất - vô hiệu hóa token
@@ -181,6 +187,7 @@ Route::put('close-room/{id}' , [RoomController::class , 'closeRoomId']);
 Route::put('open-room/{id}' , [RoomController::class , 'openRoomId']);
 
 
+
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']);
 Route::get('addSeat', [SeatController::class, 'addSeat']);
@@ -228,15 +235,15 @@ Route::get('movieSapChieu', [MovieController::class, 'phimSapChieu']);
 
 // Ánh : call api showtimes : thêm showtime theo phim id và rạp phim phòng
 Route::get('showtimes', [ShowtimeController::class, 'index']); // co the dung hoac ko
-Route::get('list-showtime' , [ShowtimeController::class , 'listshowtimeByMovie']); // 1
-Route::get('showtime-by-movie/{movieID}' , [ShowtimeController::class , 'showtimeByMovie']); // 2 
+Route::get('list-showtime', [ShowtimeController::class, 'listshowtimeByMovie']); // 1
+Route::get('showtime-by-movie/{movieID}', [ShowtimeController::class, 'showtimeByMovie']); // 2 
 Route::get('addShowtime', [ShowtimeController::class, 'addShowtime']);
 Route::post('storeShowtime', [ShowtimeController::class, 'store']);
 Route::get('showShowtime/{id}', [ShowtimeController::class, 'show']);
 Route::get('editShowtime/{id}', [ShowtimeController::class, 'editShowtime']);
 Route::put('updateShowtime/{id}', [ShowtimeController::class, 'update']);
 Route::delete('deleteShowtime/{id}', [ShowtimeController::class, 'delete']);
-Route::get('search-showtime' , [ShowtimeController::class , 'searchShowtimes']);
+Route::get('search-showtime', [ShowtimeController::class, 'searchShowtimes']);
 
 
 // Ánh : call api Foods
@@ -289,6 +296,7 @@ Route::middleware(['auth:api'])->get('/register-member', [RegisterMemberControll
 
 //vòng quoay
 Route::get('rotations', [RotationsController::class, 'index']);
+Route::get('rotations/all', [RotationsController::class, 'indexa']);
 Route::post('rotations', [RotationsController::class, 'store']);
 Route::get('rotations/{id}', [RotationsController::class, 'show']);
 Route::put('rotations/{id}', [RotationsController::class, 'update']);
@@ -324,12 +332,7 @@ Route::middleware(['auth:api'])->post('contacts', [ContactController::class, 'st
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);
-//call api rotations T
-// Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
-// Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
-// Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
-// Route::put('/rotations/{id}', [RotationsController::class, 'update']);
-// Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
+
 // call api cho tạo ra mã giảm giá (*coupons) T
 Route::get('coupons', [CouponsController::class, 'index']);
 Route::post('coupons', [CouponsController::class, 'store']);
@@ -387,4 +390,10 @@ Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
 Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
-// Route::put('/register-member/{id}/{hoivien_id}', [RegisterMemberController::class, 'update']);
+
+
+// Route thống kê doanh thu theo loại hội viên
+Route::get('/revenue-by-membership', [RegisterMemberController::class, 'revenueByMembershipType']);
+
+// Route thống kê số lượng người đăng ký theo loại hội viên
+Route::get('/count-users-by-membership', [RegisterMemberController::class, 'countUsersByMembershipType']);

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('members', function (Blueprint $table) {
             $table->id();
-            $table->enum('loai_hoi_vien', ['thuong', 'vip']);
+            $table->enum('loai_hoi_vien', ['Thường', 'VIP']);
             $table->float('uu_dai');
             $table->float('thoi_gian');
             $table->string('ghi_chu' , 255);

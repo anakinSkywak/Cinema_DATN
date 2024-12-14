@@ -17,6 +17,7 @@ class Member extends Model
         'ghi_chu',
         'gia',
         'trang_thai',
+        'anh_hoi_vien', 
     ];
 
     // Giữ lại phương thức registrations và cập nhật cho phù hợp với tên class
