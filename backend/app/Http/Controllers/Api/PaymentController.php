@@ -104,7 +104,7 @@ class PaymentController extends Controller
         $vnp_Amount = intval($money * 100); // Đơn vị tính là đồng, nhân 100 để đúng định dạng
         $vnp_Locale = "vn";
         $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-        
+
         // Mã ngân hàng demo để chuyển đến giao diện nhập thẻ
 
         // Dữ liệu cần gửi cho VNPAY
@@ -200,9 +200,9 @@ class PaymentController extends Controller
 
                 // Tìm booking dựa trên mã giao dịch
                 $booking = Booking::find($inputData['vnp_TxnRef']);
-
+                // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
                 if ($booking) {
-                    $booking->trang_thai = 2;
+                    $booking->trang_thai = 1; // thanh toán ok
                     $booking->save();
                 }
 

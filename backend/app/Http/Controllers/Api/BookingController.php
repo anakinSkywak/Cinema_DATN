@@ -253,7 +253,7 @@ class BookingController extends Controller
         $id = rand(10000, 9999999);
 
         // Tạo Booking
-        // 0 Chưa thanh toán , 2 là Đã thanh toán , 1 Đã hủy đơn , 3 Lỗi đơn hàng ,
+        // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
         $booking = Booking::create([
             'id' => $id,
             'user_id' => $user->id,
