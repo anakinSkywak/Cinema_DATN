@@ -1,30 +1,28 @@
 <?php
-
 namespace App\Mail;
 
+use App\Models\Membership;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class MembershipNotification extends Mailable
+class MembershipExpirationNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $membership;
-    public $message;
 
-    public function __construct($membership, $message)
+    public function __construct(Membership $membership)
     {
         $this->membership = $membership;
-        $this->message = $message;
     }
 
     public function build()
     {
-        return $this->view('emails.membership_notification')
+        return $this->subject('Thông báo hết hạn thẻ hội viên')
+                    ->view('emails.membership_expiration')
                     ->with([
                         'membership' => $this->membership,
-                        'message' => $this->message, 
                     ]);
     }
 }

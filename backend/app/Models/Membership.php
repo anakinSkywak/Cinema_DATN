@@ -21,11 +21,12 @@ class MemberShip extends Model
         'renewal_message'
     ];
 
-    // Mối quan hệ với RegisterMember
+
     public function registerMember()
     {
-        return $this->belongsTo(RegisterMember::class, 'dangkyhoivien_id');
+        return $this->belongsTo(RegisterMember::class, 'dangkyhoivien_id'); // Assuming 'dangkyhoivien_id' is the foreign key
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -46,5 +47,4 @@ class MemberShip extends Model
             }
         });
     }
-    
 }

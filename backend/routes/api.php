@@ -375,3 +375,17 @@ Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThu
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 
+Route::get('/send-test-email', function () {
+    $details = [
+        'subject' => 'Test Email',
+        'body' => 'This is a test email to check SMTP configuration.'
+    ];
+
+    // Gửi email
+    Mail::raw($details['body'], function ($message) use ($details) {
+        $message->to('vuxuanbon12022004@gmail.com')
+                ->subject($details['subject']);
+    });
+
+    return 'Test email sent!';
+});
