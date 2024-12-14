@@ -48,6 +48,7 @@ class BookingDetailController extends Controller
                 'payments.ngay_thanh_toan',
                 'payments.phuong_thuc_thanh_toan',
                 'payments.trang_thai',
+                'booking_details.trang_thai'
 
             )->get();
 
