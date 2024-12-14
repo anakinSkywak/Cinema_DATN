@@ -28,11 +28,10 @@ class CheckMembershipExpiration extends Command
                 // Thẻ đã hết hạn
                 $membership->trang_thai = 1;
                 $membership->renewal_message = "Thẻ hội viên đã hết hạn. Vui lòng đăng ký lại thẻ hội viên mới!";
-                SendMembershipEmailJob::dispatch($membership, $membership->renewal_message);
+
             } elseif ($expirationDate->diffInDays($currentDate) <= 2) {
                 // Thẻ sắp hết hạn (dưới 2 ngày)
                 $membership->renewal_message = "Thẻ hội viên sắp hết hạn!!!. Vui lòng gia hạn thẻ!";
-                SendMembershipEmailJob::dispatch($membership, $membership->renewal_message);
             }
             $membership->save();
         }

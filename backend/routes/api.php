@@ -280,6 +280,7 @@ Route::middleware(['auth:api'])->get('/register-member', [RegisterMemberControll
 
 //vòng quoay
 Route::get('rotations', [RotationsController::class, 'index']);
+Route::get('rotations/all', [RotationsController::class, 'indexa']);
 Route::post('rotations', [RotationsController::class, 'store']);
 Route::get('rotations/{id}', [RotationsController::class, 'show']);
 Route::put('rotations/{id}', [RotationsController::class, 'update']);
@@ -315,12 +316,7 @@ Route::middleware(['auth:api'])->post('contacts', [ContactController::class, 'st
 Route::put('contacts/{id}', [ContactController::class, 'update']);
 Route::delete('/contacts/{id}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 Route::post('/send-response/{contactId}', [ContactController::class, 'sendResponse']);
-//call api rotations T
-// Route::get('rotations', [RotationsController::class, 'index']); // Lấy danh sách
-// Route::get('rotations/{id}', [RotationsController::class, 'show']); // Lấy chi tiết theo id
-// Route::post('rotations', [RotationsController::class, 'store']); // Tạo mới
-// Route::put('/rotations/{id}', [RotationsController::class, 'update']);
-// Route::delete('/rotations/{id}', [RotationsController::class, 'destroy']);
+
 // call api cho tạo ra mã giảm giá (*coupons) T
 Route::get('coupons', [CouponsController::class, 'index']);
 Route::post('coupons', [CouponsController::class, 'store']);
