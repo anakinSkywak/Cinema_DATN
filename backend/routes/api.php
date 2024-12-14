@@ -407,6 +407,11 @@ Route::get('getHinhThucThanhToan', function(Request $request) {
     return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'phuong_thuc_thanh_toan');
 });
 
+// 3. Thống kê top người dùng và phim
+Route::get('getTopDatVe', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTop($request, 'user', 5);
+});
+
 
 // Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
 // Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
