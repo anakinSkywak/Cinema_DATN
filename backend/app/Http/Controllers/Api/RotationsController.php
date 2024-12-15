@@ -167,6 +167,26 @@ class RotationsController extends Controller
         $rotation->delete();
         return response()->json(['message' => 'Xóa phần thưởng thành công']);
     }
+    public function updateStatusrotaion(Request $request, $id)
+    {
+      
 
+        if (auth()->user()->vai_tro !== 'admin') {
+            return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
+        }
+
+        // Tìm Member theo ID
+        $member = Rotation::find($id);
+
+        if (!$member) {
+            return response()->json(['message' => 'Không tìm thấy hội viên theo ID'], 404);
+        }
+
+        // Thay đổi trạng thái từ 0 -> 1 hoặc 1 -> 0
+        $member->trang_thai = $member->trang_thai === 0 ? 1 : 0;
+        $member->save();
+
+        return response()->json(['message' => 'Cập nhật trạng thái hội viên thành công', 'data' => $member], 200);
+    }
     
 }
