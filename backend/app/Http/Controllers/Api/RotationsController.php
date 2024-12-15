@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Models\HistoryRotation;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
 
 class RotationsController extends Controller
 {
@@ -55,9 +54,8 @@ class RotationsController extends Controller
         }
 
         // Giảm lượt quay của người dùng
-        User::where('id', $user->id)->update([
-            'so_luot_quay' => $user->so_luot_quay - 1
-        ]);
+        $user->so_luot_quay -= 1;
+        $user->save();
 
         // Lưu lịch sử quay
         HistoryRotation::create([

@@ -201,7 +201,7 @@ class MemberController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        // Kiểm tra vai trò người dùng là admin
+      
 
         if (auth()->user()->vai_tro !== 'admin') {
             return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
