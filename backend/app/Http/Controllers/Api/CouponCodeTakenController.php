@@ -62,29 +62,24 @@ class CouponCodeTakenController extends Controller
 
         $user = Auth::user(); // Lấy thông tin người dùng đang đăng nhập
 
+        // Đặt timezone thành giờ Việt Nam
+        $timezone = 'Asia/Ho_Chi_Minh';
+        $now = Carbon::now($timezone); // Lấy thời gian hiện tại theo giờ Việt Nam
+
         // Kiểm tra xem mã giảm giá còn khả dụng không
         $countdownVoucher = CountdownVoucher::where('id', $request->countdownvoucher_id) // Kiểm tra mã giảm giá cụ thể
             ->where('trang_thai', 0) // Kiểm tra trạng thái là 0
             ->where('so_luong_con_lai', '>', 0) // Kiểm tra số lượng còn lại > 0
-            ->whereDate('ngay', '=', Carbon::today()->toDateString()) // Ngày phải là hôm nay hoặc tương lai
-            ->whereTime('thoi_gian_bat_dau', '>=', Carbon::now())
-            ->where(function ($query) {
-                $query->whereTime('thoi_gian_ket_thuc', '>', Carbon::now())
-                    ->where('thoi_gian_ket_thuc', '>', DB::raw('thoi_gian_bat_dau'));
-            }) // Thời gian kết thúc phải sau hiện tại và sau thời gian bắt đầu
+            ->whereDate('ngay', '=', $now->toDateString()) // Ngày phải là hôm nay
+            ->whereTime('thoi_gian_bat_dau', '<=', $now) // Thời gian bắt đầu phải trước hoặc bằng giờ hiện tại
+            ->whereTime('thoi_gian_ket_thuc', '>', $now) // Thời gian kết thúc phải sau hiện tại
             ->first();
-        // dd($countdownVoucher);
+
         // Kiểm tra nếu không tìm thấy voucher
         if (!$countdownVoucher) {
             return response()->json(['message' => 'Mã giảm giá không còn khả dụng hoặc hết thời gian.'], 400);
         }
 
-        // Lưu lại đối tượng
-        $countdownVoucher->save();
-
-        if (!$countdownVoucher) {
-            return response()->json(['message' => 'Mã giảm giá không còn khả dụng hoặc hết thời gian.'], 400);
-        }
         // Kiểm tra xem người dùng đã nhận mã giảm giá này chưa
         $existingCoupon = CouponCodeTaken::where([
             ['user_id', '=', $user->id],
@@ -93,21 +88,27 @@ class CouponCodeTakenController extends Controller
 
         if ($existingCoupon) {
             // Người dùng đã nhận mã này trước đó
-            return response()->json([
-                'message' => 'Bạn đã nhận mã giảm giá này rồi.'
-            ], 400);
+            return response()->json(['message' => 'Bạn đã nhận mã giảm giá này rồi.'], 400);
         }
+
         // Tạo bản ghi CouponCodeTaken mới
         $coupon = CouponCodeTaken::create([
             'countdownvoucher_id' => $request->countdownvoucher_id,
             'user_id' => $user->id, // Dùng id của người dùng đã đăng nhập
+            'ngay_nhan' => $now, // Ngày nhận theo giờ Việt Nam
+            'ngay_het_han' => $now->addDays(7), // Giả sử mã giảm giá có hạn 7 ngày
+            'trang_thai' => 0, // Chưa sử dụng
         ]);
-        // Sau khi thêm mã giảm giá thành công, giảm so_luong_con_lai trong bảng countdown_vouchers
-        $countdownVoucher = CountdownVoucher::find($request->countdownvoucher_id);
 
-        if ($countdownVoucher && $countdownVoucher->so_luong_con_lai > 0) {
-            $countdownVoucher->so_luong_con_lai -= 1;
-            $countdownVoucher->save(); // Lưu lại sự thay đổi
+        // Giảm số lượng còn lại trong bảng countdown_vouchers
+        $countdownVoucherModel = CountdownVoucher::find($request->countdownvoucher_id);
+        if ($countdownVoucherModel && $countdownVoucherModel->so_luong_con_lai > 0) {
+            $countdownVoucherModel->so_luong_con_lai -= 1;
+            $countdownVoucherModel->save(); // Lưu lại sự thay đổi
+        }
+        // Kiểm tra nếu số lượng còn lại bằng 0 thì cập nhật trạng thái
+        if ($countdownVoucherModel->so_luong_con_lai == 0) {
+            $countdownVoucherModel->trang_thai = 1; // Đặt trạng thái thành 11
         }
         // Trả về Coupon Code vừa tạo cùng thông báo
         return response()->json([
