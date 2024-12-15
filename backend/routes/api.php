@@ -383,21 +383,21 @@ Route::get('getDoanhThuTPhimTrongNgay', function(Request $request) {
 });
 
 // 2. Thống kê theo trạng thái và phương thức thanh toán
-Route::get('getPhanLoaiVe', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'trang_thai');
+Route::get('getPhanLoaiVe', function() {
+    return app(StatisticalController::class)->thongKeTheoTrangThai('trang_thai');
 });
 
-Route::get('getHinhThucThanhToan', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'phuong_thuc_thanh_toan');
+Route::get('getHinhThucThanhToan', function() {
+    return app(StatisticalController::class)->thongKeTheoTrangThai('phuong_thuc_thanh_toan');
 });
 
 // 3. Thống kê top người dùng và phim
-Route::get('getTopDatVe', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTop($request, 'user', 5);
+Route::get('getTopDatVe', function() {
+    return app(StatisticalController::class)->thongKeTop('user', 5);
 });
 
-Route::get('getTopVePhim', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTop($request, 'movie', 5);
+Route::get('getTopVePhim', function() {
+    return app(StatisticalController::class)->thongKeTop('movie', 5);
 });
 
 // 4. Thống kê doanh thu theo tháng
@@ -413,6 +413,11 @@ Route::get('getThongKeVoucher', function(Request $request) {
 // 6. Doanh thu theo phim theo quốc gia
 Route::get('getDoanhThuTheoQuocGia', function(Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request);
+});
+
+// 7. Thống kê số lượng phim
+Route::get('getCountMovie', function(Request $request) {
+    return app(StatisticalController::class)->thongKeSoLuongPhim();
 });
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
