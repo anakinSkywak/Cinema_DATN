@@ -41,7 +41,7 @@ class CouponCodeTakenController extends Controller
 
         foreach ($coupons as $coupon) {
             if (!isset($coupon->id)) continue;
-            
+
             $expiredDate = Carbon::parse($coupon->ngay_het_han);
             if ($expiredDate->lt($currentDate->subDays(2))) {
                 DB::table('coupon_code_takens')
@@ -55,73 +55,64 @@ class CouponCodeTakenController extends Controller
 
     public function spinVoucher(Request $request)
     {
-        // Kiểm tra người dùng đã đăng nhập hay chưa
+        // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!Auth::check()) {
             return response()->json(['message' => 'Bạn cần đăng nhập để săn mã giảm giá'], 401);
         }
 
-        // Xác nhận dữ liệu từ request
-        $request->validate([
-            'countdownvoucher_id' => 'required|integer|exists:countdown_vouchers,id',
-        ], [
-            'countdownvoucher_id.required' => 'ID mã giảm giá là bắt buộc.',
-            'countdownvoucher_id.integer' => 'ID mã giảm giá phải là số nguyên.',
-            'countdownvoucher_id.exists' => 'ID mã giảm giá không tồn tại trong hệ thống.',
-        ]);
+        $user = Auth::user(); // Lấy thông tin người dùng đang đăng nhập
 
-        $user = Auth::user();
-
-        $countdownVoucher = CountdownVoucher::where('id', $request->countdownvoucher_id)
-            ->where('trang_thai', 0)
-            ->where('so_luong_con_lai', '>', 0)
-            ->whereDate('ngay', '=', Carbon::today()->toDateString())
-            ->whereTime('thoi_gian_bat_dau', '<=', Carbon::now())
-            ->whereTime('thoi_gian_ket_thuc', '>=', Carbon::now())
+        // Kiểm tra xem mã giảm giá còn khả dụng không
+        $countdownVoucher = CountdownVoucher::where('id', $request->countdownvoucher_id) // Kiểm tra mã giảm giá cụ thể
+            ->where('trang_thai', 0) // Kiểm tra trạng thái là 0
+            ->where('so_luong_con_lai', '>', 0) // Kiểm tra số lượng còn lại > 0
+            ->whereDate('ngay', '=', Carbon::today()->toDateString()) // Ngày phải là hôm nay hoặc tương lai
+            ->whereTime('thoi_gian_bat_dau', '>=', Carbon::now())
+            ->where(function ($query) {
+                $query->whereTime('thoi_gian_ket_thuc', '>', Carbon::now())
+                    ->where('thoi_gian_ket_thuc', '>', DB::raw('thoi_gian_bat_dau'));
+            }) // Thời gian kết thúc phải sau hiện tại và sau thời gian bắt đầu
             ->first();
-
+        // dd($countdownVoucher);
+        // Kiểm tra nếu không tìm thấy voucher
         if (!$countdownVoucher) {
             return response()->json(['message' => 'Mã giảm giá không còn khả dụng hoặc hết thời gian.'], 400);
         }
 
+        // Lưu lại đối tượng
+        $countdownVoucher->save();
+
+        if (!$countdownVoucher) {
+            return response()->json(['message' => 'Mã giảm giá không còn khả dụng hoặc hết thời gian.'], 400);
+        }
+        // Kiểm tra xem người dùng đã nhận mã giảm giá này chưa
         $existingCoupon = CouponCodeTaken::where([
             ['user_id', '=', $user->id],
             ['countdownvoucher_id', '=', $request->countdownvoucher_id]
         ])->first();
 
         if ($existingCoupon) {
-            return response()->json(['message' => 'Bạn đã nhận mã giảm giá này rồi.'], 400);
-        }
-
-        DB::beginTransaction();
-
-        try {
-            $coupon = CouponCodeTaken::create([
-                'countdownvoucher_id' => $request->countdownvoucher_id,
-                'user_id' => $user->id,
-                'ngay_nhan' => Carbon::now(),
-                'ngay_het_han' => Carbon::now()->addDays(7), // Giả sử mã giảm giá có hạn 7 ngày
-                'trang_thai' => 0, // Chưa sử dụng
-            ]);
-
-            $countdownVoucher = CountdownVoucher::find($request->countdownvoucher_id);
-
-            if ($countdownVoucher && $countdownVoucher->so_luong_con_lai > 0) {
-                $countdownVoucher->so_luong_con_lai -= 1;
-                $countdownVoucher->save();
-            }
-
-            DB::commit();
-
+            // Người dùng đã nhận mã này trước đó
             return response()->json([
-                'message' => 'Săn mã giảm giá thành công!',
-                'coupon' => $coupon,
-            ], 201);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'message' => 'Đã xảy ra lỗi khi săn mã giảm giá.',
-                'error' => $e->getMessage()
-            ], 500);
+                'message' => 'Bạn đã nhận mã giảm giá này rồi.'
+            ], 400);
         }
+        // Tạo bản ghi CouponCodeTaken mới
+        $coupon = CouponCodeTaken::create([
+            'countdownvoucher_id' => $request->countdownvoucher_id,
+            'user_id' => $user->id, // Dùng id của người dùng đã đăng nhập
+        ]);
+        // Sau khi thêm mã giảm giá thành công, giảm so_luong_con_lai trong bảng countdown_vouchers
+        $countdownVoucher = CountdownVoucher::find($request->countdownvoucher_id);
+
+        if ($countdownVoucher && $countdownVoucher->so_luong_con_lai > 0) {
+            $countdownVoucher->so_luong_con_lai -= 1;
+            $countdownVoucher->save(); // Lưu lại sự thay đổi
+        }
+        // Trả về Coupon Code vừa tạo cùng thông báo
+        return response()->json([
+            'message' => 'Săn mã giảm giá thành công!',
+            'coupon' => $coupon,
+        ], 201);
     }
 }
