@@ -92,12 +92,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             'error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này',
         ], 401);
     })->name('unauthenticated');
+
+    Route::post('refresh-token', [AuthController::class, 'refresh']);
 });
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
-
-
+// gui email otp
+Route::post('refesh_email', [AuthController::class, 'refeshEmailOtp']);
 
 
 // Client
@@ -360,19 +362,59 @@ Route::middleware('auth:api')->group(function () {
 });
 
 // việt làm thống kê
-Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
-Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
-Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
-Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVoucher']);
-Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
-Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
-Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
-Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
-Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
-Route::get('getTopDatVe', [StatisticalController::class, 'topNguoiMuaVeNhieuNhat']);
-Route::get('getTopVePhim', [StatisticalController::class, 'topPhimLuotveCao']);
-Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
-Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
+
+// Thống kê doanh thu
+Route::get('getDoanhThuVe', [StatisticalController::class, 'thongKeDoanhThu']);
+
+// app là để lấy đối tượng StatisticalController
+Route::get('getDoanhDoAn', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'do_an');
+});
+
+Route::get('getDoanhThuPhim/{id}', function(Request $request, $id) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phim', $id); 
+});
+
+Route::get('getDoanhPhongChieu/{id}', function(Request $request, $id) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phong', $id);
+});
+
+Route::get('getDoanhThuTPhimTrongNgay', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'tat_ca_phim_ngay');
+});
+
+// 2. Thống kê theo trạng thái và phương thức thanh toán
+Route::get('getPhanLoaiVe', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'trang_thai');
+});
+
+Route::get('getHinhThucThanhToan', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'phuong_thuc_thanh_toan');
+});
+
+// 3. Thống kê top người dùng và phim
+Route::get('getTopDatVe', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTop($request, 'user', 5);
+});
+
+Route::get('getTopVePhim', function(Request $request) {
+    return app(StatisticalController::class)->thongKeTop($request, 'movie', 5);
+});
+
+// 4. Thống kê doanh thu theo tháng
+Route::get('getDoanhThuThang', function(Request $request) {
+    return app(StatisticalController::class)->doanhThuThang();
+});
+
+// 5. Thống kê voucher đã sử dụng
+Route::get('getThongKeVoucher', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request , 'voucher');
+});
+
+// 6. Doanh thu theo phim theo quốc gia
+Route::get('getDoanhThuTheoQuocGia', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request);
+});
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 

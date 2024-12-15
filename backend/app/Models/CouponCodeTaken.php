@@ -28,7 +28,7 @@ class CouponCodeTaken extends Model
     public static function boot()
     {
         parent::boot();
-
+        // static::creating là một sự kiện được kích hoạt khi một mục mới được tạo trong cơ sở dữ liệu.
         static::creating(function ($coupon) {
             // Nếu không có ngày nhận thì gán ngày nhận là ngày hiện tại
             if (!$coupon->ngay_nhan) {

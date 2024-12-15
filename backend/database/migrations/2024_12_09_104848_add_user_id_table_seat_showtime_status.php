@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('seat_showtime_status', function (Blueprint $table) {
             //
-            $table->bigInteger('user_id')->nullable();
+            // $table->bigInteger('user_id')->nullable();
         });
     }
 
