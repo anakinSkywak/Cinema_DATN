@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Events\SeatSelectedEvent;
+use App\Events\SeatSelectedEventRealTime;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Food;
@@ -118,6 +119,7 @@ class BookingController extends Controller
 
 
     // hàm realtime chọn ghế chặn realtime và bỏ chặn khi ấn lại ghế
+
     public function selectSeat(Request $request)
     {
 
@@ -126,25 +128,53 @@ class BookingController extends Controller
             return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);
         }
 
-        // dữ liệu
         $seatId = $request->input('ghengoi_id');
         $showtimeId = $request->input('thongtinchieu_id');
 
-        // truy vấn  ghế ở bảng seat_showtime_status
+        // Kiểm tra tính hợp lệ của dữ liệu
+        if (!$seatId || !$showtimeId) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ'], 422);
+        }
+
+        // Kiểm tra nếu ghế đã bị chọn trước đó 
         $existingSeat = SeatShowtimeStatu::where('ghengoi_id', $seatId)
             ->where('thongtinchieu_id', $showtimeId)
             ->first();
 
+        if (!$existingSeat) {
+            return response()->json(['message' => 'Ghế không tồn tại'], 404);
+        }
 
-        // check xem ghế đã được booking hay chưa 1 là đã lưu booking rồi
-        if ($existingSeat && $existingSeat->trang_thai == 1) {
+        if ($existingSeat->trang_thai == 1) {
             return response()->json([
-                'error' => 'Ghế đã được booking vé phim của khác hàng khác !',
-                'data' => $seatId,
+                'error' => 'Ghế đã được booking bởi khách hàng khác!',
+                'data' => [
+                    'seatId' => $seatId,
+                    'showtimeId' => $showtimeId,
+                ],
             ], 409);
         }
 
-        // bỏ chọn ghế
+
+        if ($existingSeat->trang_thai == 3) {
+            $existingSeat->update([
+                'trang_thai' => 0,
+                'user_id' => null,
+            ]);
+
+            // Phát sự kiện bỏ chọn ghế
+            event(new SeatSelectedEvent($seatId,  $showtimeId));
+
+            return response()->json([
+                'message' => 'Ghế đã được bỏ chọn thành công',
+                'data' => [
+                    'seatId' => $seatId,
+                    'showtimeId' => $showtimeId,
+                ],
+            ]);
+        }
+
+        // Nếu ghế đã chọn và người dùng muốn bỏ chọn cập nhật thành 0
         if ($existingSeat && $existingSeat->trang_thai == 3) {
 
             $existingSeat->update(['trang_thai' => 0, 'user_id' => null]); // bỏ chọn 
@@ -158,23 +188,99 @@ class BookingController extends Controller
             ]);
         }
 
-        // chọn ghế 
-        if ($existingSeat && $existingSeat->trang_thai !== 3) {
+        // Nếu ghế không ở trạng thái đang chọn (3), chuyển sang trạng thái đang chọn (3)
+        $existingSeat->update([
+            'trang_thai' => 3,
+            'user_id' => $user->id,
+        ]);
 
-            SeatShowtimeStatu::updateOrInsert(
-                ['ghengoi_id' => $seatId, 'thongtinchieu_id' => $showtimeId],
-                ['trang_thai' => 3, 'user_id' => $user->id], // 3 đang chọn
-            );
+        // Phát sự kiện chọn ghế
+        event(new SeatSelectedEvent($seatId,  $showtimeId));
 
-            // sự kiện chọn ghế
-            event(new SeatSelectedEvent($seatId, $showtimeId));
+        return response()->json([
+            'message' => 'Ghế đã được chọn thành công',
+            'data' => [
+                'seatId' => $seatId,
+                'showtimeId' => $showtimeId,
+                'user_id' => $user->id,
+            ],
+        ]);
+    }
+
+    public function selectSeat_test(Request $request)
+    {
+        $user = auth()->user();
+
+        // Kiểm tra đăng nhập
+        if (!$user) {
+            return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);
+        }
+
+        // Lấy dữ liệu từ request
+        $seatId = $request->input('ghengoi_id');
+        $showtimeId = $request->input('thongtinchieu_id');
+
+        // Kiểm tra tính hợp lệ của dữ liệu
+        if (!$seatId || !$showtimeId) {
+            return response()->json(['message' => 'Dữ liệu không hợp lệ'], 422);
+        }
+
+        // Truy vấn trạng thái ghế
+        $seat = SeatShowtimeStatu::where('ghengoi_id', $seatId)
+            ->where('thongtinchieu_id', $showtimeId)
+            ->first();
+
+        if (!$seat) {
+            return response()->json(['message' => 'Ghế không tồn tại'], 404);
+        }
+
+        // Nếu ghế đã được booking (trạng thái 1), trả về lỗi
+        if ($seat->trang_thai == 1) {
+            return response()->json([
+                'error' => 'Ghế đã được booking bởi khách hàng khác!',
+                'data' => [
+                    'seatId' => $seatId,
+                    'showtimeId' => $showtimeId,
+                ],
+            ], 409);
+        }
+
+        // Nếu ghế đang được chọn (trạng thái 3), bỏ chọn
+        if ($seat->trang_thai == 3) {
+            $seat->update([
+                'trang_thai' => 0,
+                'user_id' => null,
+            ]);
+
+            // Phát sự kiện bỏ chọn ghế
+            event(new SeatSelectedEventRealTime($seatId, 0, $user->id,  $showtimeId));
 
             return response()->json([
-                'message' => 'Ghế đã được chọn thành công',
-                'data' => $seatId,
-                'user_id' => $user->id
+                'message' => 'Ghế đã được bỏ chọn thành công',
+                'data' => [
+                    'seatId' => $seatId,
+                    'showtimeId' => $showtimeId,
+                ],
             ]);
         }
+
+        // Nếu ghế không ở trạng thái đang chọn (3), chuyển sang trạng thái đang chọn (3)
+        $seat->update([
+            'trang_thai' => 3,
+            'user_id' => $user->id,
+        ]);
+
+        // Phát sự kiện chọn ghế
+        event(new SeatSelectedEventRealTime($seatId, 3, $user->id,  $showtimeId));
+
+        return response()->json([
+            'message' => 'Ghế đã được chọn thành công',
+            'data' => [
+                'seatId' => $seatId,
+                'showtimeId' => $showtimeId,
+                'user_id' => $user->id,
+            ],
+        ]);
     }
 
 
@@ -199,6 +305,13 @@ class BookingController extends Controller
 
         //$showtime = Showtime::with('movie')->find($request->thongtinchieu_id);
         $selectedSeats = $request->ghe_ngoi;
+
+        // $selectedSeatMax = count($selectedSeats);
+        // if($selectedSeatMax > 8){
+        //     return response()->json([
+        //         'message' => 'Bạn không thể booking vé phim với lớn hơn 8 ghế 1 lần !',
+        //     ], 400);
+        // }
 
         // check khi lưu booking theo thongtinhchieu_id và ghngoi
         // check trang_thai = 1 đặt đặt , 3 đang có người chọn ko cho lưu booking vói id ghế 
@@ -281,6 +394,10 @@ class BookingController extends Controller
             //'doan_details' =>  $doAnDetails // chỉ để xem dữ liệu thôi
         ], 201);
     }
+
+
+    // hàm đếm time đá khi các bước booking
+    public function RealtimeBooking(Request $request) {}
 
     // Hàm format tên món ăn và số lượng món ăn thành chuỗi
     public function formatDoAnString($doanDetails)
