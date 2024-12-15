@@ -410,6 +410,11 @@ Route::get('getThongKeVoucher', function(Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request , 'voucher');
 });
 
+// 6. Doanh thu theo phim theo quốc gia
+Route::get('getDoanhThuTheoQuocGia', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request);
+});
+
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 
 

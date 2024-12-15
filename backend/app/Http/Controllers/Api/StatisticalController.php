@@ -52,6 +52,7 @@ class StatisticalController extends Controller
                 'tat_ca_phim_ngay' => $this->tinhDoanhThuTatCaPhim($query),
                 've' => $query->sum('tong_tien'),
                 'voucher' => $this->thongKeVoucherSuDung($query),
+                'quoc_gia' => $this->tinhDoanhThuTheoQuocGia($query),
                 default => throw new \InvalidArgumentException('Loại thống kê không hợp lệ')
             };
 
@@ -246,8 +247,29 @@ class StatisticalController extends Controller
             ], 400);
         }
     }
+
     /**
-     * 5. Doanh thu theo tháng
+     * 6. Doanh thu theo phim theo quốc gia
+     */
+    private function tinhDoanhThuTheoQuocGia($query)
+    {
+        return $query->join('bookings', 'payments.booking_id', '=', 'bookings.id')
+            ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
+            ->select(
+                'movies.quoc_gia',
+                'movies.ten_phim',
+                DB::raw('SUM(payments.tong_tien) as tong_doanh_thu')
+            )
+            ->groupBy('movies.quoc_gia', 'movies.ten_phim')
+            ->orderBy('movies.quoc_gia')
+            ->orderBy('tong_doanh_thu', 'DESC')
+            ->get();
+    }
+
+
+    /**
+     *  Doanh thu theo tháng
      */
     public function doanhThuThang()
     {
