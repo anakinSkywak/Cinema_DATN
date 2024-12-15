@@ -298,6 +298,7 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+Route::get('countdown-vouchers/today-discounts', [CountdownVoucherController::class, 'showTodayDiscounts']);
 // call api type_blogs T
 Route::get('type_blogs', [TypeBlogController::class, 'index']);
 Route::post('type_blogs', [TypeBlogController::class, 'store']);

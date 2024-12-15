@@ -22,7 +22,20 @@ class CountdownVoucherController extends Controller
 
         return response()->json($countdownVouchers);
     }
-
+    public function showTodayDiscounts()
+    {
+        // Lấy ngày hôm nay theo giờ Việt Nam
+        $today = Carbon::now('Asia/Ho_Chi_Minh')->toDateString();  // Lấy ngày theo định dạng yyyy-mm-dd
+    
+        // Truy vấn các mã giảm giá có trạng thái = 0 và ngày là hôm nay
+        $countdownVouchers = CountdownVoucher::where('trang_thai', 0)
+            ->whereDate('ngay', $today)
+            ->with('coupon') // Nếu bạn cần lấy thông tin liên quan đến coupon
+            ->get();
+    
+        // Trả về kết quả
+        return response()->json($countdownVouchers);
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
