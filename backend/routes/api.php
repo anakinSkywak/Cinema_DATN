@@ -272,6 +272,7 @@ Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
 Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
+Route::middleware(['auth:api'])->put('/rotation/{id}/status', [RotationsController::class, 'updateStatusrotaion']); // admin cập nhập ẩn member
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
