@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\CheckTicketController;
 use App\Http\Controllers\Api\MemberShipsController;
 use App\Http\Controllers\Api\StatisticalController;
@@ -95,12 +96,14 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
             'error' => 'hãy đăng nhập hoặc đăng ký để sử dụng dịch vụ này',
         ], 401);
     })->name('unauthenticated');
+
+    Route::post('refresh-token', [AuthController::class, 'refresh']);
 });
 
 Route::post('forget_password', [AuthController::class, 'sendResetLinkEmail']);
 Route::post('reset_password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
-
-
+// gui email otp
+Route::post('refesh_email', [AuthController::class, 'refeshEmailOtp']);
 
 
 // Client
@@ -289,6 +292,7 @@ Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
 Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
 Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
+Route::middleware(['auth:api'])->put('/rotation/{id}/status', [RotationsController::class, 'updateStatusrotaion']); // admin cập nhập ẩn member
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
@@ -314,6 +318,8 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+//call api thống kê 
+Route::get('/total-coupons', [StatisticsController::class, 'totalCoupons']);
 // call api type_blogs T
 Route::get('type_blogs', [TypeBlogController::class, 'index']);
 Route::post('type_blogs', [TypeBlogController::class, 'store']);
@@ -342,6 +348,8 @@ Route::post('coupons', [CouponsController::class, 'store']);
 Route::get('coupons/{id}', [CouponsController::class, 'show']);
 Route::put('coupons/{id}', [CouponsController::class, 'update']);
 Route::delete('coupons/{id}', [CouponsController::class, 'destroy']);
+Route::get('totalCoupons', [CouponsController::class, 'totalCoupons']);
+
 //call api quay thuong
 Route::middleware(['auth:api'])->post('/quay-thuong', [RotationsController::class, 'quayThuong']);
 Route::middleware('auth:api')->get('/available-rotations', [HistoryRotationsController::class, 'getAvailableRotations']);
@@ -378,19 +386,64 @@ Route::middleware('auth:api')->group(function () {
 });
 
 // việt làm thống kê
-Route::get('getCountMovie', [StatisticalController::class, 'soLuongPhim']);
-Route::get('getDoanhThuVe', [StatisticalController::class, 'doanhThuBanve']);
-Route::get('getDoanhDoAn', [StatisticalController::class, 'doanhThuDoAn']);
-Route::get('getSoLuongVoucher', [StatisticalController::class, 'thongKeSoLuongVoucher']);
-Route::get('getDoanhThuPhim/{id}', [StatisticalController::class, 'thongKeDoanhThuPhim']);
-Route::get('getDoanhPhongChieu/{id}', [StatisticalController::class, 'doanhThuPhongChieu']);
-Route::get('getPhanLoaiUser', [StatisticalController::class, 'phanLoaiNguoiDung']);
-Route::get('getPhanLoaiVe', [StatisticalController::class, 'tinhTrangVe']);
-Route::get('getHinhThucThanhToan', [StatisticalController::class, 'hinhThucThanhToan']);
-Route::get('getTopDatVe', [StatisticalController::class, 'topNguoiMuaVeNhieuNhat']);
-Route::get('getTopVePhim', [StatisticalController::class, 'topPhimLuotveCao']);
-Route::get('getDoanhThuThang', [StatisticalController::class, 'doanhThuThang']);
-Route::get('getDoanhThuTPhimTrongNgay', [StatisticalController::class, 'doanhThuTatCaPhimTrongNgay']);
+
+// Thống kê doanh thu
+Route::get('getDoanhThuVe', [StatisticalController::class, 'thongKeDoanhThu']);
+
+// app là để lấy đối tượng StatisticalController
+Route::get('getDoanhDoAn', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'do_an');
+});
+
+Route::get('getDoanhThuPhim/{id}', function(Request $request, $id) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phim', $id); 
+});
+
+Route::get('getDoanhPhongChieu/{id}', function(Request $request, $id) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phong', $id);
+});
+
+Route::get('getDoanhThuTPhimTrongNgay', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'tat_ca_phim_ngay');
+});
+
+// 2. Thống kê theo trạng thái và phương thức thanh toán
+Route::get('getPhanLoaiVe', function() {
+    return app(StatisticalController::class)->thongKeTheoTrangThai('trang_thai');
+});
+
+Route::get('getHinhThucThanhToan', function() {
+    return app(StatisticalController::class)->thongKeTheoTrangThai('phuong_thuc_thanh_toan');
+});
+
+// 3. Thống kê top người dùng và phim
+Route::get('getTopDatVe', function() {
+    return app(StatisticalController::class)->thongKeTop('user', 5);
+});
+
+Route::get('getTopVePhim', function() {
+    return app(StatisticalController::class)->thongKeTop('movie', 5);
+});
+
+// 4. Thống kê doanh thu theo tháng
+Route::get('getDoanhThuThang', function(Request $request) {
+    return app(StatisticalController::class)->doanhThuThang();
+});
+
+// 5. Thống kê voucher đã sử dụng
+Route::get('getThongKeVoucher', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request , 'voucher');
+});
+
+// 6. Doanh thu theo phim theo quốc gia
+Route::get('getDoanhThuTheoQuocGia', function(Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request);
+});
+
+// 7. Thống kê số lượng phim
+Route::get('getCountMovie', function(Request $request) {
+    return app(StatisticalController::class)->thongKeSoLuongPhim();
+});
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
 

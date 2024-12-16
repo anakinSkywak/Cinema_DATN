@@ -22,13 +22,19 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //Ánh làm login k giới hạn token
-        // $this->registerPolicies();
 
-        // Passport::ignoreRoutes();
+        // Passport là một package của Laravel để xác thực API
 
-        // Passport::personalAccessTokensExpireIn(null);
-        // Passport::tokensExpireIn(null);
-        // Passport::refreshTokensExpireIn(null);
+        // Ánh xạ các chính sách xác thực
+        $this->registerPolicies();
+
+        // Thiết lập thời gian hết hạn token
+        Passport::tokensExpireIn(now()->addDays(15));
+
+        // Thiết lập thời gian hết hạn token refresh
+        Passport::refreshTokensExpireIn(now()->addDays(30));
+        
+        // Thiết lập thời gian hết hạn token personal access
+        Passport::personalAccessTokensExpireIn(now()->addMonths(6));
     }
 }
