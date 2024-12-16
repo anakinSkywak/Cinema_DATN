@@ -327,6 +327,8 @@ Route::post('coupons', [CouponsController::class, 'store']);
 Route::get('coupons/{id}', [CouponsController::class, 'show']);
 Route::put('coupons/{id}', [CouponsController::class, 'update']);
 Route::delete('coupons/{id}', [CouponsController::class, 'destroy']);
+Route::get('totalCoupons', [CouponsController::class, 'totalCoupons']);
+
 //call api quay thuong
 Route::middleware(['auth:api'])->post('/quay-thuong', [RotationsController::class, 'quayThuong']);
 Route::middleware('auth:api')->get('/available-rotations', [HistoryRotationsController::class, 'getAvailableRotations']);
