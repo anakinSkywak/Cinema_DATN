@@ -192,6 +192,9 @@ Route::put('open-room/{id}' , [RoomController::class , 'openRoomId']);
 Route::get('seats', [SeatController::class, 'index']);
 Route::get('addSeat', [SeatController::class, 'addSeat']);
 Route::post('storeOneSeat', [SeatController::class, 'storeOneSeat']);
+
+// thêm ghế với ma trận mạng hòa tự viết route func storeSeatsArray
+
 Route::post('storeSeat', [SeatController::class, 'store']);
 Route::get('showSeat/{id}', [SeatController::class, 'show']);
 Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);

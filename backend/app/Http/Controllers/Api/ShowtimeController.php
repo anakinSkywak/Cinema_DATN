@@ -223,6 +223,7 @@ class ShowtimeController extends Controller
                     SeatShowtimeStatu::create([
                         'thongtinchieu_id' => $showtime->id,
                         'ghengoi_id' => $seat->id,
+                        'ten_ghe_ngoi' => $seat->so_ghe_ngoi,
                         'gio_chieu' => $gio,
                         'ngay_chieu' => $showtime->ngay_chieu,
                         'gia_ghe_showtime' => $gia_ghe

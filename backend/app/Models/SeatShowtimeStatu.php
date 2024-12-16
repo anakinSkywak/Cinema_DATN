@@ -19,7 +19,8 @@ class SeatShowtimeStatu extends Model
         'gio_chieu',
         'user_id',
         'ngay_chieu',
-        'gia_ghe_showtime'
+        'gia_ghe_showtime',
+        'ten_ghe_ngoi'
     ];
 
     
