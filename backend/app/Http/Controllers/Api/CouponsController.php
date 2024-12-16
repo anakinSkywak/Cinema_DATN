@@ -178,16 +178,5 @@ class CouponsController extends Controller
             'message' => 'Xóa mã giảm giá thành công',
         ], 200);
     }
-    // thống kê 
-    public function totalCoupons()
-    {
-        // Đếm tổng số mã giảm giá
-        $totalCoupons = Coupon::count();
 
-        // Trả về JSON response
-        return response()->json([
-            'message' => 'Lấy tổng số mã giảm giá thành công',
-            'total_coupons' => $totalCoupons
-        ], 200); // Mã trạng thái HTTP 200 - OK
-    }
 }
