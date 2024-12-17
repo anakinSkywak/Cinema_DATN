@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\TypeBlogController;
 use App\Http\Controllers\Api\RotationsController;
 use App\Http\Controllers\Api\MembershipController;
 use App\Http\Controllers\Api\MoviegenreController;
+use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\CheckTicketController;
 use App\Http\Controllers\Api\MemberShipsController;
 use App\Http\Controllers\Api\StatisticalController;
@@ -298,6 +299,8 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+//call api thống kê 
+Route::get('/total-coupons', [StatisticsController::class, 'totalCoupons']);
 // call api type_blogs T
 Route::get('type_blogs', [TypeBlogController::class, 'index']);
 Route::post('type_blogs', [TypeBlogController::class, 'store']);
@@ -326,6 +329,8 @@ Route::post('coupons', [CouponsController::class, 'store']);
 Route::get('coupons/{id}', [CouponsController::class, 'show']);
 Route::put('coupons/{id}', [CouponsController::class, 'update']);
 Route::delete('coupons/{id}', [CouponsController::class, 'destroy']);
+Route::get('totalCoupons', [CouponsController::class, 'totalCoupons']);
+
 //call api quay thuong
 Route::middleware(['auth:api'])->post('/quay-thuong', [RotationsController::class, 'quayThuong']);
 Route::middleware('auth:api')->get('/available-rotations', [HistoryRotationsController::class, 'getAvailableRotations']);
@@ -384,21 +389,21 @@ Route::get('getDoanhThuTPhimTrongNgay', function(Request $request) {
 });
 
 // 2. Thống kê theo trạng thái và phương thức thanh toán
-Route::get('getPhanLoaiVe', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'trang_thai');
+Route::get('getPhanLoaiVe', function() {
+    return app(StatisticalController::class)->thongKeTheoTrangThai('trang_thai');
 });
 
-Route::get('getHinhThucThanhToan', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTheoTrangThai($request, 'phuong_thuc_thanh_toan');
+Route::get('getHinhThucThanhToan', function() {
+    return app(StatisticalController::class)->thongKeTheoTrangThai('phuong_thuc_thanh_toan');
 });
 
 // 3. Thống kê top người dùng và phim
-Route::get('getTopDatVe', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTop($request, 'user', 5);
+Route::get('getTopDatVe', function() {
+    return app(StatisticalController::class)->thongKeTop('user', 5);
 });
 
-Route::get('getTopVePhim', function(Request $request) {
-    return app(StatisticalController::class)->thongKeTop($request, 'movie', 5);
+Route::get('getTopVePhim', function() {
+    return app(StatisticalController::class)->thongKeTop('movie', 5);
 });
 
 // 4. Thống kê doanh thu theo tháng
@@ -415,6 +420,14 @@ Route::get('getThongKeVoucher', function(Request $request) {
 Route::get('getDoanhThuTheoQuocGia', function(Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request);
 });
+
+
+
+// 7. Thống kê số lượng phim
+Route::get('getCountMovie', function(Request $request) {
+    return app(StatisticalController::class)->thongKeSoLuongPhim();
+});
+
 
 Route::get('payment/NCB-return1', [PaymentController::class, 'vnpayReturn1']);
 Route::get('payment/MasterCard1', [PaymentController::class, 'mastercardReturn1']);

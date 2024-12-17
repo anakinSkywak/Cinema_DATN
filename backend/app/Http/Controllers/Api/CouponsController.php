@@ -178,4 +178,5 @@ class CouponsController extends Controller
             'message' => 'Xóa mã giảm giá thành công',
         ], 200);
     }
+
 }

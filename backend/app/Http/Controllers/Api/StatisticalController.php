@@ -22,7 +22,11 @@ class StatisticalController extends Controller
     public function thongKeDoanhThu(Request $request, $type = 've', $id = null)
     {
         try {
-            $trangThai = 'Đã hoàn thành';
+
+//             payment // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+//            `Booking`   // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
+
+            $trangThai = 2;
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
 
@@ -112,43 +116,61 @@ class StatisticalController extends Controller
     /**
      * 2. Thống kê theo trạng thái hoặc phương thức
      */
-    public function thongKeTheoTrangThai(Request $request, $filterBy = 'trang_thai')
+    public function thongKeTheoTrangThai($filterBy)
     {
-        $conditions = [
-            'dangXuLy' => 'Đang chờ xử lý',
-            'thanhCong' => 'Đã hoàn thành',
-            'khongThanhCong' => 'Không thành công',
-            'hoanLai' => 'Đã hoàn lại',
-            'huy' => 'Hủy',
-        ];
+        try {
+            // Kiểm tra tham số lọc hợp lệ
+            if (!in_array($filterBy, ['trang_thai', 'phuong_thuc_thanh_toan'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tham số lọc không hợp lệ.',
+                    'data' => []
+                ], 400);
+            }
 
-        if ($filterBy === 'phuong_thuc_thanh_toan') {
+            // Thống kê theo phương thức thanh toán
+            if ($filterBy === 'phuong_thuc_thanh_toan') {
+                $result = [
+                    'tienMat' => Payment::where('phuong_thuc_thanh_toan', 'cash')->count(),
+                    'thanhToanOnline' => Payment::where('phuong_thuc_thanh_toan', '!=', 'cash')->count()
+                ];
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Thống kê theo phương thức thanh toán thành công',
+                    'data' => $result
+                ], 200);
+            }
+
+            // Thống kê theo trạng thái thanh toán
             $result = [
-                'tienMat' => Payment::where($filterBy, 'cash')->count(),
-                'thanhToanOnline' => Payment::where($filterBy, '!=', 'cash')->count()
+                'dangXuLy' => Payment::where($filterBy, 0)->count(),
+                'thanhCong' => Payment::where($filterBy, 1)->count(), 
+                'khongThanhCong' => Payment::where($filterBy, 2)->count(),
+                'huy' => Payment::where($filterBy, 3)->count(),
+                'hoanLai' => Payment::where($filterBy, 4)->count()
             ];
 
             return response()->json([
-                'message' => 'Thống kê theo ' . $filterBy . ' thành công',
-                'data' => $result,
+                'success' => true,
+                'message' => 'Thống kê theo trạng thái thành công',
+                'data' => $result
             ], 200);
-        }
 
-        $result = [];
-        foreach ($conditions as $key => $value) {
-            $result[$key] = Payment::where($filterBy, $value)->count();
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $e->getMessage(),
+                'data' => []
+            ], 500);
         }
-
-        return response()->json([
-            'message' => 'Thống kê theo ' . $filterBy . ' thành công',
-            'data' => $result,
-        ], 200);
     }
+    
 
     /**
      * 3. Thống kê top N (người dùng hoặc phim)
      */
-    public function thongKeTop(Request $request, $type = 'user', $limit = 5)
+    public function thongKeTop($type, $limit)
     {
         $query = null;
 
@@ -158,7 +180,8 @@ class StatisticalController extends Controller
                 ->select('users.ho_ten', 'users.email', DB::raw('COUNT(booking_details.booking_id) as total_tickets'))
                 ->groupBy('users.id', 'users.ho_ten', 'users.email')
                 ->orderBy('total_tickets', 'DESC')
-                ->limit($limit);
+                ->limit($limit)
+                ->get();
         } elseif ($type === 'movie') {
             $query = BookingDetail::join('bookings', 'booking_details.booking_id', '=', 'bookings.id')
                 ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
@@ -166,12 +189,12 @@ class StatisticalController extends Controller
                 ->select('movies.ten_phim', 'movies.anh_phim', DB::raw('COUNT(showtimes.phim_id) as total_tickets'))
                 ->groupBy('movies.id', 'movies.ten_phim', 'movies.anh_phim')
                 ->orderBy('total_tickets', 'DESC')
-                ->limit($limit);
+                ->limit($limit)
+                ->get();
         }
 
-        $data = $query->get();
 
-        if ($data->isEmpty()) {
+        if ($query->isEmpty()) {
             return response()->json([
                 'message' => 'Không có dữ liệu thống kê.',
                 'data' => [],
@@ -180,7 +203,7 @@ class StatisticalController extends Controller
 
         return response()->json([
             'message' => 'Thống kê top ' . ($type === 'user' ? 'người dùng' : 'phim') . ' thành công',
-            'data' => $data,
+            'data' => $query,
         ], 200);
     }
 
@@ -265,6 +288,16 @@ class StatisticalController extends Controller
             ->orderBy('movies.quoc_gia')
             ->orderBy('tong_doanh_thu', 'DESC')
             ->get();
+    }
+
+    // thống kê số lượng phim
+    public function thongKeSoLuongPhim()
+    {
+        $data = Movie::count();
+        return response()->json([
+            'message' => 'Thống kê số lượng phim thành công',
+            'data' => $data
+        ], 200);
     }
 
 
