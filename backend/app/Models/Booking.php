@@ -29,6 +29,7 @@ class Booking extends Model
         'ghe_ngoi',
         'magiamgia_id',
         'barcode',
+        'coupon_id'
 
     ];
 
@@ -63,10 +64,10 @@ class Booking extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function voucher()
-    {
-        return $this->belongsTo(Voucher::class, 'magiamgia_id');
-    }
+    // public function voucher()
+    // {
+    //     return $this->belongsTo(Voucher::class, 'magiamgia_id');
+    // }
 
     public function seat()
     {

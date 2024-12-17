@@ -10,7 +10,7 @@ class CouponCodeTaken extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['countdownvoucher_id', 'user_id', 'ngay_nhan', 'ngay_het_han','trang_thaithai'];
+    protected $fillable = ['countdownvoucher_id', 'user_id', 'ngay_nhan', 'ngay_het_han','trang_thai'];
 
     // Liên kết với bảng CountdownVoucher
     public function countdownVoucher()

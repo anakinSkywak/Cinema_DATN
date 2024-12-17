@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Mail\PaymentSuccessMail;
+use App\Models\CouponCodeTaken;
 use App\Models\Member;
 use App\Models\MemberShip;
 use App\Models\User;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Mail;
 class PaymentController extends Controller
 {
 
+    // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
 
     // có thể dùng hoặc không
     public function index()
@@ -56,6 +58,7 @@ class PaymentController extends Controller
                 'message' => 'Chưa đăng nhập phải đăng nhập'
             ], 401);
         }
+
 
         $booking = Booking::find($bookingId);
         if (!$booking) {
@@ -211,6 +214,11 @@ class PaymentController extends Controller
                     'payment_id' => $payment->id,
                     'barcode' => $booking->barcode
                 ]);
+
+                // update coupon_code_takens user có đã dùng booking thành 1 chặn
+                DB::table('coupon_code_takens')
+                    ->where('id', $booking->coupon_id)
+                    ->update(['trang_thai' => 1]);
 
                 // thêm 1 lượt quay khi đặt và trả tiền vé ok để quay trưởng
                 User::where('id', $booking->user_id)->increment('so_luot_quay', 1);
