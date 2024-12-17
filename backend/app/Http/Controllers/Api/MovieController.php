@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\CouponCodeTaken;
 use App\Models\Movie;
 use App\Models\MovieGenre;
 use App\Models\Seat;
@@ -418,7 +419,6 @@ class MovieController extends Controller
         }
 
         // lấy giờ chiếu duy nhất nếu có nhiều nhờ chiếu nhưng phòng khác nhau
-
         $uniqueShowtimes = $showtimes->map(function ($group) {
             // chọn phần tử đầu tiên trong nhóm (giờ chiếu trùng)
             return $group->first();
@@ -435,6 +435,12 @@ class MovieController extends Controller
     // khi ấn vào thời gian đổ ra phòng các ghế của phòng đó 
     public function getSeatOfTimeShowtime(Request $request, $movieID, $date, $time)
     {
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);
+        }
+
         // lấy phòng chiếu theo ngày và giờ đã chọn
         $roomsByTime = Showtime::where('phim_id', $movieID)
             ->whereDate('ngay_chieu', $date)
@@ -511,17 +517,16 @@ class MovieController extends Controller
                 ];
             });
 
-
             return [
                 'room' => $showtime->room,
                 'seats' => $seatsWithStatus,
             ];
         });
 
+       
         return response()->json([
             'message' => 'Lấy danh sách phòng chiếu và trạng thái ghế thành công.',
             'roomsWithSeats' => $roomsWithSeats,
-
         ], 200);
     }
 }
