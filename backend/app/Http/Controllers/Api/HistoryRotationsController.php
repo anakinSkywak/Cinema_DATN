@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\HistoryRotation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use App\Models\HistoryRotation;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -70,5 +71,26 @@ class HistoryRotationsController extends Controller
         }
         return response()->json($rotations);
     }
-    
+     /**
+     * Xóa các bản ghi đã hết hạn
+     */
+    public function deleteExpiredRecords()
+    {
+        // Lấy danh sách các bản ghi hết hạn (ngay_het_han <= hiện tại)
+        $expiredRecords = HistoryRotation::where('ngay_het_han', '<=', Carbon::now())->get();
+
+        if ($expiredRecords->isEmpty()) {
+            return response()->json(['message' => 'Không có bản ghi nào hết hạn để xóa'], 200);
+        }
+
+        // Xóa các bản ghi hết hạn
+        foreach ($expiredRecords as $record) {
+            $record->delete();
+        }
+
+        return response()->json([
+            'message' => 'Xóa thành công các bản ghi hết hạn',
+            'deleted_count' => $expiredRecords->count()
+        ]);
+    }
 }

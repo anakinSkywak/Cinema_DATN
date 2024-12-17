@@ -19,7 +19,8 @@ class Kernel extends ConsoleKernel
     {
         // Cập nhật trạng thái săn mã giảm giá mỗi ngày lúc 00:00
         $schedule->command('countdown:update-status')->dailyAt('00:00');
-        $schedule->command('membership:check-expiration')->dailyAt('20:30');
+        $schedule->command('membership:check-expiration')->dailyAt('00:00');
+        $schedule->command('history-rotation:delete-expired')->dailyAt('00:00');
     }
 
     /**

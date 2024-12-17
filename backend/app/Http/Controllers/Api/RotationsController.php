@@ -20,12 +20,10 @@ class RotationsController extends Controller
         if (!$user) {
             return response()->json(['message' => 'Người dùng chưa được xác thực'], 401);
         }
-        
+
         if (!$user instanceof \App\Models\User) {
             return response()->json(['message' => 'Dữ liệu người dùng không hợp lệ'], 500);
         }
-        
-        
 
         // Kiểm tra xem người dùng có còn lượt quay không
         if ($user->so_luot_quay <= 0) {
@@ -62,11 +60,7 @@ class RotationsController extends Controller
         if (!isset($user->so_luot_quay) || $user->so_luot_quay === null) {
             return response()->json(['message' => 'Dữ liệu lượt quay không hợp lệ'], 422);
         }
-        
-        if (!isset($user->so_luot_quay) || $user->so_luot_quay === null) {
-            return response()->json(['message' => 'Dữ liệu lượt quay không hợp lệ'], 422);
-        }
-        
+
         $user->so_luot_quay -= 1; // Giảm lượt quay
         $user->save();
 
@@ -87,13 +81,13 @@ class RotationsController extends Controller
         ]);
     }
 
-
     // Lấy danh sách tất cả các rotations
     public function index()
     {
         $rotations = Rotation::where('trang_thai', 0)->get();
         return response()->json($rotations);
     }
+
     public function indexa()
     {
         $rotations = Rotation::all();
@@ -116,7 +110,6 @@ class RotationsController extends Controller
     {
         $validatedData = $request->validate([
             'ten_phan_thuong' => 'required|string|max:150',
-            'muc_giam_gia' => 'nullable|numeric|max:90',
             'mo_ta' => 'required|string|max:255',
             'so_luong' => 'required|integer|min:1',
         ]);
@@ -148,7 +141,6 @@ class RotationsController extends Controller
 
         $validatedData = $request->validate([
             'ten_phan_thuong' => 'string|max:150',
-            'muc_giam_gia' => 'nullable|numeric|max:90',
             'mo_ta' => 'string|max:255',
             'so_luong' => 'integer|min:1',
         ]);
@@ -180,26 +172,24 @@ class RotationsController extends Controller
         $rotation->delete();
         return response()->json(['message' => 'Xóa phần thưởng thành công']);
     }
+
     public function updateStatusrotaion(Request $request, $id)
     {
-      
-
         if (auth()->user()->vai_tro !== 'admin') {
             return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
         }
 
-        // Tìm Member theo ID
-        $member = Rotation::find($id);
+        // Tìm Rotation theo ID
+        $rotation = Rotation::find($id);
 
-        if (!$member) {
+        if (!$rotation) {
             return response()->json(['message' => 'Không tìm thấy phần thưởng ID'], 404);
         }
 
         // Thay đổi trạng thái từ 0 -> 1 hoặc 1 -> 0
-        $member->trang_thai = $member->trang_thai === 0 ? 1 : 0;
-        $member->save();
+        $rotation->trang_thai = $rotation->trang_thai === 0 ? 1 : 0;
+        $rotation->save();
 
-        return response()->json(['message' => 'Cập nhật trạng thái hội viên thành công', 'data' => $member], 200);
+        return response()->json(['message' => 'Cập nhật trạng thái vòng quay thành công', 'data' => $rotation], 200);
     }
-    
 }
