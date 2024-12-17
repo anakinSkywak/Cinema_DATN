@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use App\Models\BookingDetail;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\RegisterMember;
 
 class StatisticalController extends Controller
 {
@@ -341,7 +342,7 @@ class StatisticalController extends Controller
     }
 
 
-    // thống kê số lượng phim
+    // 7. thống kê số lượng phim
     public function thongKeSoLuongPhim()
     {
         $movieCount = Movie::count();
@@ -350,13 +351,12 @@ class StatisticalController extends Controller
         return response()->json([
             'message' => 'Thống kê số lượng phim thành công',
             'data' => [
-                'movieCount' => $movieCount,
+                'data' => $movieCount,
                 'so_xuat_chieu' => $showtimeCount,
                 'so_phong' => $roomCount 
             ]
         ], 200);
     }
-
 
     /**
      *  Doanh thu theo tháng
@@ -375,3 +375,4 @@ class StatisticalController extends Controller
         ], 200);
     }
 }
+        
