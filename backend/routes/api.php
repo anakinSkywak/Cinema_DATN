@@ -122,6 +122,10 @@ Route::get('movie-detail/{id}', [MovieController::class, 'movieDetailById']);
 Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getTimeOfDateShowtime']);
 
 
+// 3 user
+//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00    // mẫu
+Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getSeatOfTimeShowtime']);
+
 
 
 Route::middleware('auth:api')->group(function () {
@@ -129,9 +133,6 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/select-seat', [BookingController::class, 'selectSeat']);
 
-    // 3 user
-    //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00    // mẫu
-    Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getSeatOfTimeShowtime']);
 
     // 4 user
     //http://127.0.0.1:8000/api/booking

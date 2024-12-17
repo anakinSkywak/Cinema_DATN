@@ -81,7 +81,8 @@ class SeatPriceController extends Controller
             'la_ngay_le' => 'nullable|boolean',
         ]);
 
-        // check 
+        // check thêm mới
+        
         
 
 
