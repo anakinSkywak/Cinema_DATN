@@ -436,10 +436,7 @@ class MovieController extends Controller
     public function getSeatOfTimeShowtime(Request $request, $movieID, $date, $time)
     {
 
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json(['message' => 'Chưa đăng nhập, vui lòng đăng nhập'], 401);
-        }
+      
 
         // lấy phòng chiếu theo ngày và giờ đã chọn
         $roomsByTime = Showtime::where('phim_id', $movieID)
