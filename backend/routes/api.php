@@ -440,12 +440,17 @@ Route::get('getDoanhThuTheoQuocGia', function(Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request);
 });
 
+
+
 // 7. Thống kê số lượng phim
 Route::get('getCountMovie', function(Request $request) {
     return app(StatisticalController::class)->thongKeSoLuongPhim();
 });
 
-Route::get('payment/NCB-return1', [PaymentController::class, 'NCBReturn1']);
+
+Route::get('payment/NCB-return1', [PaymentController::class, 'vnpayReturn1']);
+Route::get('payment/MasterCard1', [PaymentController::class, 'mastercardReturn1']);
+Route::get('payment/visa1', [PaymentController::class, 'visaReturn1']);
 
 
 // Route thống kê doanh thu theo loại hội viên
