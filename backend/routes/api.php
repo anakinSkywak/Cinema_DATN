@@ -461,3 +461,5 @@ Route::get('/revenue-by-membership', [RegisterMemberController::class, 'revenueB
 
 // Route thống kê số lượng người đăng ký theo loại hội viên
 Route::get('/count-users-by-membership', [RegisterMemberController::class, 'countUsersByMembershipType']);
+
+Route::get('/today-discounts', [CountdownVoucherController::class, 'showTodayDiscounts'])->name('countdown_vouchers.today_discounts');
