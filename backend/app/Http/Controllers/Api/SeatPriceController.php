@@ -82,10 +82,9 @@ class SeatPriceController extends Controller
         ]);
 
         // check thêm mới
-        
-        
 
-
+        // 
+        
         // thêm mới 
         $seatPrice = SeatPrice::create($validated);
 

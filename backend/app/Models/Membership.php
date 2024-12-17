@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class MemberShip extends Model
+class Membership extends Model
 {
     use HasFactory;
 
@@ -18,7 +18,8 @@ class MemberShip extends Model
         'ngay_dang_ky',
         'ngay_het_han',
         'trang_thai',
-        'renewal_message'
+        'renewal_message',
+        'user_id'
     ];
 
 
