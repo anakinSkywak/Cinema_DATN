@@ -17,10 +17,15 @@ class RotationsController extends Controller
     {
         $user = auth()->user();
 
-        // Kiểm tra xem người dùng đã đăng nhập chưa
         if (!$user) {
-            return response()->json(['message' => 'Bạn cần đăng nhập để tiếp tục'], 401);
+            return response()->json(['message' => 'Người dùng chưa được xác thực'], 401);
         }
+        
+        if (!$user instanceof \App\Models\User) {
+            return response()->json(['message' => 'Dữ liệu người dùng không hợp lệ'], 500);
+        }
+        
+        
 
         // Kiểm tra xem người dùng có còn lượt quay không
         if ($user->so_luot_quay <= 0) {
@@ -54,7 +59,15 @@ class RotationsController extends Controller
         }
 
         // Giảm lượt quay của người dùng
-        $user->so_luot_quay -= 1;
+        if (!isset($user->so_luot_quay) || $user->so_luot_quay === null) {
+            return response()->json(['message' => 'Dữ liệu lượt quay không hợp lệ'], 422);
+        }
+        
+        if (!isset($user->so_luot_quay) || $user->so_luot_quay === null) {
+            return response()->json(['message' => 'Dữ liệu lượt quay không hợp lệ'], 422);
+        }
+        
+        $user->so_luot_quay -= 1; // Giảm lượt quay
         $user->save();
 
         // Lưu lịch sử quay
