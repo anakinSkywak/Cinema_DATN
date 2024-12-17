@@ -197,6 +197,7 @@ Route::get('addSeat', [SeatController::class, 'addSeat']);
 Route::post('storeOneSeat', [SeatController::class, 'storeOneSeat']);
 
 // thêm ghế với ma trận mạng hòa tự viết route func storeSeatsArray
+Route::post('storeSeatsArray', [SeatController::class, 'storeSeatsArray']);
 
 Route::post('storeSeat', [SeatController::class, 'store']);
 Route::get('showSeat/{id}', [SeatController::class, 'show']);
