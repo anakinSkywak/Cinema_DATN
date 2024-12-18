@@ -68,8 +68,8 @@ class RotationsController extends Controller
         $user->so_luot_quay -= 1; // Giảm lượt quay
         $user->save();
 
-        $barcode = 'VE-' . substr(strval(rand(10000, 999999)), 0, 6);
-
+       
+        $cc='Bạn chỉ có thể sử dụng phần thưởng khi có vé xem phim và phiếu này còn thời gian sử dụng';
 
         // Lưu thông tin vào bảng history_rotations
         HistoryRotation::create([
@@ -77,9 +77,9 @@ class RotationsController extends Controller
             'vongquay_id' => $selectedRotation->id,
             'ket_qua' => $selectedRotation->ten_phan_thuong,
             'ngay_quay' => Carbon::now(),
-            'ngay_het_han' => Carbon::now()->addDays(7),
-            'code' => $barcode,
-            'trang_thai' => 1
+            'ngay_het_han' => Carbon::now()->addDays(3),
+            'dieu_kien'=>$cc,
+            'trang_thai' => 0
         ]);
 
         // Trả về kết quả quay thưởng và đường dẫn mã vạch

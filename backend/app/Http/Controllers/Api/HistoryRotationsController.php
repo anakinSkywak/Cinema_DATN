@@ -26,7 +26,6 @@ class HistoryRotationsController extends Controller
     public function show($id)
     {
         $history = HistoryRotation::find($id);
-
         if (!$history) {
             return response()->json(['message' => 'Không tìm thấy lịch sử quay thưởng'], 404);
         }
@@ -35,7 +34,7 @@ class HistoryRotationsController extends Controller
         if ($history->user_id !== Auth::id()) {
             return response()->json(['message' => 'Bạn không có quyền xem lịch sử này'], 403);
         }
-
+        
         return response()->json($history);
     }
 
@@ -65,14 +64,14 @@ class HistoryRotationsController extends Controller
     public function getAvailableRotations()
     {
         $rotations = HistoryRotation::where('user_id', Auth::id())
-            ->where('trang_thai', 1)
+            ->where('trang_thai', 0)
             ->get();
         if ($rotations->isEmpty()) {
             return response()->json(['message' => 'Bạn không có phần thưởng quay nào '], 404);
         }
         return response()->json($rotations);
     }
-     /**
+    /**
      * Xóa các bản ghi đã hết hạn
      */
     public function deleteExpiredRecords()
@@ -94,4 +93,5 @@ class HistoryRotationsController extends Controller
             'deleted_count' => $expiredRecords->count()
         ]);
     }
+   
 }
