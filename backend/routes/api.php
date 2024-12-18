@@ -216,12 +216,11 @@ Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
 
 
 // Ánh call bảng gía ghế theo ngày tuần , ngày lễ 
-Route::get('seat-prices', [SeatPriceController::class, 'listSeatPrice']);
-Route::get('list-seat', [SeatPriceController::class, 'table_seat_price']);
+Route::get('seat-price-all', [SeatPriceController::class, 'listSeatPrice']); // có thể dùng hoặc không
+Route::get('list-type-seat', [SeatPriceController::class, 'getTypySeats']);
+Route::get('list-seat-price', [SeatPriceController::class, 'getSeatPriceList']);
 Route::post('store-seat-price', [SeatPriceController::class, 'store']);
 Route::get('show-seat-price/{id}', [SeatPriceController::class, 'show']);
-Route::get('edit-seat-price/{id}', [SeatPriceController::class, 'edit']);
-Route::put('update-seat-price', [SeatPriceController::class, 'update']);
 Route::delete('delete-seat-price/{id}', [SeatPriceController::class, 'delete']);
 
 
