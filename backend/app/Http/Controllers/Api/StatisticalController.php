@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Carbon\Carbon;
 use App\Models\Food;
 use App\Models\Room;
+use App\Models\Seat;
 use App\Models\Movie;
 use App\Models\Booking;
 use App\Models\Payment;
@@ -12,9 +13,9 @@ use App\Models\Voucher;
 use App\Models\Showtime;
 use Illuminate\Http\Request;
 use App\Models\BookingDetail;
+use App\Models\RegisterMember;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Models\RegisterMember;
 
 class StatisticalController extends Controller
 {
@@ -25,8 +26,8 @@ class StatisticalController extends Controller
     {
         try {
 
-            //             payment // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
-            //            `Booking`   // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
+            //            payment // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+            //            Booking   // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
 
             $trangThai = 1;
             $startDate = $request->input('start_date');
@@ -59,6 +60,7 @@ class StatisticalController extends Controller
                 've' => $query->sum('tong_tien'),
                 'voucher' => $this->thongKeVoucherSuDung($query),
                 'quoc_gia' => $this->tinhDoanhThuTheoQuocGia($query),
+                'ghe' => $this->thongKeTheoGhe($query),
                 default => throw new \InvalidArgumentException('Loại thống kê không hợp lệ')
             };
 
@@ -108,7 +110,7 @@ class StatisticalController extends Controller
      * tổng xuất chiếu
      * 
      */
-    
+
     private function tinhDoanhThuTatCaPhim($query)
     {
         // Lấy thống kê cơ bản của phim
@@ -139,7 +141,7 @@ class StatisticalController extends Controller
                     DB::raw('COUNT(DISTINCT bookings.id) as so_ve_ban_ra')
                 )
                 ->groupBy('showtimes.gio_chieu')
-                ->get();    
+                ->get();
 
             $movie->xuatchieu = $showtimes;
             unset($movie->id);
@@ -350,9 +352,92 @@ class StatisticalController extends Controller
             'data' => [
                 'data' => $movieCount,
                 'so_xuat_chieu' => $showtimeCount,
-                'so_phong' => $roomCount 
+                'so_phong' => $roomCount
             ]
         ], 200);
+    }
+
+    // thống kê theo ghê
+
+    private function thongKeTheoGhe($query)
+    {
+        $data = $query->join('bookings', 'payments.booking_id', '=', 'bookings.id')
+            ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
+            ->join('rooms', 'showtimes.room_id', '=', 'rooms.id')
+            ->join('seats', 'rooms.id', '=', 'seats.room_id')
+            ->select(
+                'rooms.id as room_id',
+                'rooms.ten_phong_chieu',
+                'rooms.tong_ghe_phong', 
+                'seats.loai_ghe_ngoi',
+                DB::raw('MIN(seats.gia_ghe) as gia_ghe'), // Sử dụng MIN để lấy một giá trị duy nhất cho mỗi loại ghế
+                DB::raw('GROUP_CONCAT(DISTINCT bookings.ghe_ngoi) as ghe_ngoi'),
+                DB::raw('SUM(payments.tong_tien) as tong_doanh_thu'),
+                DB::raw('COUNT(DISTINCT seats.id) as so_luong_ghe')
+            )
+            ->groupBy(
+                'rooms.id',
+                'rooms.ten_phong_chieu',
+                'rooms.tong_ghe_phong',
+                'seats.loai_ghe_ngoi'  // Bỏ seats.gia_ghe ra khỏi GROUP BY
+            )
+            ->orderBy('tong_doanh_thu', 'desc')
+            ->get();
+
+        $organizedData = [];
+        foreach ($data as $record) {
+            if (!isset($organizedData[$record->ten_phong_chieu])) {
+                $organizedData[$record->ten_phong_chieu] = [
+                    'ten_phong' => $record->ten_phong_chieu,
+                    'tong_ghe_phong' => $record->tong_ghe_phong,
+                    'tong_doanh_thu' => 0,
+                    'tong_ghe_da_dat' => 0,
+                    'chi_tiet_ghe' => []
+                ];
+            }
+
+            // Tách ghế ngồi và đếm số lượng ghế đã đặt
+            $allSeats = $record->ghe_ngoi ? array_unique(explode(',', $record->ghe_ngoi)) : [];
+
+            // Đếm số ghế đã được đặt từ bảng seat_showtime_status
+            $soLuongGheDaDat = 0;
+            foreach ($allSeats as $seat) {
+                $soLuongGheDaDat += Seat::where('room_id', $record->room_id)
+                    ->where('loai_ghe_ngoi', $record->loai_ghe_ngoi)
+                    ->where('so_ghe_ngoi', trim($seat))
+                    ->count();
+            }
+
+            $tongTienGhe = $soLuongGheDaDat * $record->gia_ghe;
+
+            // Kiểm tra xem loại ghế đã tồn tại chưa
+            $loaiGheExists = false;
+            foreach ($organizedData[$record->ten_phong_chieu]['chi_tiet_ghe'] as &$chiTiet) {
+                if ($chiTiet['loai_ghe'] === $record->loai_ghe_ngoi) {
+                    // Cộng dồn thông tin nếu đã tồn tại
+                    $chiTiet['so_luong_ghe'] += $record->so_luong_ghe;
+                    $chiTiet['so_ghe_da_dat'] += $soLuongGheDaDat;
+                    $chiTiet['doanh_thu'] += $tongTienGhe;
+                    $loaiGheExists = true;
+                    break;
+                }
+            }
+
+            // Nếu loại ghế chưa tồn tại, thêm mới
+            if (!$loaiGheExists) {
+                $organizedData[$record->ten_phong_chieu]['chi_tiet_ghe'][] = [
+                    'loai_ghe' => $record->loai_ghe_ngoi,
+                    'so_luong_ghe' => $record->so_luong_ghe,
+                    'so_ghe_da_dat' => $soLuongGheDaDat,
+                    'doanh_thu' => $tongTienGhe
+                ];
+            }
+
+            $organizedData[$record->ten_phong_chieu]['tong_doanh_thu'] += $tongTienGhe;
+            $organizedData[$record->ten_phong_chieu]['tong_ghe_da_dat'] += $soLuongGheDaDat;
+        }
+
+        return array_values($organizedData);
     }
 
     /**
@@ -372,4 +457,3 @@ class StatisticalController extends Controller
         ], 200);
     }
 }
-        
