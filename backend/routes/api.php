@@ -331,6 +331,7 @@ Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show'
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
 Route::get('/today-discounts', [CountdownVoucherController::class, 'showTodayDiscounts'])->name('countdown_vouchers.today_discounts');
+Route::get('/show/coupons', [CountdownVoucherController::class, 'getCoupons']);
 //call api thống kê 
 Route::get('/total-coupons', [StatisticsController::class, 'totalCoupons']);
 Route::get('/coupons/total', [StatisticsController::class, 'totalsCoupons']);
