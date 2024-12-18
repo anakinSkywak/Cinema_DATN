@@ -40,6 +40,9 @@ use App\Http\Controllers\Api\CouponCodeTakenController;
 use App\Http\Controllers\API\CountdownVoucherController;
 use App\Http\Controllers\Api\HistoryRotationsController;
 use App\Http\Controllers\Api\AuthController; //  auth api 
+use App\Http\Controllers\Api\SeatPriceController;
+//use App\Http\Controllers\Api\ StatisticalController;
+
 
 
 // xác thực email
@@ -73,9 +76,17 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
         Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+
+        // ánh
+        // b2 
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
-        Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
+
+        // ánh
+        // b2 
+        Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPaymentMember']); // ánh làm
+
         Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'show']);
         Route::post('/send-membership-email/{membershipId}', [MemberShipsController::class, 'sendMembershipEmail']);
 
@@ -111,25 +122,23 @@ Route::get('movie-client', [MovieController::class, 'movieClient']);
 
 // chi tiết theo id phim khi ấn vào phim ở home
 // 1  user
-//http://127.0.0.1:8000/api/movie-detail/31
-Route::get('movie-detail/{id}', [MovieController::class, 'movieDetail']);
+//http://127.0.0.1:8000/api/movie-detail/31  // mẫu
+Route::get('movie-detail/{id}', [MovieController::class, 'movieDetailById']);
 
 // 2 user
-//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19
-Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getShowtimesByDate']);
-
-// 3 user
-//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00
-Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getRoomsByShowtime']);
+//http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19   // mẫu
+Route::get('movie-detail/{movieID}/showtime-date/{date}', [MovieController::class, 'getTimeOfDateShowtime']);
 
 
-
-
+Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieController::class, 'getSeatOfTimeShowtime']);
 
 Route::middleware('auth:api')->group(function () {
 
+    Route::post('/select-seat', [BookingController::class, 'selectSeat']);
 
-    Route::post('/select-seat', [BookingController::class, 'selectSeat']);  //
+    // 3 user
+    //http://127.0.0.1:8000/api/movie-detail/31/showtime-date/2024-11-19/09:30:00    // mẫu
+  
 
     // 4 user
     //http://127.0.0.1:8000/api/booking
@@ -140,10 +149,9 @@ Route::middleware('auth:api')->group(function () {
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
-
     // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
-    // dữ liệu ok
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
+
 });
 
 
@@ -151,16 +159,22 @@ Route::middleware('auth:api')->group(function () {
 Route::get('checkBarcode-exportTicket', [CheckTicketController::class, 'checkBarcodeExportTicket']);
 Route::get('checkBarcode-rotation', [CheckTicketController::class, 'checkBarcode']);
 
+
 // Nhân viên
 // list phim bên trong admin phim có xuất chiếu
 //http://127.0.0.1:8000/api/movie-book-all
 Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTicket']);
 
 
-// return user 
-Route::get('payment/ncb-return', [PaymentController::class, 'NCBReturn']);
-Route::get('payment/mastercard-return', [PaymentController::class, 'mastercardReturn']);
-Route::get('payment/visa-return', [PaymentController::class, 'visaReturn']);
+// return payment  
+// return booking
+Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+
+//b1
+Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); // đổ loại hội viên ra
+// return member
+Route::get('payment/vnpay-member-return', [PaymentController::class, 'vnpayReturnMember']);
+
 
 
 // booking all bên admin
@@ -185,17 +199,32 @@ Route::get('seatAllRoom/{id}', [RoomController::class, 'allSeatRoom']);
 Route::put('baoTriSeat/{id}', [RoomController::class, 'baoTriSeat']);
 Route::put('tatbaoTriSeat/{id}', [RoomController::class, 'tatbaoTriSeat']);
 Route::delete('delete-all-seatbyroom/{id}', [RoomController::class, 'deleteAllSeatByRoom']);
+Route::put('close-room/{id}', [RoomController::class, 'closeRoomId']);
+Route::put('open-room/{id}', [RoomController::class, 'openRoomId']);
+
 
 
 //Ánh call api xuat all ghe theo id room phòng , và all ghế 
 Route::get('seats', [SeatController::class, 'index']);
 Route::get('addSeat', [SeatController::class, 'addSeat']);
 Route::post('storeOneSeat', [SeatController::class, 'storeOneSeat']);
+Route::post('storeSeatsArray', [SeatController::class, 'storeSeatsArray']);
 Route::post('storeSeat', [SeatController::class, 'store']);
 Route::get('showSeat/{id}', [SeatController::class, 'show']);
 Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
 Route::put('updateSeat/{id}', [SeatController::class, 'update']);
 Route::delete('deleteSeat/{id}', [SeatController::class, 'delete']);
+
+
+// Ánh call bảng gía ghế theo ngày tuần , ngày lễ 
+Route::get('seat-prices', [SeatPriceController::class, 'listSeatPrice']);
+Route::get('list-seat', [SeatPriceController::class, 'table_seat_price']);
+Route::post('store-seat-price', [SeatPriceController::class, 'store']);
+Route::get('show-seat-price/{id}', [SeatPriceController::class, 'show']);
+Route::get('edit-seat-price/{id}', [SeatPriceController::class, 'edit']);
+Route::put('update-seat-price', [SeatPriceController::class, 'update']);
+Route::delete('delete-seat-price/{id}', [SeatPriceController::class, 'delete']);
+
 
 
 // Ánh : call api moviegenres
@@ -272,7 +301,9 @@ Route::middleware(['auth:api'])->post('members', [MemberController::class, 'stor
 Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
 Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
-Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+
+// Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+
 Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
 Route::middleware(['auth:api'])->put('/rotation/{id}/status', [RotationsController::class, 'updateStatusrotaion']); // admin cập nhập ẩn member
 // call api RegisterMemberController
@@ -300,8 +331,11 @@ Route::post('countdown_vouchers', [CountdownVoucherController::class, 'store']);
 Route::get('countdown_vouchers/{id}', [CountdownVoucherController::class, 'show']);
 Route::put('countdown_vouchers/{id}', [CountdownVoucherController::class, 'update']);
 Route::delete('countdown_vouchers/{id}', [CountdownVoucherController::class, 'destroy']);
+Route::get('/today-discounts', [CountdownVoucherController::class, 'showTodayDiscounts'])->name('countdown_vouchers.today_discounts');
+Route::get('/show/coupons', [CountdownVoucherController::class, 'getCoupons']);
 //call api thống kê 
 Route::get('/total-coupons', [StatisticsController::class, 'totalCoupons']);
+Route::get('/coupons/total', [StatisticsController::class, 'totalsCoupons']);
 // call api type_blogs T
 Route::get('type_blogs', [TypeBlogController::class, 'index']);
 Route::post('type_blogs', [TypeBlogController::class, 'store']);
@@ -375,66 +409,68 @@ Route::middleware('auth:api')->group(function () {
 Route::get('getDoanhThuVe', [StatisticalController::class, 'thongKeDoanhThu']);
 
 // app là để lấy đối tượng StatisticalController
-Route::get('getDoanhDoAn', function(Request $request) {
+Route::get('getDoanhDoAn', function (Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request, 'do_an');
 });
 
-Route::get('getDoanhThuPhim/{id}', function(Request $request, $id) {
-    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phim', $id); 
+Route::get('getDoanhThuPhim/{id}', function (Request $request, $id) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'phim', $id);
 });
 
-Route::get('getDoanhPhongChieu/{id}', function(Request $request, $id) {
+Route::get('getDoanhPhongChieu/{id}', function (Request $request, $id) {
     return app(StatisticalController::class)->thongKeDoanhThu($request, 'phong', $id);
 });
 
-Route::get('getDoanhThuTPhimTrongNgay', function(Request $request) {
+Route::get('getDoanhThuTPhimTrongNgay', function (Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request, 'tat_ca_phim_ngay');
 });
 
 // 2. Thống kê theo trạng thái và phương thức thanh toán
-Route::get('getPhanLoaiVe', function() {
+Route::get('getPhanLoaiVe', function () {
     return app(StatisticalController::class)->thongKeTheoTrangThai('trang_thai');
 });
 
-Route::get('getHinhThucThanhToan', function() {
+Route::get('getHinhThucThanhToan', function () {
     return app(StatisticalController::class)->thongKeTheoTrangThai('phuong_thuc_thanh_toan');
 });
 
 // 3. Thống kê top người dùng và phim
-Route::get('getTopDatVe', function() {
+Route::get('getTopDatVe', function () {
     return app(StatisticalController::class)->thongKeTop('user', 5);
 });
 
-Route::get('getTopVePhim', function() {
+Route::get('getTopVePhim', function () {
     return app(StatisticalController::class)->thongKeTop('movie', 5);
 });
 
 // 4. Thống kê doanh thu theo tháng
-Route::get('getDoanhThuThang', function(Request $request) {
+Route::get('getDoanhThuThang', function (Request $request) {
     return app(StatisticalController::class)->doanhThuThang();
 });
 
 // 5. Thống kê voucher đã sử dụng
-Route::get('getThongKeVoucher', function(Request $request) {
-    return app(StatisticalController::class)->thongKeDoanhThu($request , 'voucher');
+Route::get('getThongKeVoucher', function (Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'voucher');
 });
 
 // 6. Doanh thu theo phim theo quốc gia
-Route::get('getDoanhThuTheoQuocGia', function(Request $request) {
+Route::get('getDoanhThuTheoQuocGia', function (Request $request) {
     return app(StatisticalController::class)->thongKeDoanhThu($request);
 });
 
 
 
 // 7. Thống kê số lượng phim
-Route::get('getCountMovie', function(Request $request) {
+Route::get('getCountMovie', function (Request $request) {
     return app(StatisticalController::class)->thongKeSoLuongPhim();
 });
 
 
+// bỏ
 Route::get('payment/NCB-return1', [PaymentController::class, 'vnpayReturn1']);
 Route::get('payment/MasterCard1', [PaymentController::class, 'mastercardReturn1']);
 Route::get('payment/visa1', [PaymentController::class, 'visaReturn1']);
+// bỏ
 
 
 // Route thống kê doanh thu theo loại hội viên
@@ -442,3 +478,5 @@ Route::get('/revenue-by-membership', [RegisterMemberController::class, 'revenueB
 
 // Route thống kê số lượng người đăng ký theo loại hội viên
 Route::get('/count-users-by-membership', [RegisterMemberController::class, 'countUsersByMembershipType']);
+
+Route::get('/today-discounts', [CountdownVoucherController::class, 'showTodayDiscounts'])->name('countdown_vouchers.today_discounts');

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Http\Controllers\Api;
+// namespace App\Http\Controllers\Api;
 
 namespace App\Http\Controllers\Api;
 
@@ -164,7 +164,7 @@ class MemberController extends Controller
 
         $dataID->delete();
 
-        return response()->json(['message' => 'Xóa Member thành công'], 200);
+        return response()->json(['message' => 'Xóa Member thành công'], 200);  
     }
 
     public function getMemberTypes(Request $request)
@@ -173,7 +173,7 @@ class MemberController extends Controller
         $thoi_gian = $request->input('thoi_gian', null); // Nếu không có, sẽ là null
 
         // Lấy tất cả các loại hội viên đang hoạt động
-        $members = Member::select('id', 'loai_hoi_vien', 'gia', 'thoi_gian')
+        $members = Member::select('id', 'loai_hoi_vien', 'uu_dai' , 'ghi_chu' , 'gia', 'thoi_gian')
             ->where('trang_thai', 0)
             ->get();
 

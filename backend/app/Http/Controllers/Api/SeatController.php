@@ -55,7 +55,6 @@ class SeatController extends Controller
             'room_id' => 'required|exists:rooms,id',
             'so_ghe_ngoi' => 'required|string|max:255',
             'loai_ghe_ngoi' => 'required|string|max:255',
-            'gia_ghe' => 'required|numeric|min:1',
         ]);
 
         // tổng số ghế sẽ cộng thêm 1
@@ -79,7 +78,6 @@ class SeatController extends Controller
             'so_ghe_ngoi' => $validated['so_ghe_ngoi'],
             'loai_ghe_ngoi' => $validated['loai_ghe_ngoi'],
             'room_id' => $validated['room_id'],
-            'gia_ghe' => $validated['gia_ghe'],
         ]);
 
         return response()->json([
@@ -98,7 +96,6 @@ class SeatController extends Controller
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
             'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
             'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế 
-            'seats.*.gia_ghe' => 'required|numeric|min:1', // giá ghế 
         ]);
 
 
@@ -125,7 +122,6 @@ class SeatController extends Controller
                 $starSeat,
                 $endSeat,
                 $seatConfig['loai_ghe_ngoi'],
-                $seatConfig['gia_ghe'],
                 $validated['room_id'],
                 $existingSeatsList,
             );
@@ -166,9 +162,69 @@ class SeatController extends Controller
         ], 201);
     }
 
+    
+    // thêm ghế ma trận mảng 
+    public function storeSeatsArray(Request $request)
+    {
+        // Validate dữ liệu đầu vào
+        $validated = $request->validate([
+            'room_id' => 'required|exists:rooms,id',
+            'seats' => 'required|array', // ghế ngồi được thêm thành mảng
+            'seats.*.so_ghe_ngoi' => 'required|string|max:255', // tên ghế
+            'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế
+        ]);
+
+        $room_id = $validated['room_id'];
+        $seats = $validated['seats'];
+
+        // Tạo mảng ghế mới
+        $seatCreate = [];
+        $existingSeatsList = [];
+
+        // Truy vấn tất cả ghế đã có trong phòng
+        $existingSeats = Seat::where('room_id', $room_id)->pluck('so_ghe_ngoi')->toArray();
+
+        // Kiểm tra nếu ghế đã tồn tại trong phòng thì bỏ qua
+        foreach ($seats as $seatConfig) {
+            if (in_array($seatConfig['so_ghe_ngoi'], $existingSeats)) {
+                $existingSeatsList[] = $seatConfig['so_ghe_ngoi']; // Lưu ghế đã tồn tại
+                continue; // Bỏ qua ghế đã tồn tại
+            }
+
+            // Thêm ghế mới vào mảng
+            $newSeat = Seat::create([
+                'so_ghe_ngoi' => $seatConfig['so_ghe_ngoi'],
+                'loai_ghe_ngoi' => $seatConfig['loai_ghe_ngoi'],
+                'room_id' => $room_id,
+             
+            ]);
+
+            $seatCreate[] = $newSeat;
+        }
+
+        // Cập nhật tổng số ghế trong bảng rooms
+        $room = Room::find($room_id);
+        $room->tong_ghe_phong += count($seatCreate);
+        $room->save();
+
+        // Nếu có ghế đã tồn tại, trả về thông báo về những ghế đó
+        if (count($existingSeatsList) > 0) {
+            return response()->json([
+                'message' => 'Thêm ghế thành công, nhưng có ghế đã tồn tại.',
+                'data' => $seatCreate,
+                'existing_seats' => $existingSeatsList,
+            ], 200);
+        }
+
+        return response()->json([
+            'message' => 'Thêm ghế thành công.',
+            'data' => $seatCreate,
+        ], 201);
+    }
+
 
     // Hàm để tạo phạm vi ghế ngồi
-    public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id, &$existingSeatsList)
+    public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $room_id, &$existingSeatsList)
     {
         $seats = [];
 
@@ -192,7 +248,7 @@ class SeatController extends Controller
         // Tạo ghế từ startNum đến endNum
         for ($i = $startNum; $i <= $endNum; $i++) {
             $seatName = $startPrefix . $i; // Ghép lại tên ghế, ví dụ: A1, A2...
-    
+
             // Kiểm tra nếu ghế đã tồn tại
             if (in_array($seatName, $existingSeats)) {
                 $existingSeatsList[] = $seatName;
@@ -203,7 +259,6 @@ class SeatController extends Controller
                 'so_ghe_ngoi' => $seatName,
                 'loai_ghe_ngoi' => $loai_ghe_ngoi,
                 'room_id' => $room_id,
-                'gia_ghe' => $gia_ghe,
             ]);
         }
 

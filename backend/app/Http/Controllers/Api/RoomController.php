@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Room;
 use App\Models\Seat;
+use App\Models\Showtime;
 use App\Models\Theater;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -129,19 +130,82 @@ class RoomController extends Controller
         }
 
         // truy vấn showtime nếu có room theo id này thì phải xóa showtime trước
-        $checkRoomIDShowtime = DB::table('showtimes')->where('room_id', $id)->exists();
-    
-        if($checkRoomIDShowtime){
+        $checkRoomOfShowtime = Showtime::where('room_id', $id)->exists();
+
+        if ($checkRoomOfShowtime) {
             return response()->json([
                 'message' => 'Có showtime đã tạo với phòng này phải xóa showtime đã tạo với room này trước mới xóa được room này !'
-            ],409);
+            ], 409);
         }
-    
-        DB::table('seats')->where('room_id' , $id)->delete(); 
+
+        DB::table('seats')->where('room_id', $id)->delete();
 
         $room->delete();
 
         return response()->json(['message' => 'Xóa Room theo id thành công'], 200);
+    }
+
+
+    // đóng phòng đang có lại theo id
+    public function closeRoomId(string $id)
+    {
+
+        $roomId = Room::find($id);
+
+        // check rỗng id
+        if (!$roomId) {
+            return response()->json([
+                'message' => 'Không có room theo id này !'
+            ], 404);
+        }
+
+        // check xem showtime có room theo id này ko 
+        // có phải những showtime với phòng này trước
+        $checkRoomOfShowtime = Showtime::where('room_id', $id)->exists();
+        if ($checkRoomOfShowtime) {
+            return response()->json([
+                'message' => 'Có showtime theo phòng này không thể đóng phòng - xóa showtime trước !',
+            ], 409);
+        }
+
+        // check phòng đã đóng rồi
+        if ($roomId->trang_thai === 1) {
+            return response()->json([
+                'message' => 'Phòng này đã đóng rồi !',
+            ], 409);
+        }
+
+        $roomId->update(['trang_thai' => 1]);
+
+        return response()->json([
+            'message' => 'Đóng phòng thành công',
+        ], 200);
+    }
+
+
+    // mở lại phòng đã đóng trước đó theo id
+    public function openRoomId(string $id)
+    {
+        $roomId = Room::find($id);
+
+        // check rỗng id
+        if (!$roomId) {
+            return response()->json([
+                'message' => 'Không có room theo id này !'
+            ], 404);
+        }
+
+        if ($roomId->trang_thai === 0) {
+            return response()->json([
+                'message' => 'Phòng này đã mở rồi !',
+            ], 200);
+        }
+
+        $roomId->update(['trang_thai' => 0]);
+
+        return response()->json([
+            'message' => 'Mở phòng thành công',
+        ], 200);
     }
 
 
@@ -243,6 +307,4 @@ class RoomController extends Controller
             'delete_count' => $deleteAllSeatByRoom . ' ghế đã xóa của phòng này',
         ], 200);
     }
-
-    
 }

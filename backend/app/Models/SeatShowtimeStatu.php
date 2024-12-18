@@ -17,10 +17,13 @@ class SeatShowtimeStatu extends Model
         'thongtinchieu_id',
         'trang_thai',
         'gio_chieu',
-        'user_id'
+        'user_id',
+        'ngay_chieu',
+        'gia_ghe_showtime',
+        'ten_ghe_ngoi'
     ];
 
-    // 
+    
 
 
 }

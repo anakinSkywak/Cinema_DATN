@@ -9,10 +9,11 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::table('coupon_code_takens', function (Blueprint $table) {
-            $table->tinyInteger('trang_thai')->default(0)->comment('0: chưa sử dụng, 1: đã dùng');
+        Schema::table('rooms', function (Blueprint $table) {
+            //
+            $table->tinyInteger('trang_thai')->default(0);
         });
     }
 
@@ -21,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('coupon_code_takens', function (Blueprint $table) {
+        Schema::table('rooms', function (Blueprint $table) {
             //
         });
     }

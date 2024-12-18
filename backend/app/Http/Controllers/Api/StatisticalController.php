@@ -9,10 +9,12 @@ use App\Models\Movie;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Voucher;
+use App\Models\Showtime;
 use Illuminate\Http\Request;
 use App\Models\BookingDetail;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\RegisterMember;
 
 class StatisticalController extends Controller
 {
@@ -23,10 +25,10 @@ class StatisticalController extends Controller
     {
         try {
 
-//             payment // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
-//            `Booking`   // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
+            //             payment // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
+            //            `Booking`   // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
 
-            $trangThai = 2;
+            $trangThai = 1;
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
 
@@ -87,7 +89,7 @@ class StatisticalController extends Controller
     }
 
     /**
-     * Tính doanh thu phòng chiếu theo ID
+     * Tính doanh thu tất cả phòng chiếu 
      */
     private function tinhDoanhThuPhong($query, $id)
     {
@@ -102,15 +104,48 @@ class StatisticalController extends Controller
 
     /**
      * Tính doanh thu tất cả phim theo ngày
+     * tổng doanh thu
+     * tổng xuất chiếu
+     * 
      */
+    
     private function tinhDoanhThuTatCaPhim($query)
     {
-        return $query->join('bookings', 'payments.booking_id', '=', 'bookings.id')
+        // Lấy thống kê cơ bản của phim
+        $movies = $query->join('bookings', 'payments.booking_id', '=', 'bookings.id')
             ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
             ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
-            ->select('movies.ten_phim', DB::raw('SUM(bookings.tong_tien) as tong_doanh_thu'))
+            ->where('payments.trang_thai', 1) // 1 = Đã hoàn thành
+            ->select(
+                'movies.id',
+                'movies.ten_phim',
+                DB::raw('SUM(payments.tong_tien) as tong_doanh_thu'),
+                DB::raw('COUNT(DISTINCT bookings.id) as so_ve_ban_ra'),
+                DB::raw('COUNT(DISTINCT showtimes.id) as so_xuat_chieu')
+            )
             ->groupBy('movies.id', 'movies.ten_phim')
             ->get();
+
+        // Đối với mỗi phim, lấy chi tiết suất chiếu    
+        foreach ($movies as $movie) {
+            $showtimes = DB::table('showtimes')
+                ->join('bookings', 'showtimes.id', '=', 'bookings.thongtinchieu_id')
+                ->join('payments', 'bookings.id', '=', 'payments.booking_id')
+                ->where('showtimes.phim_id', $movie->id)
+                ->where('payments.trang_thai', 1) // 1 = Đã hoàn thành
+                ->select(
+                    'showtimes.gio_chieu as time',
+                    DB::raw('SUM(payments.tong_tien) as doanh_thu'),
+                    DB::raw('COUNT(DISTINCT bookings.id) as so_ve_ban_ra')
+                )
+                ->groupBy('showtimes.gio_chieu')
+                ->get();    
+
+            $movie->xuatchieu = $showtimes;
+            unset($movie->id);
+        }
+
+        return $movies;
     }
 
     /**
@@ -129,6 +164,7 @@ class StatisticalController extends Controller
             }
 
             // Thống kê theo phương thức thanh toán
+            // thống kê theo trạng thái thanh toán
             if ($filterBy === 'phuong_thuc_thanh_toan') {
                 $result = [
                     'tienMat' => Payment::where('phuong_thuc_thanh_toan', 'cash')->count(),
@@ -145,7 +181,7 @@ class StatisticalController extends Controller
             // Thống kê theo trạng thái thanh toán
             $result = [
                 'dangXuLy' => Payment::where($filterBy, 0)->count(),
-                'thanhCong' => Payment::where($filterBy, 1)->count(), 
+                'thanhCong' => Payment::where($filterBy, 1)->count(),
                 'khongThanhCong' => Payment::where($filterBy, 2)->count(),
                 'huy' => Payment::where($filterBy, 3)->count(),
                 'hoanLai' => Payment::where($filterBy, 4)->count()
@@ -156,7 +192,6 @@ class StatisticalController extends Controller
                 'message' => 'Thống kê theo trạng thái thành công',
                 'data' => $result
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -165,7 +200,7 @@ class StatisticalController extends Controller
             ], 500);
         }
     }
-    
+
 
     /**
      * 3. Thống kê top N (người dùng hoặc phim)
@@ -245,9 +280,9 @@ class StatisticalController extends Controller
                 DB::raw('MIN(payments.created_at) as ngay_su_dung_dau'),
                 DB::raw('MAX(payments.created_at) as ngay_su_dung_cuoi')
             )
-            ->groupBy('vouchers.id', 'vouchers.ma_giam_gia')
-            ->orderBy('so_lan_su_dung', 'desc')
-            ->get();
+                ->groupBy('vouchers.id', 'vouchers.ma_giam_gia')
+                ->orderBy('so_lan_su_dung', 'desc')
+                ->get();
 
             if ($data->isEmpty()) {
                 return response()->json([
@@ -262,7 +297,6 @@ class StatisticalController extends Controller
                 'message' => 'Thống kê voucher đã sử dụng thành công',
                 'data' => $data
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -276,7 +310,8 @@ class StatisticalController extends Controller
      */
     private function tinhDoanhThuTheoQuocGia($query)
     {
-        return $query->join('bookings', 'payments.booking_id', '=', 'bookings.id')
+        // Thực hiện truy vấn
+        $data = $query->join('bookings', 'payments.booking_id', '=', 'bookings.id')
             ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
             ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
             ->select(
@@ -285,21 +320,40 @@ class StatisticalController extends Controller
                 DB::raw('SUM(payments.tong_tien) as tong_doanh_thu')
             )
             ->groupBy('movies.quoc_gia', 'movies.ten_phim')
-            ->orderBy('movies.quoc_gia')
-            ->orderBy('tong_doanh_thu', 'DESC')
+            ->orderByRaw('movies.quoc_gia, SUM(payments.tong_tien) DESC') // Sắp xếp theo nhiều cột
             ->get();
-    }
 
-    // thống kê số lượng phim
-    public function thongKeSoLuongPhim()
-    {
-        $data = Movie::count();
+        // Kiểm tra nếu không có dữ liệu
+        if ($data->isEmpty()) {
+            return response()->json([
+                'message' => 'Không có dữ liệu doanh thu theo quốc gia',
+                'data' => [],
+            ], 404);
+        }
+
+        // Trả về kết quả
         return response()->json([
-            'message' => 'Thống kê số lượng phim thành công',
-            'data' => $data
+            'message' => 'Thống kê doanh thu theo quốc gia thành công',
+            'data' => $data,
         ], 200);
     }
 
+
+    // 7. thống kê số lượng phim
+    public function thongKeSoLuongPhim()
+    {
+        $movieCount = Movie::count();
+        $showtimeCount = Showtime::count();
+        $roomCount = Room::count();
+        return response()->json([
+            'message' => 'Thống kê số lượng phim thành công',
+            'data' => [
+                'data' => $movieCount,
+                'so_xuat_chieu' => $showtimeCount,
+                'so_phong' => $roomCount 
+            ]
+        ], 200);
+    }
 
     /**
      *  Doanh thu theo tháng
@@ -318,3 +372,4 @@ class StatisticalController extends Controller
         ], 200);
     }
 }
+        
