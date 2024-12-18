@@ -26,6 +26,7 @@ class CouponCodeTakenController extends Controller
             ->join('users', 'coupon_code_takens.user_id', '=', 'users.id')
             ->join('coupons', 'countdown_vouchers.magiamgia_id', '=', 'coupons.id')
             ->where('coupon_code_takens.user_id', $user->id)
+            ->where('coupon_code_takens.trang_thai' , 0)
             ->select(
                 'users.ho_ten as user_name',
                 'coupons.ma_giam_gia',

@@ -191,3 +191,40 @@ Route::post('showtime-by-movie/{movieID}/showtimes-by-date' , [ShowtimeControlle
 
     // bỏ sử dụng voucher update lại giá cũ
     Route::post('cancel-coupon/{bookingID}/{couponID}', [BookingController::class, 'cancelCouponUpdatePrice']);
+
+
+
+
+    //5. Kiểm tra loại ghế có tồn tại trong bảng Seats
+        // $checkTypeSeat = Seat::where('loai_ghe_ngoi', $request->loai_ghe)->doesntExist();
+        // if ($checkTypeSeat) {
+        //     return response()->json([
+        //         'message' => 'Thể loại ghế không đúng trong Seats!',
+        //     ], 409);
+        // }
+
+        //6. Kiểm tra khoảng thời gian có bị trùng lặp không
+        // $exists = SeatPrice::where('loai_ghe', $request->loai_ghe)
+        //     ->where('thu_trong_tuan', $request->thu_trong_tuan)
+        //     ->where(function ($query) use ($request) {
+        //         // Kiểm tra xem giờ bắt đầu và kết thúc có bị trùng với khoảng thời gian hiện tại
+        //         $query->whereBetween('gio_bat_dau', [$request->gio_bat_dau, $request->gio_ket_thuc])
+        //             ->orWhereBetween('gio_ket_thuc', [$request->gio_bat_dau, $request->gio_ket_thuc])
+        //             ->orWhere(function ($query) use ($request) {
+        //                 // Kiểm tra xem có bản ghi nào có giờ bắt đầu <= giờ bắt đầu của yêu cầu và giờ kết thúc >= giờ kết thúc của yêu cầu không
+        //                 $query->where('gio_bat_dau', '<=', $request->gio_bat_dau)
+        //                     ->where('gio_ket_thuc', '>=', $request->gio_ket_thuc);
+        //             });
+        //     })
+        //     ->where(function ($query) use ($request) {
+        //         // Cho phép trường hợp nếu giờ bắt đầu mới = giờ kết thúc cũ (ví dụ: 12:00 và 12:00)
+        //         $query->where('gio_ket_thuc', '!=', $request->gio_bat_dau);
+        //     })
+        //     ->exists();
+
+        // // Nếu đã có khoảng thời gian trùng với loại ghế và thứ trong tuần, thông báo lỗi
+        // if ($exists) {
+        //     return response()->json([
+        //         'message' => 'Loại ghế, thứ, và khoảng thời gian đã tồn tại.',
+        //     ], 422);
+        // }
