@@ -32,40 +32,44 @@ class SeatPriceController extends Controller
 
     // list nhóm bảng giá ghế theo thứ vào với nhau
     public function getSeatPriceList()
-    {
-        $data = DB::table('seat_prices')
-            ->select('thu_trong_tuan', 'ngay_cu_the', 'loai_ghe', 'gio_bat_dau', 'gio_ket_thuc', 'gia_ghe' , 'ten_ngay_le' , 'la_ngay_le' , 'trang_thai')
-            ->orderByRaw("FIELD(thu_trong_tuan, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), ngay_cu_the IS NOT NULL, ngay_cu_the ASC")
-            ->orderBy('loai_ghe', 'asc')
-            ->orderBy('gio_bat_dau', 'asc')
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->thu_trong_tuan ?? $item->ten_ngay_le;
-            })
-            ->map(function ($group) {
-                return $group->groupBy('loai_ghe')->map(function ($times) {
-                    return $times->map(function ($time) {
-                        return [
-                            'ngay_cu_the' => $time->ngay_cu_the,
-                            'gio_bat_dau' => $time->gio_bat_dau,
-                            'gio_ket_thuc' => $time->gio_ket_thuc,
-                            'gia_ghe' => $time->gia_ghe,
-                            'ten_ngay_le' =>$time->ten_ngay_le,
-                            'la_ngay_le' =>$time->la_ngay_le,
-                            'trang_thai' =>$time->trang_thai
-                        ];
-                    });
+{
+    $data = DB::table('seat_prices')
+        ->select('id','thu_trong_tuan', 'ngay_cu_the', 'loai_ghe', 'gio_bat_dau', 'gio_ket_thuc', 'gia_ghe' , 'ten_ngay_le' , 'la_ngay_le' , 'trang_thai')
+        ->orderByRaw("FIELD(thu_trong_tuan, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'), ngay_cu_the IS NOT NULL, ngay_cu_the ASC")
+        ->orderByRaw("FIELD(loai_ghe, 'Thường', 'Đôi', 'Vip')") 
+        ->orderBy('gio_bat_dau', 'asc') 
+        ->get()
+        ->groupBy(function ($item) {
+            return $item->thu_trong_tuan ?? $item->ten_ngay_le;
+        })
+        ->map(function ($group) {
+            return $group->groupBy('loai_ghe')->map(function ($times) {
+                return $times->map(function ($time) {
+                    return [
+                        'id' => $time->id,
+                        'thu_trong_tuan' => $time->thu_trong_tuan,
+                        'loai_ghe' => $time->loai_ghe,
+                        'ngay_cu_the' => $time->ngay_cu_the,
+                        'gio_bat_dau' => $time->gio_bat_dau,
+                        'gio_ket_thuc' => $time->gio_ket_thuc,
+                        'gia_ghe' => $time->gia_ghe,
+                        'ten_ngay_le' => $time->ten_ngay_le,
+                        'la_ngay_le' => $time->la_ngay_le,
+                        'trang_thai' => $time->trang_thai,
+                    ];
                 });
             });
-
-        // dảm bảo các mục có ngày cụ thể nằm ở dưới cùng
-        $sortedData = $data->sortKeysUsing(function ($key1, $key2) {
-            $order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ''];
-            return array_search($key1, $order) <=> array_search($key2, $order);
         });
 
-        return response()->json($sortedData, 200);
-    }
+   
+    $sortedData = $data->sortKeysUsing(function ($key1, $key2) {
+        $order = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', ''];
+        return array_search($key1, $order) <=> array_search($key2, $order);
+    });
+
+    return response()->json($sortedData, 200);
+}
+
 
 
     // from thêm mới bảng giá seat đổ all thể loại ghế để chọn
