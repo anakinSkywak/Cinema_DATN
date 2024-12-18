@@ -433,7 +433,8 @@ class MovieController extends Controller
     public function getSeatOfTimeShowtime(Request $request, $movieID, $date, $time)
     {
 
-       
+      
+
         // lấy phòng chiếu theo ngày và giờ đã chọn
         $roomsByTime = Showtime::where('phim_id', $movieID)
             ->whereDate('ngay_chieu', $date)
