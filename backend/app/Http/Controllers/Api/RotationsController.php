@@ -144,17 +144,18 @@ class RotationsController extends Controller
     public function update(Request $request, $id)
     {
         $rotation = Rotation::find($id);
-
+    
         if (!$rotation) {
             return response()->json(['message' => 'Không tìm thấy phần thưởng'], 404);
         }
-
+    
         $validatedData = $request->validate([
             'ten_phan_thuong' => 'string|max:150',
             'mo_ta' => 'string|max:255',
             'so_luong' => 'integer|min:1',
+            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Kiểm tra file ảnh
         ]);
-
+    
         // Kiểm tra tên phần thưởng có bị trùng không, ngoại trừ phần thưởng hiện tại
         if ($request->has('ten_phan_thuong') && $request->ten_phan_thuong !== $rotation->ten_phan_thuong) {
             $exists = Rotation::where('ten_phan_thuong', $request->ten_phan_thuong)->exists();
@@ -164,12 +165,28 @@ class RotationsController extends Controller
                 ], 409);
             }
         }
-
+    
+        // Xử lý file ảnh nếu có
+        if ($request->hasFile('hinh_anh')) {
+            // Xóa ảnh cũ nếu có
+            if ($rotation->hinh_anh && Storage::exists($rotation->hinh_anh)) {
+                Storage::delete($rotation->hinh_anh);
+            }
+    
+            // Lưu ảnh mới
+            $imagePath = $request->file('hinh_anh')->store('phan_thuong', 'public');
+            $validatedData['hinh_anh'] = $imagePath;
+        }
+    
         // Cập nhật phần thưởng
         $rotation->update($validatedData);
-
-        return response()->json($rotation);
+    
+        return response()->json([
+            'message' => 'Cập nhật phần thưởng thành công.',
+            'data' => $rotation,
+        ]);
     }
+    
 
     // Xóa rotation theo id
     public function destroy($id)
