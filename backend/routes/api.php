@@ -290,10 +290,11 @@ Route::delete('vouchers/{id}', [VoucherController::class, 'delete']);
 Route::apiResource('memberships', MembershipsController::class);
 Route::get('memberships', [MembershipsController::class, 'index']); // xuất all dữ liệu
 Route::post('memberships', [MembershipsController::class, 'store']); // thêm bản ghi mới
-// Route::get('memberships/{id}', [MembershipsController::class, 'show']); // hiển thị theo id
 Route::middleware('auth:api')->get('/membership/{id}', [MembershipsController::class, 'show']);
 Route::put('memberships/{id}', [MembershipsController::class, 'update']); // cập nhật theo id
 Route::delete('memberships/{id}', [MembershipsController::class, 'destroy']); // xóa theo id
+
+
 // call api MemberController
 Route::apiResource('members', MemberController::class);
 Route::middleware(['auth:api'])->get('members', [MemberController::class, 'index']); // xuất all dữ liệu
@@ -301,17 +302,16 @@ Route::middleware(['auth:api'])->post('members', [MemberController::class, 'stor
 Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
 Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
-
-// Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
-
 Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
 Route::middleware(['auth:api'])->put('/rotation/{id}/status', [RotationsController::class, 'updateStatusrotaion']); // admin cập nhập ẩn member
+
+
+
 // call api RegisterMemberController
 Route::apiResource('registerMembers', RegisterMemberController::class);
 Route::get('registerMembers', [RegisterMemberController::class, 'index']); // xuất all dữ liệu
 Route::get('registerMembers/{id}', [RegisterMemberController::class, 'show']); // hiển thị theo id
 Route::delete('registerMembers/{id}', [RegisterMemberController::class, 'destroy']); // xóa theo id
-
 Route::middleware(['auth:api'])->get('/register-member', [RegisterMemberController::class, 'listRegisterMembersForUser']);
 
 //vòng quoay
