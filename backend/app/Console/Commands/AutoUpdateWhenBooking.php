@@ -33,7 +33,7 @@ class AutoUpdateWhenBooking extends Command
 
         $bookings = FacadesDB::table('bookings')
             ->where('trang_thai', 0)
-            ->where('updated_at', '<', $now->subMinutes(18)) // sau 18p ko thành 1 hủy update lại ghế
+            ->where('updated_at', '<', $now->subMinutes(15)) // sau 18p ko thành 1 hủy update lại ghế
             ->get();
 
         if ($bookings->isEmpty()) {

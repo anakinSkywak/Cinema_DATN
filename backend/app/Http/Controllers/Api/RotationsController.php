@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use App\Models\HistoryRotation;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Milon\Barcode\BarcodeGenerator;
+use Milon\Barcode\BarcodeGeneratorPNG;
+use Illuminate\Support\Facades\Storage;
 
 class RotationsController extends Controller
 {
@@ -17,22 +20,21 @@ class RotationsController extends Controller
     {
         $user = auth()->user();
 
+        // Kiểm tra xác thực người dùng
         if (!$user) {
             return response()->json(['message' => 'Người dùng chưa được xác thực'], 401);
         }
-        
+
         if (!$user instanceof \App\Models\User) {
             return response()->json(['message' => 'Dữ liệu người dùng không hợp lệ'], 500);
         }
-        
-        
 
-        // Kiểm tra xem người dùng có còn lượt quay không
+        // Kiểm tra lượt quay của người dùng
         if ($user->so_luot_quay <= 0) {
             return response()->json(['message' => 'Bạn không còn lượt quay.'], 403);
         }
 
-        // Lấy các vòng quay có thể quay (trạng thái = 1)
+        // Lấy các vòng quay khả dụng (trạng thái = 0)
         $rotations = Rotation::where('trang_thai', 0)->get();
 
         // Kiểm tra có vòng quay nào khả dụng không
@@ -43,7 +45,7 @@ class RotationsController extends Controller
         // Chọn ngẫu nhiên vòng quay từ danh sách
         $selectedRotation = $rotations->random();
 
-        // Kiểm tra và xử lý số lượng phần thưởng
+        // Kiểm tra số lượng phần thưởng
         if ($selectedRotation->so_luong > 0) {
             // Giảm số lượng phần thưởng
             $selectedRotation->so_luong -= 1;
@@ -62,31 +64,32 @@ class RotationsController extends Controller
         if (!isset($user->so_luot_quay) || $user->so_luot_quay === null) {
             return response()->json(['message' => 'Dữ liệu lượt quay không hợp lệ'], 422);
         }
-        
-        if (!isset($user->so_luot_quay) || $user->so_luot_quay === null) {
-            return response()->json(['message' => 'Dữ liệu lượt quay không hợp lệ'], 422);
-        }
-        
+
         $user->so_luot_quay -= 1; // Giảm lượt quay
         $user->save();
 
-        // Lưu lịch sử quay
+        $barcode = 'VE-' . substr(strval(rand(10000, 999999)), 0, 6);
+
+
+        // Lưu thông tin vào bảng history_rotations
         HistoryRotation::create([
             'user_id' => Auth::id(),
             'vongquay_id' => $selectedRotation->id,
             'ket_qua' => $selectedRotation->ten_phan_thuong,
             'ngay_quay' => Carbon::now(),
             'ngay_het_han' => Carbon::now()->addDays(7),
+            'code' => $barcode,
             'trang_thai' => 1
         ]);
 
+        // Trả về kết quả quay thưởng và đường dẫn mã vạch
         return response()->json([
             'ket_qua' => $selectedRotation->ten_phan_thuong,
             'message' => 'Quay thành công!',
-            'phan_thuong' => $selectedRotation // Trả về chi tiết phần thưởng
+            'phan_thuong' => $selectedRotation,  // Trả về chi tiết phần thưởng
+            // 'barcode_url' => asset('storage/' . $barcodeFilePath) // URL mã vạch
         ]);
     }
-
 
     // Lấy danh sách tất cả các rotations
     public function index()
@@ -94,6 +97,7 @@ class RotationsController extends Controller
         $rotations = Rotation::where('trang_thai', 0)->get();
         return response()->json($rotations);
     }
+
     public function indexa()
     {
         $rotations = Rotation::all();
@@ -116,7 +120,6 @@ class RotationsController extends Controller
     {
         $validatedData = $request->validate([
             'ten_phan_thuong' => 'required|string|max:150',
-            'muc_giam_gia' => 'nullable|numeric|max:90',
             'mo_ta' => 'required|string|max:255',
             'so_luong' => 'required|integer|min:1',
         ]);
@@ -141,18 +144,18 @@ class RotationsController extends Controller
     public function update(Request $request, $id)
     {
         $rotation = Rotation::find($id);
-
+    
         if (!$rotation) {
             return response()->json(['message' => 'Không tìm thấy phần thưởng'], 404);
         }
-
+    
         $validatedData = $request->validate([
             'ten_phan_thuong' => 'string|max:150',
-            'muc_giam_gia' => 'nullable|numeric|max:90',
             'mo_ta' => 'string|max:255',
             'so_luong' => 'integer|min:1',
+            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Kiểm tra file ảnh
         ]);
-
+    
         // Kiểm tra tên phần thưởng có bị trùng không, ngoại trừ phần thưởng hiện tại
         if ($request->has('ten_phan_thuong') && $request->ten_phan_thuong !== $rotation->ten_phan_thuong) {
             $exists = Rotation::where('ten_phan_thuong', $request->ten_phan_thuong)->exists();
@@ -162,12 +165,28 @@ class RotationsController extends Controller
                 ], 409);
             }
         }
-
+    
+        // Xử lý file ảnh nếu có
+        if ($request->hasFile('hinh_anh')) {
+            // Xóa ảnh cũ nếu có
+            if ($rotation->hinh_anh && Storage::exists($rotation->hinh_anh)) {
+                Storage::delete($rotation->hinh_anh);
+            }
+    
+            // Lưu ảnh mới
+            $imagePath = $request->file('hinh_anh')->store('phan_thuong', 'public');
+            $validatedData['hinh_anh'] = $imagePath;
+        }
+    
         // Cập nhật phần thưởng
         $rotation->update($validatedData);
-
-        return response()->json($rotation);
+    
+        return response()->json([
+            'message' => 'Cập nhật phần thưởng thành công.',
+            'data' => $rotation,
+        ]);
     }
+    
 
     // Xóa rotation theo id
     public function destroy($id)
@@ -180,26 +199,24 @@ class RotationsController extends Controller
         $rotation->delete();
         return response()->json(['message' => 'Xóa phần thưởng thành công']);
     }
+
     public function updateStatusrotaion(Request $request, $id)
     {
-      
-
         if (auth()->user()->vai_tro !== 'admin') {
             return response()->json(['message' => 'Bạn không có quyền thực hiện hành động này'], 403);
         }
 
-        // Tìm Member theo ID
-        $member = Rotation::find($id);
+        // Tìm Rotation theo ID
+        $rotation = Rotation::find($id);
 
-        if (!$member) {
+        if (!$rotation) {
             return response()->json(['message' => 'Không tìm thấy phần thưởng ID'], 404);
         }
 
         // Thay đổi trạng thái từ 0 -> 1 hoặc 1 -> 0
-        $member->trang_thai = $member->trang_thai === 0 ? 1 : 0;
-        $member->save();
+        $rotation->trang_thai = $rotation->trang_thai === 0 ? 1 : 0;
+        $rotation->save();
 
-        return response()->json(['message' => 'Cập nhật trạng thái hội viên thành công', 'data' => $member], 200);
+        return response()->json(['message' => 'Cập nhật trạng thái vòng quay thành công', 'data' => $rotation], 200);
     }
-    
 }
