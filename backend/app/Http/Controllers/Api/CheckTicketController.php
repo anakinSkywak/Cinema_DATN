@@ -84,7 +84,6 @@ class CheckTicketController extends Controller
             ], 404);
         }
     
-        // Kiểm tra trạng thái mã barcode
         if ($checkBarcode->trang_thai == 0) {
             return response()->json([
                 'message' => 'Mã barcode này đã được sử dụng!',
@@ -97,7 +96,7 @@ class CheckTicketController extends Controller
             ->update(['trang_thai' => 0]);
     
         return response()->json([
-            'message' => 'Mã barcode hợp lệ và đã được cập nhật trạng thái thành công!',
+            'message' => 'Mã barcode hợp lệ và đã được áp dụng!',
             'data' => $checkBarcode,
         ]);
     }

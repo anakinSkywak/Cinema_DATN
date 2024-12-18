@@ -15,7 +15,7 @@ class HistoryRotationsController extends Controller
      */
     public function index()
     {
-        // Lấy tất cả lịch sử quay thưởng của user đang đăng nhập
+
         $history = HistoryRotation::where('user_id', Auth::id())->get();
         return response()->json($history);
     }
@@ -65,9 +65,10 @@ class HistoryRotationsController extends Controller
     public function getAvailableRotations()
     {
         $rotations = HistoryRotation::where('user_id', Auth::id())
+            ->where('trang_thai', 1)
             ->get();
         if ($rotations->isEmpty()) {
-            return response()->json(['message' => 'Không phần thưởng quay nào khả dụng'], 404);
+            return response()->json(['message' => 'Bạn không có phần thưởng quay nào '], 404);
         }
         return response()->json($rotations);
     }
