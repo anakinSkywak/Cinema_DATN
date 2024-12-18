@@ -36,6 +36,14 @@ class CountdownVoucherController extends Controller
         // Trả về kết quả
         return response()->json($countdownVouchers);
     }
+    public function getCoupons()
+    {
+        // Lấy tất cả mã giảm giá từ bảng coupons
+        $coupons = Coupon::select('id', 'ma_giam_gia')->get();
+    
+        // Trả về dữ liệu JSON
+        return response()->json($coupons);
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
