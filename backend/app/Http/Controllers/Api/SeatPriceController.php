@@ -111,18 +111,13 @@ class SeatPriceController extends Controller
             'la_ngay_le' => 'nullable|boolean',
         ]);
 
-<<<<<<< HEAD
         // 1 Kiểm tra logic không nhập cả "thứ trong tuần" và "ngày cụ thể"
         if (!empty($request->thu_trong_tuan) && !empty($request->ngay_cu_the)) {
             return response()->json([
                 'message' => 'Không thể nhập cả thứ trong tuần và ngày cụ thể!',
             ], 422);
-        }
-=======
-        // check 
-        
 
->>>>>>> 495117c8e4d360aecef38803b624572de0198f3f
+        }
 
         // 2 Nếu là ngày lễ, tên ngày lễ phải có
         if (!empty($request->la_ngay_le) && empty($request->ten_ngay_le)) {
@@ -197,6 +192,7 @@ class SeatPriceController extends Controller
                 ], 422);
             }
         }
+    
 
         // thêm mới dữ liệu vào bảng `seat_prices`
         $seatPrice = SeatPrice::create($validated);
@@ -205,8 +201,8 @@ class SeatPriceController extends Controller
             'message' => 'Thêm mới giá ghế thành công.',
             'data' => $seatPrice,
         ], 201);
-    }
 
+    }
 
 
     // xóa theo id
