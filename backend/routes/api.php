@@ -461,6 +461,11 @@ Route::get('getCountMovie', function (Request $request) {
     return app(StatisticalController::class)->thongKeSoLuongPhim();
 });
 
+// 8. Thống kê theo ghế
+Route::get('getThongKeTheoGhe', function (Request $request) {
+    return app(StatisticalController::class)->thongKeDoanhThu($request, 'ghe');
+});
+
 
 // bỏ
 Route::get('payment/NCB-return1', [PaymentController::class, 'vnpayReturn1']);
