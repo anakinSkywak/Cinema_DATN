@@ -55,7 +55,6 @@ class SeatController extends Controller
             'room_id' => 'required|exists:rooms,id',
             'so_ghe_ngoi' => 'required|string|max:255',
             'loai_ghe_ngoi' => 'required|string|max:255',
-            'gia_ghe' => 'required|numeric|min:1',
         ]);
 
         // tổng số ghế sẽ cộng thêm 1
@@ -79,7 +78,6 @@ class SeatController extends Controller
             'so_ghe_ngoi' => $validated['so_ghe_ngoi'],
             'loai_ghe_ngoi' => $validated['loai_ghe_ngoi'],
             'room_id' => $validated['room_id'],
-            'gia_ghe' => $validated['gia_ghe'],
         ]);
 
         return response()->json([
@@ -98,7 +96,6 @@ class SeatController extends Controller
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng, ví dụ: A1-A15
             'seats.*.range' => 'required|string', // xác định phạm vi khi thêm ghế
             'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế 
-            'seats.*.gia_ghe' => 'nullable|numeric|min:1', // giá ghế 
         ]);
 
 
@@ -125,7 +122,6 @@ class SeatController extends Controller
                 $starSeat,
                 $endSeat,
                 $seatConfig['loai_ghe_ngoi'],
-                $seatConfig['gia_ghe'],
                 $validated['room_id'],
                 $existingSeatsList,
             );
@@ -176,7 +172,6 @@ class SeatController extends Controller
             'seats' => 'required|array', // ghế ngồi được thêm thành mảng
             'seats.*.so_ghe_ngoi' => 'required|string|max:255', // tên ghế
             'seats.*.loai_ghe_ngoi' => 'required|string|max:255', // loại ghế
-            'seats.*.gia_ghe' => 'required|numeric|min:1', // giá ghế
         ]);
 
         $room_id = $validated['room_id'];
@@ -201,7 +196,7 @@ class SeatController extends Controller
                 'so_ghe_ngoi' => $seatConfig['so_ghe_ngoi'],
                 'loai_ghe_ngoi' => $seatConfig['loai_ghe_ngoi'],
                 'room_id' => $room_id,
-                'gia_ghe' => $seatConfig['gia_ghe'],
+             
             ]);
 
             $seatCreate[] = $newSeat;
@@ -229,7 +224,7 @@ class SeatController extends Controller
 
 
     // Hàm để tạo phạm vi ghế ngồi
-    public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $gia_ghe, $room_id, &$existingSeatsList)
+    public function generateSeats($starSeat, $endSeat, $loai_ghe_ngoi, $room_id, &$existingSeatsList)
     {
         $seats = [];
 
@@ -264,7 +259,6 @@ class SeatController extends Controller
                 'so_ghe_ngoi' => $seatName,
                 'loai_ghe_ngoi' => $loai_ghe_ngoi,
                 'room_id' => $room_id,
-                'gia_ghe' => $gia_ghe,
             ]);
         }
 

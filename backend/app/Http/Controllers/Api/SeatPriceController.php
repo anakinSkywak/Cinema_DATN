@@ -65,6 +65,7 @@ class SeatPriceController extends Controller
         //dd($SeatThuong);
     }
 
+    // from thêm mới bảng giá seat đổ all thể loại ghế để chọn
 
     // thêm mới giá ghế  : chưa xử lý xong + chưa check 
     public function store(Request $request)
@@ -85,6 +86,8 @@ class SeatPriceController extends Controller
         
 
 
+        // 
+        
         // thêm mới 
         $seatPrice = SeatPrice::create($validated);
 

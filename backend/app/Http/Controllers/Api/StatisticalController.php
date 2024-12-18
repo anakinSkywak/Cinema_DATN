@@ -28,7 +28,7 @@ class StatisticalController extends Controller
             //             payment // 0 Đang chờ xử lý , 1 Đã hoàn thành  2 Không thành công  , 3 Đã hủy, 4 Đã hoàn lại
             //            `Booking`   // 0 Chưa thanh toán , 1 là Đã thanh toán , 2 Đã hủy đơn , 3 Lỗi đơn hàng ,
 
-            $trangThai = 2;
+            $trangThai = 1;
             $startDate = $request->input('start_date');
             $endDate = $request->input('end_date');
 
@@ -89,7 +89,7 @@ class StatisticalController extends Controller
     }
 
     /**
-     * Tính doanh thu phòng chiếu theo ID
+     * Tính doanh thu tất cả phòng chiếu 
      */
     private function tinhDoanhThuPhong($query, $id)
     {
@@ -115,13 +115,12 @@ class StatisticalController extends Controller
         $movies = $query->join('bookings', 'payments.booking_id', '=', 'bookings.id')
             ->join('showtimes', 'bookings.thongtinchieu_id', '=', 'showtimes.id')
             ->join('movies', 'showtimes.phim_id', '=', 'movies.id')
+            ->where('payments.trang_thai', 1) // 1 = Đã hoàn thành
             ->select(
                 'movies.id',
                 'movies.ten_phim',
-                DB::raw('SUM(bookings.tong_tien) as tong_doanh_thu'),
-                // DISTINCT để tránh trùng lặp
+                DB::raw('SUM(payments.tong_tien) as tong_doanh_thu'),
                 DB::raw('COUNT(DISTINCT bookings.id) as so_ve_ban_ra'),
-                // COUNT(DISTINCT showtimes.id) để đếm số lượng suất chiếu khác nhau
                 DB::raw('COUNT(DISTINCT showtimes.id) as so_xuat_chieu')
             )
             ->groupBy('movies.id', 'movies.ten_phim')
@@ -133,19 +132,16 @@ class StatisticalController extends Controller
                 ->join('bookings', 'showtimes.id', '=', 'bookings.thongtinchieu_id')
                 ->join('payments', 'bookings.id', '=', 'payments.booking_id')
                 ->where('showtimes.phim_id', $movie->id)
-                ->where('payments.trang_thai', 2) // 2 là trạng thái thanh toán thành công
+                ->where('payments.trang_thai', 1) // 1 = Đã hoàn thành
                 ->select(
                     'showtimes.gio_chieu as time',
-                    DB::raw('SUM(bookings.tong_tien) as doanh_thu'),
-                    // COUNT(DISTINCT bookings.id) để đếm số lượng suất chiếu khác nhau
+                    DB::raw('SUM(payments.tong_tien) as doanh_thu'),
                     DB::raw('COUNT(DISTINCT bookings.id) as so_ve_ban_ra')
                 )
                 ->groupBy('showtimes.gio_chieu')
                 ->get();    
 
             $movie->xuatchieu = $showtimes;
-            
-            // xóa id không cần thiết trong response
             unset($movie->id);
         }
 
@@ -168,6 +164,7 @@ class StatisticalController extends Controller
             }
 
             // Thống kê theo phương thức thanh toán
+            // thống kê theo trạng thái thanh toán
             if ($filterBy === 'phuong_thuc_thanh_toan') {
                 $result = [
                     'tienMat' => Payment::where('phuong_thuc_thanh_toan', 'cash')->count(),

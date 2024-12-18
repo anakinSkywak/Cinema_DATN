@@ -76,9 +76,17 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
         // Lấy thông tin chi tiết của người dùng
         Route::get('profile', [AuthController::class, 'userProfile']);
         Route::get('/user/voucher-codes', [CouponCodeTakenController::class, 'showVoucherCodes']);
+
+        // ánh
+        // b2 
         Route::post('/register-members/{hoivien_id}', [RegisterMemberController::class, 'store']);
+
         Route::put('/register-membera/{hoivien_id}', [RegisterMemberController::class, 'update']);
-        Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPayment1']);
+
+        // ánh
+        // b2 
+        Route::post('/register-members/{hoivien_id}/{method}', [PaymentController::class, 'createPaymentMember']); // ánh làm
+
         Route::middleware('auth:api')->get('/user/membership', [MembershipsController::class, 'show']);
         Route::post('/send-membership-email/{membershipId}', [MemberShipsController::class, 'sendMembershipEmail']);
 
@@ -126,7 +134,6 @@ Route::get('movie-detail/{movieID}/showtime-date/{date}/{time}', [MovieControlle
 
 Route::middleware('auth:api')->group(function () {
 
-
     Route::post('/select-seat', [BookingController::class, 'selectSeat']);
 
     // 3 user
@@ -142,15 +149,15 @@ Route::middleware('auth:api')->group(function () {
     // đưa đến trang thanh toán với theo boooking id
     Route::post('payment/{bookingId}/{method}', [PaymentController::class, 'createPayment']);
 
-
     // booking detail theo user id book thanh toán xong chuyến đến trang này đổ all booking detail đã bookng ra
-    // dữ liệu ok
     Route::get('booking-detail', [BookingDetailController::class, 'bookingDetail']);
+
 });
 
 
 // check mã barcode trả in vé cho khách vào phòng chiếu phim
 Route::get('checkBarcode-exportTicket', [CheckTicketController::class, 'checkBarcodeExportTicket']);
+
 
 // Nhân viên
 // list phim bên trong admin phim có xuất chiếu
@@ -159,7 +166,13 @@ Route::get('movie-book-all', [BookingTicketController::class, 'listMovieBookTick
 
 
 // return payment  
+// return booking
 Route::get('payment/vnpay-return', [PaymentController::class, 'vnpayReturn']);
+
+//b1
+Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); // đổ loại hội viên ra
+// return member
+Route::get('payment/vnpay-member-return', [PaymentController::class, 'vnpayReturnMember']);
 
 
 
@@ -194,10 +207,7 @@ Route::put('open-room/{id}', [RoomController::class, 'openRoomId']);
 Route::get('seats', [SeatController::class, 'index']);
 Route::get('addSeat', [SeatController::class, 'addSeat']);
 Route::post('storeOneSeat', [SeatController::class, 'storeOneSeat']);
-
-// thêm ghế với ma trận mạng hòa tự viết route func storeSeatsArray
 Route::post('storeSeatsArray', [SeatController::class, 'storeSeatsArray']);
-
 Route::post('storeSeat', [SeatController::class, 'store']);
 Route::get('showSeat/{id}', [SeatController::class, 'show']);
 Route::get('editSeat/{id}', [SeatController::class, 'editSeat']);
@@ -290,7 +300,9 @@ Route::middleware(['auth:api'])->post('members', [MemberController::class, 'stor
 Route::middleware(['auth:api'])->get('members/{id}', [MemberController::class, 'show']); // hiển thị theo id
 Route::put('members/{id}', [MemberController::class, 'update']); // cập nhật theo id
 Route::delete('members/{id}', [MemberController::class, 'destroy']); // xóa theo id
-Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+
+// Route::get('/membersa/types', [MemberController::class, 'getMemberTypes']); //lấy thẻ hội viên để đk
+
 Route::middleware(['auth:api'])->put('/members/{id}/status', [MemberController::class, 'updateStatus']); // admin cập nhập ẩn member
 Route::middleware(['auth:api'])->put('/rotation/{id}/status', [RotationsController::class, 'updateStatusrotaion']); // admin cập nhập ẩn member
 // call api RegisterMemberController
@@ -450,9 +462,11 @@ Route::get('getCountMovie', function (Request $request) {
 });
 
 
+// bỏ
 Route::get('payment/NCB-return1', [PaymentController::class, 'vnpayReturn1']);
 Route::get('payment/MasterCard1', [PaymentController::class, 'mastercardReturn1']);
 Route::get('payment/visa1', [PaymentController::class, 'visaReturn1']);
+// bỏ
 
 
 // Route thống kê doanh thu theo loại hội viên

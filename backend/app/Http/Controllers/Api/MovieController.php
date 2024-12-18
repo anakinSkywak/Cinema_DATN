@@ -125,7 +125,6 @@ class MovieController extends Controller
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:5000',
             'trailer' => 'required|string|url|max:255',
-            'gia_ve' => 'required|numeric|min:1',
             'hinh_thuc_phim' => 'required|numeric',  // 0 đang chiếu 1 sắp công chiếu 
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
@@ -220,7 +219,6 @@ class MovieController extends Controller
             'dien_vien' => 'required|string|max:255',
             'noi_dung' => 'required|string|max:5000',
             'trailer' => 'required|string|url|max:255',
-            'gia_ve' => 'required|numeric|min:1',
             'hinh_thuc_phim' => 'required|numeric',
             'loaiphim_ids' => 'required|array',
             'loaiphim_ids.*' => 'exists:moviegenres,id',
@@ -269,7 +267,6 @@ class MovieController extends Controller
             'dien_vien' => $request->dien_vien,
             'noi_dung' => $request->noi_dung,
             'trailer' => $request->trailer,
-            'gia_ve' => $request->gia_ve,
             'hinh_thuc_phim' => $request->hinh_thuc_phim,
             'thoi_gian_phim' => $request->thoi_gian_phim,
             'quoc_gia' => $request->quoc_gia,
