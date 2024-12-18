@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
-use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 use Barryvdh\DomPDF\PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Picqer\Barcode\BarcodeGeneratorPNG;
+use Milon\Barcode\BarcodeGenerator;
+use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 
 class CheckTicketController extends Controller
 {
@@ -62,5 +64,29 @@ class CheckTicketController extends Controller
 
         // trả về file pdf tải về khi ấn tìm kiếm và có đơn đó theo mã barcode
         return response($pdf->output(), 200)->header('Content-Type', 'application/pdf');
+    }
+
+    public function checkBarcode(Request $request)
+    {
+        // Lấy mã barcode từ request
+        $barcode = $request->input('barcode');
+
+        // Kiểm tra mã barcode trong bảng history_rotations
+        $checkBarcode = DB::table('history_rotations')
+            ->select('id', 'user_id', 'vongquay_id', 'ket_qua', 'ngay_quay', 'ngay_het_han', 'code', 'trang_thai')
+            ->where('code', $barcode)
+            ->first();
+
+        // Kiểm tra kết quả
+        if (!$checkBarcode) {
+            return response()->json([
+                'message' => 'Không tìm thấy thông tin mã barcode!',
+            ], 404);
+        }
+        // Phản hồi thông tin mã barcode và hình ảnh mã vạch dưới dạng base64
+        return response()->json([
+            'message' => 'Thông tin mã barcode!',
+            'data' => $checkBarcode,
+        ]);
     }
 }

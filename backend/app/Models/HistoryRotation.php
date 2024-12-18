@@ -12,7 +12,7 @@ class HistoryRotation extends Model
     protected $table = 'history_rotations';
 
     protected $fillable = [
-        'user_id', 'vongquay_id', 'ket_qua', 'ngay_quay', 'trang_thai','ngay_het_han'
+        'user_id', 'vongquay_id', 'ket_qua', 'ngay_quay', 'trang_thai','ngay_het_han','code'
     ];
     public function user()
     {
