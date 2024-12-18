@@ -70,23 +70,35 @@ class CheckTicketController extends Controller
     {
         // Lấy mã barcode từ request
         $barcode = $request->input('barcode');
-
+    
         // Kiểm tra mã barcode trong bảng history_rotations
         $checkBarcode = DB::table('history_rotations')
             ->select('id', 'user_id', 'vongquay_id', 'ket_qua', 'ngay_quay', 'ngay_het_han', 'code', 'trang_thai')
             ->where('code', $barcode)
             ->first();
-
+    
         // Kiểm tra kết quả
         if (!$checkBarcode) {
             return response()->json([
                 'message' => 'Không tìm thấy thông tin mã barcode!',
             ], 404);
         }
-        // Phản hồi thông tin mã barcode và hình ảnh mã vạch dưới dạng base64
+    
+        if ($checkBarcode->trang_thai == 0) {
+            return response()->json([
+                'message' => 'Mã barcode này đã được sử dụng!',
+            ], 400);
+        }
+    
+        // Cập nhật trạng thái thành 0 (đã sử dụng)
+        DB::table('history_rotations')
+            ->where('id', $checkBarcode->id)
+            ->update(['trang_thai' => 0]);
+    
         return response()->json([
-            'message' => 'Thông tin mã barcode!',
+            'message' => 'Mã barcode hợp lệ và đã được áp dụng!',
             'data' => $checkBarcode,
         ]);
     }
+    
 }
