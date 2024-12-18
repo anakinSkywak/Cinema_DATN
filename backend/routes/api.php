@@ -149,6 +149,7 @@ Route::middleware('auth:api')->group(function () {
 
 // check mã barcode trả in vé cho khách vào phòng chiếu phim
 Route::get('checkBarcode-exportTicket', [CheckTicketController::class, 'checkBarcodeExportTicket']);
+Route::get('checkBarcode-rotation', [CheckTicketController::class, 'checkBarcode']);
 
 // Nhân viên
 // list phim bên trong admin phim có xuất chiếu
@@ -330,6 +331,8 @@ Route::get('coupons/{id}', [CouponsController::class, 'show']);
 Route::put('coupons/{id}', [CouponsController::class, 'update']);
 Route::delete('coupons/{id}', [CouponsController::class, 'destroy']);
 Route::get('totalCoupons', [CouponsController::class, 'totalCoupons']);
+Route::get('coupons/all', [CouponsController::class, 'getCouponNames']);
+
 
 //call api quay thuong
 Route::middleware(['auth:api'])->post('/quay-thuong', [RotationsController::class, 'quayThuong']);
